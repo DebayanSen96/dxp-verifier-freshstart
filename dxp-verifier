@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# Dexponent Verifier Client starter script
+
+# Get the directory where the script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Check if the command is provided
+if [ $# -eq 0 ]; then
+    echo "Usage: ./dxp-verifier start"
+    exit 1
+fi
+
+# Navigate to the script directory
+cd "$SCRIPT_DIR"
+
+# Build the verifier if it doesn't exist
+if [ ! -f "./bin/verifier" ]; then
+    echo "Building Dexponent verifier..."
+    mkdir -p bin
+    go build -o bin/verifier ./cmd/verifier/main.go
+    if [ $? -ne 0 ]; then
+        echo "Build failed!"
+        exit 1
+    fi
+fi
+
+# Run the verifier with the provided command
+./bin/verifier "$@"
