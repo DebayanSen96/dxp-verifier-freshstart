@@ -83,10 +83,11 @@ func (d *DHTService) findPeersRoutine() {
 		case <-ticker.C:
 			fmt.Println("Searching for peers...")
 			peers := d.host.Network().Peers()
-			fmt.Printf("Connected to %d peers\n", len(peers))
-			for _, p := range peers {
-				fmt.Printf("  Peer: %s\n", p.String())
-			}
+			fmt.Printf("Connected to %d public peers for Kademlia DHT\n", len(peers))
+			// Commented out to reduce log verbosity
+			// for _, p := range peers {
+			//     fmt.Printf("  Peer: %s\n", p.String())
+			// }
 		}
 	}
 }
