@@ -103,26 +103,33 @@ func (p *DexponentProtocol) selectLeader() (peer.ID, bool) {
 
 // StartConsensusProcess initiates the consensus process if enough peers are connected
 func (p *DexponentProtocol) StartConsensusProcess() {
+	// Use stateLock to safely check and update consensus state
+	p.stateLock.RLock()
 	// Check if we're already in an active round
 	if p.roundActive {
+		p.stateLock.RUnlock()
 		return
 	}
 	
 	// Check cooldown period with a small tolerance for clock differences
 	if time.Now().Before(p.cooldownEndTime.Add(-1 * time.Second)) {
 		// We're still in cooldown, don't start a new round yet
+		p.stateLock.RUnlock()
 		return
 	}
+	p.stateLock.RUnlock()
 	
 	// Select a leader for the next round
 	leader, isLeader := p.selectLeader()
 	
-	// Update our state regardless of whether we're the leader
+	// Update our state with write lock
+	p.stateLock.Lock()
 	p.isLeader = isLeader
 	p.currentLeader = leader
 	
 	// If we're not the leader, don't start a consensus round
 	if !isLeader {
+		p.stateLock.Unlock()
 		return
 	}
 	
@@ -131,6 +138,7 @@ func (p *DexponentProtocol) StartConsensusProcess() {
 	
 	// Generate farm returns
 	p.farmReturns = generateFarmReturns(20)
+	p.stateLock.Unlock()
 	
 	// Broadcast leader election message
 	leaderElectionPayload := LeaderElectionPayload{
@@ -287,10 +295,12 @@ func (p *DexponentProtocol) handleLeaderElection(stream network.Stream, msg Mess
 		return
 	}
 	
-	// Update our state
+	// Update our state with proper locking
+	p.stateLock.Lock()
 	p.currentRound = roundNumber
 	p.currentLeader = leaderID
 	p.isLeader = (leaderID == p.host.ID())
+	p.stateLock.Unlock()
 	
 	// Ensure we're in a clean state for this consensus round
 	if !p.isLeader {

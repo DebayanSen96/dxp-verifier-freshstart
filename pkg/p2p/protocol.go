@@ -64,6 +64,15 @@ type HandshakePayload struct {
 
 	// NodeID is a unique identifier for this node
 	NodeID string `json:"node_id"`
+
+	// CurrentRound is the current consensus round number
+	CurrentRound int64 `json:"current_round"`
+
+	// IsInCooldown indicates if the network is in a cooldown period
+	IsInCooldown bool `json:"is_in_cooldown"`
+
+	// CooldownEndTime is the Unix timestamp when the cooldown period ends
+	CooldownEndTime int64 `json:"cooldown_end_time"`
 }
 
 // DataPayload is the payload for a data message
@@ -143,6 +152,7 @@ type DexponentProtocol struct {
 	roundStartTime   time.Time
 	roundEndTime     time.Time
 	cooldownEndTime  time.Time
+	stateLock        sync.RWMutex  // Lock for consensus state synchronization
 	
 	// Farm returns and scores
 	farmReturns      []float64
@@ -237,6 +247,26 @@ func (p *DexponentProtocol) handleHandshake(stream network.Stream, msg Message) 
 			Version: payload["version"].(string),
 			NodeID:  payload["node_id"].(string),
 		}
+		
+		// Extract consensus state information if available
+		if currentRound, ok := payload["current_round"]; ok {
+			if roundNum, ok := currentRound.(float64); ok {
+				handshake.CurrentRound = int64(roundNum)
+			}
+		}
+		
+		if isInCooldown, ok := payload["is_in_cooldown"]; ok {
+			if cooldown, ok := isInCooldown.(bool); ok {
+				handshake.IsInCooldown = cooldown
+			}
+		}
+		
+		if cooldownEndTime, ok := payload["cooldown_end_time"]; ok {
+			if endTime, ok := cooldownEndTime.(float64); ok {
+				handshake.CooldownEndTime = int64(endTime)
+			}
+		}
+		
 	case HandshakePayload:
 		// Direct struct from our own code
 		handshake = payload
@@ -250,17 +280,38 @@ func (p *DexponentProtocol) handleHandshake(stream network.Stream, msg Message) 
 	fmt.Printf("✅ Received handshake from Dexponent peer %s (version: %s)\n",
 		remotePeer.String(), handshake.Version)
 
+	// Synchronize consensus state if the peer has a higher round number
+	p.stateLock.Lock()
+	if handshake.CurrentRound > p.currentRound {
+		fmt.Printf("📢 Synchronizing with peer %s: updating round from %d to %d\n", 
+			remotePeer.String(), p.currentRound, handshake.CurrentRound)
+		p.currentRound = handshake.CurrentRound
+	}
+
+	// If peer is in cooldown and has a later cooldown end time, adopt it
+	if handshake.IsInCooldown {
+		peerCooldownEnd := time.Unix(handshake.CooldownEndTime, 0)
+		if peerCooldownEnd.After(p.cooldownEndTime) {
+			fmt.Printf("⏱️ Synchronizing cooldown period with peer %s\n", remotePeer.String())
+			p.cooldownEndTime = peerCooldownEnd
+		}
+	}
+	p.stateLock.Unlock()
+
 	// Add this peer to our list of Dexponent peers
 	p.dexPeersLock.Lock()
 	p.dexPeers[remotePeer] = true
 	p.dexPeersLock.Unlock()
 
-	// Send a handshake response
+	// Send a handshake response with our current state
 	response := Message{
 		Type: MessageTypeHandshake,
 		Payload: HandshakePayload{
-			Version: "1.0.0", // Our version
-			NodeID:  p.host.ID().String(),
+			Version:         "1.0.0", // Our version
+			NodeID:          p.host.ID().String(),
+			CurrentRound:    p.currentRound,
+			IsInCooldown:    p.cooldownEndTime.After(time.Now()),
+			CooldownEndTime: p.cooldownEndTime.Unix(),
 		},
 		Timestamp: time.Now().Unix(),
 	}
@@ -494,12 +545,15 @@ func (p *DexponentProtocol) SendHandshake(peerID peer.ID) error {
 	// If we got here, we successfully created a stream with a peer that supports our protocol!
 	fmt.Printf("✅ Successfully established Dexponent protocol connection with %s\n", peerID.String())
 
-	// Create a handshake message
+	// Create a handshake message with current consensus state
 	msg := Message{
 		Type: MessageTypeHandshake,
 		Payload: HandshakePayload{
-			Version: "1.0.0", // Our version
-			NodeID:  p.host.ID().String(),
+			Version:         "1.0.0", // Our version
+			NodeID:          p.host.ID().String(),
+			CurrentRound:    p.currentRound,
+			IsInCooldown:    p.cooldownEndTime.After(time.Now()),
+			CooldownEndTime: p.cooldownEndTime.Unix(),
 		},
 		Timestamp: time.Now().Unix(),
 	}
