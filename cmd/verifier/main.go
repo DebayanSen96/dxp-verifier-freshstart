@@ -73,6 +73,9 @@ func main() {
 
 		// Start a goroutine to periodically display Dexponent peers
 		go displayDexponentPeers(protocol)
+		
+		// Start a goroutine to periodically check for consensus opportunities
+		go runConsensusProcess(protocol)
 
 		// Wait for interrupt signal
 		c := make(chan os.Signal, 1)
@@ -184,6 +187,28 @@ func displayDexponentPeers(protocol *p2p.DexponentProtocol) {
 			fmt.Printf("Connected to %d Dexponent peers:\n", len(peers))
 			for _, peerID := range peers {
 				fmt.Printf("  Dexponent Peer: %s\n", peerID.String())
+			}
+		}
+	}
+}
+
+// runConsensusProcess periodically checks if we can start a consensus round
+func runConsensusProcess(protocol *p2p.DexponentProtocol) {
+	// Wait for initial peer discovery
+	time.Sleep(10 * time.Second)
+	
+	// Check for consensus opportunities every 5 seconds
+	ticker := time.NewTicker(5 * time.Second)
+	defer ticker.Stop()
+	
+	for {
+		select {
+		case <-ticker.C:
+			// Check if we have enough peers for consensus (at least 3)
+			peers := protocol.GetDexponentPeers()
+			if len(peers) >= 2 { // At least 2 other peers (3 total including us)
+				// Try to start consensus process
+				protocol.StartConsensusProcess()
 			}
 		}
 	}

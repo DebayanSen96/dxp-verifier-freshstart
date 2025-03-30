@@ -37,6 +37,12 @@ const (
 
 	// MessageTypeData is used to share data between Dexponent peers
 	MessageTypeData MessageType = "data"
+
+	// Consensus message types
+	MessageTypeLeaderElection MessageType = "leader_election"
+	MessageTypeConsensusStart MessageType = "consensus_start"
+	MessageTypeScoreSubmission MessageType = "score_submission"
+	MessageTypeConsensusResult MessageType = "consensus_result"
 )
 
 // Message represents a message exchanged between Dexponent verifiers
@@ -72,18 +78,88 @@ type DataPayload struct {
 	SenderID string `json:"sender_id"`
 }
 
+// LeaderElectionPayload is the payload for a leader election message
+type LeaderElectionPayload struct {
+	// LeaderID is the ID of the elected leader
+	LeaderID string `json:"leader_id"`
+
+	// RoundNumber is the current consensus round number
+	RoundNumber int64 `json:"round_number"`
+}
+
+// ConsensusStartPayload is the payload for a consensus start message
+type ConsensusStartPayload struct {
+	// RoundNumber is the current consensus round number
+	RoundNumber int64 `json:"round_number"`
+
+	// FarmReturns is the array of farm returns to calculate scores for
+	FarmReturns []float64 `json:"farm_returns"`
+
+	// StartTime is when the consensus round started
+	StartTime int64 `json:"start_time"`
+
+	// EndTime is when the consensus round will end
+	EndTime int64 `json:"end_time"`
+}
+
+// ScoreSubmissionPayload is the payload for a score submission message
+type ScoreSubmissionPayload struct {
+	// RoundNumber is the consensus round this score is for
+	RoundNumber int64 `json:"round_number"`
+
+	// FarmScore is the calculated farm score
+	FarmScore float64 `json:"farm_score"`
+
+	// SubmitterID is the ID of the peer that calculated this score
+	SubmitterID string `json:"submitter_id"`
+}
+
+// ConsensusResultPayload is the payload for a consensus result message
+type ConsensusResultPayload struct {
+	// RoundNumber is the consensus round this result is for
+	RoundNumber int64 `json:"round_number"`
+
+	// FinalScore is the consensus farm score
+	FinalScore float64 `json:"final_score"`
+
+	// Participants is the list of peers that participated in this round
+	Participants []string `json:"participants"`
+
+	// NextRoundStart is when the next consensus round will start
+	NextRoundStart int64 `json:"next_round_start"`
+}
+
 // DexponentProtocol manages the Dexponent protocol
 type DexponentProtocol struct {
 	host         host.Host
 	dexPeers     map[peer.ID]bool
 	dexPeersLock sync.RWMutex
+	
+	// Consensus related fields
+	currentRound      int64
+	isLeader         bool
+	currentLeader    peer.ID
+	roundActive      bool
+	roundStartTime   time.Time
+	roundEndTime     time.Time
+	cooldownEndTime  time.Time
+	
+	// Farm returns and scores
+	farmReturns      []float64
+	scores           map[peer.ID]float64
+	scoresLock       sync.RWMutex
+	consensusResult  float64
 }
 
 // NewDexponentProtocol creates a new Dexponent protocol handler
 func NewDexponentProtocol(h host.Host) *DexponentProtocol {
 	p := &DexponentProtocol{
-		host:     h,
-		dexPeers: make(map[peer.ID]bool),
+		host:         h,
+		dexPeers:     make(map[peer.ID]bool),
+		currentRound: 0,
+		isLeader:     false,
+		roundActive:  false,
+		scores:       make(map[peer.ID]float64),
 	}
 
 	// Set the stream handler for the Dexponent protocol
@@ -132,6 +208,15 @@ func (p *DexponentProtocol) handleStream(stream network.Stream) {
 		p.handlePong(stream, msg)
 	case MessageTypeData:
 		p.handleData(stream, msg)
+	// Consensus message handlers
+	case MessageTypeLeaderElection:
+		p.handleLeaderElection(stream, msg)
+	case MessageTypeConsensusStart:
+		p.handleConsensusStart(stream, msg)
+	case MessageTypeScoreSubmission:
+		p.handleScoreSubmission(stream, msg)
+	case MessageTypeConsensusResult:
+		p.handleConsensusResult(stream, msg)
 	default:
 		fmt.Printf("Unknown message type: %s\n", msg.Type)
 		stream.Reset()
