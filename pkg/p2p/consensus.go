@@ -105,6 +105,21 @@ func (p *DexponentProtocol) selectLeader() (peer.ID, bool) {
 func (p *DexponentProtocol) StartConsensusProcess() {
 	// Use stateLock to safely check and update consensus state
 	p.stateLock.RLock()
+	
+	// Check for stalled rounds - if a round has been active for more than 30 seconds, it's likely stalled
+	if p.roundActive && time.Since(p.roundStartTime) > 30*time.Second {
+		fmt.Printf("⚠️ Detected stalled consensus round %d. Forcing reset...\n", p.currentRound)
+		p.stateLock.RUnlock()
+		
+		// Force reset the round state
+		p.stateLock.Lock()
+		p.roundActive = false
+		// Set a short cooldown to allow the system to stabilize
+		p.cooldownEndTime = time.Now().Add(5 * time.Second)
+		p.stateLock.Unlock()
+		return
+	}
+	
 	// Check if we're already in an active round
 	if p.roundActive {
 		p.stateLock.RUnlock()
@@ -193,11 +208,17 @@ func (p *DexponentProtocol) startConsensusRound() {
 
 // finalizeConsensusRound finalizes the consensus round and broadcasts results
 func (p *DexponentProtocol) finalizeConsensusRound() {
+	// Use stateLock to safely check and update consensus state
+	p.stateLock.RLock()
 	// Only the leader should finalize the round
 	if !p.isLeader || !p.roundActive {
+		p.stateLock.RUnlock()
 		return
 	}
+	p.stateLock.RUnlock()
 	
+	// Update round state with write lock
+	p.stateLock.Lock()
 	p.roundActive = false
 	// Add more buffer to the cooldown time to ensure all nodes have time to process results
 	p.cooldownEndTime = time.Now().Add(15 * time.Second)
@@ -256,6 +277,9 @@ func (p *DexponentProtocol) finalizeConsensusRound() {
 	fmt.Printf("✅ Consensus round %d complete. Final score: %.4f with %d participants\n", 
 		p.currentRound, consensusScore, len(participants))
 	p.BroadcastMessage(MessageTypeConsensusResult, resultPayload)
+	
+	// Release the stateLock that was acquired at the beginning of this function
+	p.stateLock.Unlock()
 }
 
 // handleLeaderElection processes a leader election message

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -282,6 +283,33 @@ func (p *DexponentProtocol) handleHandshake(stream network.Stream, msg Message) 
 
 	// Synchronize consensus state if the peer has a higher round number
 	p.stateLock.Lock()
+	
+	// Check if this is a reconnecting peer that might be a leader
+	peersCount := len(p.GetDexponentPeers()) + 1 // +1 for ourselves
+	
+	// If we have enough peers for consensus but consensus seems stalled
+	if peersCount >= 3 && time.Since(p.roundStartTime) > 60*time.Second && !p.roundActive {
+		// Check if this peer would be the leader for the current round
+		allPeers := append([]peer.ID{}, p.GetDexponentPeers()...)
+		allPeers = append(allPeers, p.host.ID())
+		sort.Slice(allPeers, func(i, j int) bool {
+			return allPeers[i].String() < allPeers[j].String()
+		})
+		
+		leaderIndex := p.currentRound % int64(len(allPeers))
+		potentialLeader := allPeers[leaderIndex]
+		
+		// If the reconnecting peer should be the leader, force a cooldown reset
+		if potentialLeader == remotePeer {
+			fmt.Printf("🔄 Detected reconnected leader %s for round %d. Resetting cooldown...\n", 
+				remotePeer.String(), p.currentRound)
+			
+			// Reset cooldown to allow consensus to restart
+			p.cooldownEndTime = time.Now()
+		}
+	}
+	
+	// Update round number if peer has a higher one
 	if handshake.CurrentRound > p.currentRound {
 		fmt.Printf("📢 Synchronizing with peer %s: updating round from %d to %d\n", 
 			remotePeer.String(), p.currentRound, handshake.CurrentRound)
