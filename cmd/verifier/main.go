@@ -161,13 +161,10 @@ func attemptHandshakes(host p2p.Host, protocol *p2p.DexponentProtocol) {
 					continue
 				}
 
-				// Attempt to handshake with this peer - don't log the attempt
+				// Attempt to handshake with this peer - don't log the attempt or errors
 				// Only log successful handshakes (which happens in the protocol)
-				err := protocol.SendHandshake(peerID)
-				if err != nil {
-					// Only log actual errors, not protocol negotiation failures
-					fmt.Printf("Error with peer %s: %v\n", peerID.String(), err)
-				}
+				_ = protocol.SendHandshake(peerID)
+				// Silently ignore all errors when connecting to public peers
 				// Mark as known regardless of outcome to avoid repeated attempts
 				knownPeers[peerID] = true
 			}

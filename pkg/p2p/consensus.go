@@ -77,7 +77,8 @@ func (p *DexponentProtocol) selectLeader() (peer.ID, bool) {
 	peers := p.GetDexponentPeers()
 	
 	// Add our own ID to the list
-	allPeers := append(peers, p.host.ID())
+	allPeers := append([]peer.ID{}, peers...)  // Create a copy of peers
+	allPeers = append(allPeers, p.host.ID())
 	
 	// Need at least 3 peers for consensus
 	if len(allPeers) < 3 {
@@ -89,8 +90,9 @@ func (p *DexponentProtocol) selectLeader() (peer.ID, bool) {
 		return allPeers[i].String() < allPeers[j].String()
 	})
 	
-	// Use round number to rotate leadership
-	leaderIndex := p.currentRound % int64(len(allPeers))
+	// Use next round number to rotate leadership
+	// We use currentRound + 1 because this function is called before incrementing the round
+	leaderIndex := (p.currentRound + 1) % int64(len(allPeers))
 	leader := allPeers[leaderIndex]
 	
 	// Check if we are the leader
@@ -101,23 +103,30 @@ func (p *DexponentProtocol) selectLeader() (peer.ID, bool) {
 
 // StartConsensusProcess initiates the consensus process if enough peers are connected
 func (p *DexponentProtocol) StartConsensusProcess() {
-	// Check if we're already in an active round or cooldown period
-	if p.roundActive || time.Now().Before(p.cooldownEndTime) {
+	// Check if we're already in an active round
+	if p.roundActive {
 		return
 	}
 	
-	// Select a leader
+	// Check cooldown period with a small tolerance for clock differences
+	if time.Now().Before(p.cooldownEndTime.Add(-1 * time.Second)) {
+		// We're still in cooldown, don't start a new round yet
+		return
+	}
+	
+	// Select a leader for the next round
 	leader, isLeader := p.selectLeader()
+	
+	// Update our state regardless of whether we're the leader
+	p.isLeader = isLeader
+	p.currentLeader = leader
+	
+	// If we're not the leader, don't start a consensus round
 	if !isLeader {
-		// We're not the leader, just update our state
-		p.isLeader = false
-		p.currentLeader = leader
 		return
 	}
 	
-	// We are the leader for this round
-	p.isLeader = true
-	p.currentLeader = p.host.ID()
+	// We are the leader for this round, increment the round number
 	p.currentRound++
 	
 	// Generate farm returns
@@ -141,8 +150,9 @@ func (p *DexponentProtocol) StartConsensusProcess() {
 
 // startConsensusRound starts a new consensus round
 func (p *DexponentProtocol) startConsensusRound() {
-	// Set round timing
-	startTime := time.Now()
+	// Set round timing with a small buffer to ensure all nodes have time to process
+	// the start message before beginning score calculations
+	startTime := time.Now().Add(2 * time.Second)
 	endTime := startTime.Add(15 * time.Second)
 	
 	// Update protocol state
@@ -181,7 +191,8 @@ func (p *DexponentProtocol) finalizeConsensusRound() {
 	}
 	
 	p.roundActive = false
-	p.cooldownEndTime = time.Now().Add(10 * time.Second)
+	// Add more buffer to the cooldown time to ensure all nodes have time to process results
+	p.cooldownEndTime = time.Now().Add(15 * time.Second)
 	
 	// Collect all scores
 	p.scoresLock.RLock()
@@ -281,6 +292,21 @@ func (p *DexponentProtocol) handleLeaderElection(stream network.Stream, msg Mess
 	p.currentLeader = leaderID
 	p.isLeader = (leaderID == p.host.ID())
 	
+	// Ensure we're in a clean state for this consensus round
+	if !p.isLeader {
+		// Not the leader, reset our state
+		p.roundActive = false
+		p.scores = make(map[peer.ID]float64)
+	} else {
+		// We're the leader, make sure we don't have any old data
+		p.scores = make(map[peer.ID]float64)
+		p.roundActive = true  // Mark as active since we're the leader
+	}
+	
+	// Reset cooldown since we're starting a new round
+	// This ensures nodes don't try to start a new round during the current one
+	p.cooldownEndTime = time.Now().Add(30 * time.Second)
+	
 	fmt.Printf("📢 Received leader election for round %d. Leader: %s\n", roundNumber, leaderIDStr)
 	
 	// Close the stream
@@ -296,7 +322,7 @@ func (p *DexponentProtocol) handleConsensusStart(stream network.Stream, msg Mess
 	
 	// Verify this is from the current leader
 	if remotePeer != p.currentLeader {
-		fmt.Printf("Warning: Received consensus start from non-leader peer %s\n", remotePeer.String())
+		// Silently ignore messages from non-leaders
 		stream.Reset()
 		return
 	}
@@ -410,7 +436,7 @@ func (p *DexponentProtocol) handleScoreSubmission(stream network.Stream, msg Mes
 	
 	// Verify this is for the current round
 	if roundNumber != p.currentRound {
-		fmt.Printf("Warning: Received score for wrong round %d (current: %d)\n", roundNumber, p.currentRound)
+		// Silently ignore scores for wrong rounds
 		stream.Reset()
 		return
 	}
@@ -444,7 +470,7 @@ func (p *DexponentProtocol) handleConsensusResult(stream network.Stream, msg Mes
 	
 	// Verify this is from the current leader
 	if remotePeer != p.currentLeader {
-		fmt.Printf("Warning: Received consensus result from non-leader peer %s\n", remotePeer.String())
+		// Silently ignore messages from non-leaders
 		stream.Reset()
 		return
 	}

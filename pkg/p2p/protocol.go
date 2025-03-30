@@ -280,8 +280,7 @@ func (p *DexponentProtocol) handleHandshake(stream network.Stream, msg Message) 
 
 // handlePing processes a ping message
 func (p *DexponentProtocol) handlePing(stream network.Stream, msg Message) {
-	// Log the ping
-	fmt.Printf("Received ping from %s\n", stream.Conn().RemotePeer().String())
+	// No longer logging pings to reduce console noise
 
 	// Send a pong response
 	response := Message{
@@ -305,8 +304,7 @@ func (p *DexponentProtocol) handlePing(stream network.Stream, msg Message) {
 
 // handlePong processes a pong message
 func (p *DexponentProtocol) handlePong(stream network.Stream, msg Message) {
-	// Log the pong
-	fmt.Printf("Received pong from %s\n", stream.Conn().RemotePeer().String())
+	// No longer logging pongs to reduce console noise
 
 	// Close the stream
 	if err := stream.Close(); err != nil {
@@ -379,7 +377,7 @@ func (p *DexponentProtocol) BroadcastData(key, value string) error {
 		err := p.sendMessage(peerID, msg)
 		if err != nil {
 			lastErr = err
-			fmt.Printf("Error sending data to peer %s: %v\n", peerID.String(), err)
+			// Silently record the error but don't log it
 		} else {
 			sentCount++
 		}
@@ -445,8 +443,7 @@ func (p *DexponentProtocol) sendPing(peerID peer.ID) {
 
 	stream, err := p.host.NewStream(ctx, peerID, DexponentProtocolID)
 	if err != nil {
-		fmt.Printf("Error creating stream to %s: %v\n", peerID.String(), err)
-		// Remove the peer from our list if we can't connect to it
+		// Silently remove the peer from our list if we can't connect to it
 		p.dexPeersLock.Lock()
 		delete(p.dexPeers, peerID)
 		p.dexPeersLock.Unlock()
@@ -598,9 +595,8 @@ func (p *DexponentProtocol) BroadcastMessage(msgType MessageType, payload interf
 
 	for _, peerID := range peers {
 		go func(pid peer.ID) {
-			if err := p.SendMessageToPeer(pid, msgType, payload); err != nil {
-				fmt.Printf("Error broadcasting message to %s: %v\n", pid.String(), err)
-			}
+			// Silently ignore errors when broadcasting messages
+			_ = p.SendMessageToPeer(pid, msgType, payload)
 		}(peerID)
 	}
 }
