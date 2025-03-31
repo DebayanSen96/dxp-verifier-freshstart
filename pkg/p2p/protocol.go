@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/libp2p/go-libp2p/core/host"
 	"github.com/libp2p/go-libp2p/core/network"
 	"github.com/libp2p/go-libp2p/core/peer"
@@ -160,6 +161,12 @@ type DexponentProtocol struct {
 	scores           map[peer.ID]float64
 	scoresLock       sync.RWMutex
 	consensusResult  float64
+	
+	// Ethereum client for blockchain interactions
+	ethClient        interface{
+		SubmitConsensusResult(farmId int64, score float64, participants []string) (string, error)
+		WaitForTransaction(txHash string) (*types.Receipt, error)
+	}
 }
 
 // NewDexponentProtocol creates a new Dexponent protocol handler
@@ -681,4 +688,12 @@ func (p *DexponentProtocol) BroadcastMessage(msgType MessageType, payload interf
 			_ = p.SendMessageToPeer(pid, msgType, payload)
 		}(peerID)
 	}
+}
+
+// SetEthClient sets the Ethereum client for blockchain interactions
+func (p *DexponentProtocol) SetEthClient(client interface{
+	SubmitConsensusResult(farmId int64, score float64, participants []string) (string, error)
+	WaitForTransaction(txHash string) (*types.Receipt, error)
+}) {
+	p.ethClient = client
 }
