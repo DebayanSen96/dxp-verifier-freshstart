@@ -9,6 +9,8 @@ import (
 
 	"github.com/libp2p/go-libp2p/core/network"
 	"github.com/libp2p/go-libp2p/core/peer"
+	
+	"github.com/dexponent/dxp-verifier/pkg/telemetry"
 )
 
 // generateFarmReturns generates random farm returns for testing
@@ -25,20 +27,31 @@ func generateFarmReturns(length int) []float64 {
 }
 
 // calculateFarmScore calculates a farm score based on returns
-func calculateFarmScore(returns []float64) float64 {
+func calculateFarmScore(returns []float64) (float64, *telemetry.Metrics) {
+	// Start telemetry timer
+	startTime := telemetry.StartTimer()
+	
+	// Collect initial metrics
+	metrics := telemetry.CollectMetrics()
+	
+	// Make calculation more intensive for telemetry purposes
+	calculationCount := 0
+	
 	if len(returns) == 0 {
-		return 0
+		return 0, metrics
 	}
 
 	// Calculate normalized yield (average return)
 	sum := 0.0
 	for _, r := range returns {
 		sum += r
+		calculationCount++
 	}
 	normalizedYield := sum / float64(len(returns))
 
 	// Calculate volume weight (simplified)
 	volumeWeight := math.Log10(float64(len(returns)) + 1)
+	calculationCount++
 
 	// Calculate Sortino ratio (simplified)
 	// In a real implementation, this would be more complex
@@ -46,11 +59,13 @@ func calculateFarmScore(returns []float64) float64 {
 	for _, r := range returns {
 		if r < 0 {
 			downside += r * r
+			calculationCount++
 		}
 	}
 	sortinoRatio := 1.0
 	if downside > 0 {
 		sortinoRatio = normalizedYield / math.Sqrt(downside/float64(len(returns)))
+		calculationCount++
 	}
 
 	// Calculate consistency factor
@@ -59,17 +74,69 @@ func calculateFarmScore(returns []float64) float64 {
 		var variance float64
 		for _, r := range returns {
 			variance += math.Pow(r-normalizedYield, 2)
+			calculationCount++
 		}
 		variance /= float64(len(returns))
 		// Higher consistency (lower variance) gives higher factor
 		consistencyFactor = 1.0 / (1.0 + variance)
+		calculationCount++
 	}
 
-	// Calculate final score
+	// Add more intensive calculations for telemetry demonstration
+	// Calculate additional statistical measures
+	var median float64
+	sortedReturns := make([]float64, len(returns))
+	copy(sortedReturns, returns)
+	sort.Float64s(sortedReturns)
+	calculationCount += len(returns)
+	
+	if len(sortedReturns) % 2 == 0 {
+		median = (sortedReturns[len(sortedReturns)/2-1] + sortedReturns[len(sortedReturns)/2]) / 2
+	} else {
+		median = sortedReturns[len(sortedReturns)/2]
+	}
+	
+	// Calculate standard deviation
+	var sumSquaredDiff float64
+	for _, r := range returns {
+		sumSquaredDiff += math.Pow(r-normalizedYield, 2)
+		calculationCount++
+	}
+	stdDev := math.Sqrt(sumSquaredDiff / float64(len(returns)))
+	
+	// Calculate skewness
+	var sumCubedDiff float64
+	for _, r := range returns {
+		sumCubedDiff += math.Pow(r-normalizedYield, 3)
+		calculationCount++
+	}
+	skewness := sumCubedDiff / (float64(len(returns)) * math.Pow(stdDev, 3))
+	
+	// Calculate kurtosis
+	var sumQuarticDiff float64
+	for _, r := range returns {
+		sumQuarticDiff += math.Pow(r-normalizedYield, 4)
+		calculationCount++
+	}
+	kurtosis := sumQuarticDiff / (float64(len(returns)) * math.Pow(stdDev, 4))
+	
+	// Calculate final score with additional factors
 	farmScore := (normalizedYield * volumeWeight) * sortinoRatio * consistencyFactor
+	
+	// Adjust score with additional statistics
+	adjustmentFactor := (1 + math.Abs(median-normalizedYield)) * (1 + stdDev/10) * (1 + math.Abs(skewness)/100) * (1 + math.Abs(kurtosis-3)/1000)
+	farmScore *= adjustmentFactor
+	calculationCount += 4
 
 	// Round to 4 decimal places
-	return math.Round(farmScore*10000) / 10000
+	farmScore = math.Round(farmScore*10000) / 10000
+
+	// Update metrics
+	metrics.ProcessingTime = telemetry.StopTimer(startTime)
+	metrics.CalculationCount = calculationCount
+	metrics.DataSize = len(returns)
+	
+	return farmScore, metrics
 }
 
 // selectLeader deterministically selects a leader from the list of peers
@@ -152,7 +219,7 @@ func (p *DexponentProtocol) StartConsensusProcess() {
 	p.currentRound++
 	
 	// Generate farm returns
-	p.farmReturns = generateFarmReturns(20)
+	p.farmReturns = generateFarmReturns(100)
 	p.stateLock.Unlock()
 	
 	// Broadcast leader election message
@@ -185,7 +252,17 @@ func (p *DexponentProtocol) startConsensusRound() {
 	p.scoresLock.Lock()
 	p.scores = make(map[peer.ID]float64)
 	// Add our own score
-	p.scores[p.host.ID()] = calculateFarmScore(p.farmReturns)
+	farmScore, metrics := calculateFarmScore(p.farmReturns)
+	p.scores[p.host.ID()] = farmScore
+	
+	// Log telemetry data
+	fmt.Printf("📊 Farm score calculated: %.4f, Telemetry data: {processing time: %dms, calculations: %d, data size: %d, memory: %d bytes}\n", 
+		farmScore, 
+		metrics.ProcessingTime,
+		metrics.CalculationCount,
+		metrics.DataSize,
+		metrics.MemoryUsage)
+	
 	p.scoresLock.Unlock()
 	
 	// Create consensus start payload
@@ -276,6 +353,10 @@ func (p *DexponentProtocol) finalizeConsensusRound() {
 	// Broadcast consensus result
 	fmt.Printf("✅ Consensus round %d complete. Final score: %.4f with %d participants\n", 
 		p.currentRound, consensusScore, len(participants))
+	fmt.Printf("⏱️ Next consensus round will start after %s\n", 
+		time.Unix(int64(p.cooldownEndTime.Unix()), 0).Format(time.RFC3339))
+	
+	// Broadcast the result to all peers
 	p.BroadcastMessage(MessageTypeConsensusResult, resultPayload)
 	
 	// Release the stateLock that was acquired at the beginning of this function
@@ -420,15 +501,37 @@ func (p *DexponentProtocol) handleConsensusStart(stream network.Stream, msg Mess
 	
 	fmt.Printf("🔄 Received consensus start for round %d. Calculating farm score...\n", roundNumber)
 	
-	// Calculate our farm score
-	farmScore := calculateFarmScore(farmReturns)
+	// Make farm returns array larger for more intensive calculation
+	if len(farmReturns) < 100 {
+		// Expand the array by duplicating and adding noise
+		originalLength := len(farmReturns)
+		for i := 0; i < 4; i++ { // Multiply size by 5
+			for j := 0; j < originalLength; j++ {
+				// Add some noise to the duplicated values
+				noise := (rand.Float64() - 0.5) * 0.1 // +/- 5% noise
+				farmReturns = append(farmReturns, farmReturns[j] + noise)
+			}
+		}
+	}
 	
-	// Create score submission payload
+	// Calculate our farm score with telemetry
+	farmScore, metrics := calculateFarmScore(farmReturns)
+	
+	// Create score submission payload with telemetry
 	scorePayload := ScoreSubmissionPayload{
 		RoundNumber: roundNumber,
 		FarmScore:   farmScore,
 		SubmitterID: p.host.ID().String(),
+		Telemetry:   metrics,
 	}
+	
+	// Log telemetry data
+	fmt.Printf("📊 Farm score calculated: %.4f, Telemetry data: {processing time: %dms, calculations: %d, data size: %d, memory: %d bytes}\n", 
+		farmScore, 
+		metrics.ProcessingTime,
+		metrics.CalculationCount,
+		metrics.DataSize,
+		metrics.MemoryUsage)
 	
 	// Send our score to the leader
 	fmt.Printf("📊 Submitting farm score %.4f to leader for round %d\n", farmScore, roundNumber)
@@ -482,6 +585,34 @@ func (p *DexponentProtocol) handleScoreSubmission(stream network.Stream, msg Mes
 		return
 	}
 	
+	// Extract telemetry data
+	var metrics *telemetry.Metrics
+	telemetryData, ok := payload["telemetry"].(map[string]interface{})
+	if ok && telemetryData != nil {
+		// Parse telemetry data from JSON
+		metrics = &telemetry.Metrics{}
+		
+		// Extract processing time
+		if procTime, ok := telemetryData["processing_time"].(float64); ok {
+			metrics.ProcessingTime = int64(procTime)
+		}
+		
+		// Extract calculation count
+		if calcCount, ok := telemetryData["calculation_count"].(float64); ok {
+			metrics.CalculationCount = int(calcCount)
+		}
+		
+		// Extract data size
+		if dataSize, ok := telemetryData["data_size"].(float64); ok {
+			metrics.DataSize = int(dataSize)
+		}
+		
+		// Extract memory usage
+		if memUsage, ok := telemetryData["memory_usage"].(float64); ok {
+			metrics.MemoryUsage = uint64(memUsage)
+		}
+	}
+	
 	// Add the score to our collection
 	p.scoresLock.Lock()
 	p.scores[remotePeer] = farmScoreFloat
@@ -491,6 +622,14 @@ func (p *DexponentProtocol) handleScoreSubmission(stream network.Stream, msg Mes
 	fmt.Printf("📥 Received farm score %.4f from %s for round %d (%d/%d scores)\n", 
 		farmScoreFloat, remotePeer.String(), roundNumber, scoreCount, len(p.GetDexponentPeers())+1)
 	
+	if metrics != nil {
+		fmt.Printf("   Telemetry: {processing time: %dms, calculations: %d, data size: %d, memory: %d bytes}\n",
+			metrics.ProcessingTime,
+			metrics.CalculationCount,
+			metrics.DataSize,
+			metrics.MemoryUsage)
+	}
+
 	// Close the stream
 	if err := stream.Close(); err != nil {
 		fmt.Printf("Error closing stream: %v\n", err)

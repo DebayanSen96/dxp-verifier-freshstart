@@ -14,6 +14,8 @@ import (
 	"github.com/libp2p/go-libp2p/core/network"
 	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/libp2p/go-libp2p/core/protocol"
+	
+	"github.com/dexponent/dxp-verifier/pkg/telemetry"
 )
 
 const (
@@ -123,6 +125,9 @@ type ScoreSubmissionPayload struct {
 
 	// SubmitterID is the ID of the peer that calculated this score
 	SubmitterID string `json:"submitter_id"`
+
+	// Telemetry contains performance metrics from the calculation
+	Telemetry *telemetry.Metrics `json:"telemetry"`
 }
 
 // ConsensusResultPayload is the payload for a consensus result message
