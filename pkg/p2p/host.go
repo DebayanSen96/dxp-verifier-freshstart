@@ -4,12 +4,12 @@ import (
 	"context"
 	"crypto/rand"
 	"fmt"
-	"strings"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/libp2p/go-libp2p"
-	coreconnmgr "github.com/libp2p/go-libp2p/core/connmgr"
+	"github.com/libp2p/go-libp2p/core/connmgr"
 	"github.com/libp2p/go-libp2p/core/crypto"
 	"github.com/libp2p/go-libp2p/core/event"
 	"github.com/libp2p/go-libp2p/core/host"
@@ -17,27 +17,28 @@ import (
 	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/libp2p/go-libp2p/core/peerstore"
 	"github.com/libp2p/go-libp2p/core/protocol"
-	connmgr "github.com/libp2p/go-libp2p/p2p/net/connmgr"
+	libp2pconnmgr "github.com/libp2p/go-libp2p/p2p/net/connmgr"
 	"github.com/libp2p/go-libp2p/p2p/security/noise"
 	tls "github.com/libp2p/go-libp2p/p2p/security/tls"
-	"github.com/libp2p/go-libp2p/p2p/transport/tcp"
 	quic "github.com/libp2p/go-libp2p/p2p/transport/quic"
+	"github.com/libp2p/go-libp2p/p2p/transport/tcp"
 	"github.com/multiformats/go-multiaddr"
 	manet "github.com/multiformats/go-multiaddr/net"
 )
 
 // P2PHost wraps a libp2p host with context management and status reporting
 type P2PHost struct {
-	host       host.Host
-	ctx        context.Context
-	cancel     context.CancelFunc
-	statusChan chan HostStatus
+	host        host.Host
+	ctx         context.Context
+	cancel      context.CancelFunc
+	statusChan  chan HostStatus
 	mappedPorts []int // Track mapped ports for logging
 }
 
 // HostStatus reports the current NAT and connectivity status
 type HostStatus struct {
 	ExternalAddrs []multiaddr.Multiaddr
+	NATStatus     string
 	Error         error
 }
 
@@ -82,7 +83,7 @@ func (ph *P2PHost) NewStream(ctx context.Context, p peer.ID, pids ...protocol.ID
 	return ph.host.NewStream(ctx, p, pids...)
 }
 
-func (ph *P2PHost) ConnManager() coreconnmgr.ConnManager {
+func (ph *P2PHost) ConnManager() connmgr.ConnManager {
 	return ph.host.ConnManager()
 }
 
@@ -90,59 +91,55 @@ func (ph *P2PHost) EventBus() event.Bus {
 	return ph.host.EventBus()
 }
 
-// NewHost creates a new libp2p host with enhanced NAT traversal and transport options
+// NewHost creates a new libp2p host with the Dexponent configuration
 func NewHost() (*P2PHost, error) {
-	ctx, cancel := context.WithCancel(context.Background())
-
 	// Generate a key pair for this host
 	priv, _, err := crypto.GenerateKeyPairWithReader(crypto.Ed25519, -1, rand.Reader)
 	if err != nil {
-		cancel()
 		return nil, fmt.Errorf("failed to generate key pair: %w", err)
 	}
 
-	// Create a multiaddress for the host to listen on
-	listenAddr, err := multiaddr.NewMultiaddr("/ip4/0.0.0.0/tcp/0")
-	if err != nil {
-		cancel()
-		return nil, fmt.Errorf("failed to create multiaddress: %w", err)
-	}
-
 	// Create a connection manager with tuned parameters
-	connManager, err := connmgr.NewConnManager(
-		100,                                // Low watermark
-		400,                                // High watermark
-		connmgr.WithGracePeriod(5*time.Minute), // Grace period for trimming
+	connManager, err := libp2pconnmgr.NewConnManager(
+		100, // Low watermark
+		400, // High watermark
+		libp2pconnmgr.WithGracePeriod(5*time.Minute), // Grace period for trimming
 	)
 	if err != nil {
-		cancel()
 		return nil, fmt.Errorf("failed to create connection manager: %w", err)
 	}
 
+	// Create a context for the host
+	ctx, cancel := context.WithCancel(context.Background())
+
 	// Create a libp2p host with enhanced features
 	h, err := libp2p.New(
-		libp2p.ListenAddrs(listenAddr),
+		libp2p.ListenAddrs(
+			multiaddr.StringCast("/ip4/0.0.0.0/tcp/0"),
+			multiaddr.StringCast("/ip6/::/tcp/0"),
+			multiaddr.StringCast("/ip4/0.0.0.0/udp/0/quic-v1"),
+			multiaddr.StringCast("/ip6/::/udp/0/quic-v1"),
+		),
 		libp2p.Identity(priv),
 		libp2p.Security(noise.ID, noise.New),  // Primary security protocol
 		libp2p.Security(tls.ID, tls.New),      // Fallback for interoperability
 		libp2p.Transport(tcp.NewTCPTransport), // TCP transport
 		libp2p.Transport(quic.NewTransport),   // QUIC transport for UDP-based connectivity
-		libp2p.NATPortMap(),                   // UPnP/NAT-PMP for port mapping
-		libp2p.EnableNATService(),             // NAT discovery service
-		libp2p.EnableHolePunching(),          // Enable UDP hole punching
+		libp2p.EnableNATService(),             // Enable NAT service for detection
+		libp2p.EnableHolePunching(),           // Enable UDP hole punching
 		libp2p.ConnectionManager(connManager),
 		libp2p.Ping(true), // Enable ping for detecting dead connections
 	)
 	if err != nil {
 		cancel()
-		return nil, fmt.Errorf("failed to create host: %w", err)
+		return nil, fmt.Errorf("failed to create libp2p host: %w", err)
 	}
 
 	ph := &P2PHost{
-		host:       h,
-		ctx:        ctx,
-		cancel:     cancel,
-		statusChan: make(chan HostStatus, 10),
+		host:        h,
+		ctx:         ctx,
+		cancel:      cancel,
+		statusChan:  make(chan HostStatus, 10),
 		mappedPorts: make([]int, 0),
 	}
 
@@ -152,14 +149,26 @@ func NewHost() (*P2PHost, error) {
 	// Start NAT status monitoring
 	go ph.monitorNATStatus()
 
-	// Set a custom protocol handler for validator communication
-	h.SetStreamHandler("/dexponent/validator/1.0.0", func(s network.Stream) {
-		// Placeholder for validator-specific logic (e.g., process consensus messages)
-		fmt.Printf("Received validator stream from %s\n", s.Conn().RemotePeer())
+	// Set up stream handlers
+	h.SetStreamHandler(protocol.ID("/p2p/id/1.0.0"), func(s network.Stream) {
+		// Just close the stream - we're only interested in the connection event
 		s.Close()
 	})
 
 	return ph, nil
+}
+
+// AddPeerToAddressBook adds a peer to the address book with the given address
+func (ph *P2PHost) AddPeerToAddressBook(peerID peer.ID, addr multiaddr.Multiaddr) error {
+	// Parse the multiaddress into a peer.AddrInfo
+	addrInfo, err := peer.AddrInfoFromP2pAddr(addr)
+	if err != nil {
+		return fmt.Errorf("failed to parse peer address: %w", err)
+	}
+
+	// Add the address to the peerstore with a reasonable TTL
+	ph.host.Peerstore().AddAddrs(peerID, addrInfo.Addrs, peerstore.PermanentAddrTTL)
+	return nil
 }
 
 // setupPersistentNATMapping attempts to create persistent NAT port mappings
@@ -167,7 +176,7 @@ func NewHost() (*P2PHost, error) {
 func (ph *P2PHost) setupPersistentNATMapping(ctx context.Context) {
 	// Wait a moment for the host to initialize
 	time.Sleep(1 * time.Second)
-	
+
 	// Get all listen addresses
 	for _, addr := range ph.host.Network().ListenAddresses() {
 		// Extract port information
@@ -175,24 +184,24 @@ func (ph *P2PHost) setupPersistentNATMapping(ctx context.Context) {
 		if err != nil {
 			continue
 		}
-		
+
 		// Try multiple times with increasing timeout
 		for i := 0; i < 5; i++ {
 			// Use the built-in NAT manager from libp2p
 			// This is already configured with NATPortMap() option
 			time.Sleep(2 * time.Second)
-			
+
 			// Check if we have external addresses after waiting
 			addrs := ph.host.Addrs()
 			externalAddrs := filterExternalAddrs(addrs)
-			
+
 			if len(externalAddrs) > 0 {
 				// Found external addresses, port mapping successful
 				ph.mappedPorts = append(ph.mappedPorts, port)
 				fmt.Printf("✅ Successfully mapped port %d after attempt %d\n", port, i+1)
 				break
 			}
-			
+
 			// If this is the last attempt, log failure
 			if i == 4 {
 				fmt.Printf("⚠️ Failed to map port %d after multiple attempts\n", port)
@@ -206,7 +215,7 @@ func extractPortFromMultiaddr(addr multiaddr.Multiaddr) (int, error) {
 	// Convert to string and parse
 	addrStr := addr.String()
 	parts := strings.Split(addrStr, "/")
-	
+
 	// Look for tcp or udp component followed by port
 	for i, part := range parts {
 		if (part == "tcp" || part == "udp") && i+1 < len(parts) {
@@ -214,7 +223,7 @@ func extractPortFromMultiaddr(addr multiaddr.Multiaddr) (int, error) {
 			return port, err
 		}
 	}
-	
+
 	return 0, fmt.Errorf("no port found in multiaddress")
 }
 
@@ -222,10 +231,10 @@ func extractPortFromMultiaddr(addr multiaddr.Multiaddr) (int, error) {
 func (ph *P2PHost) Close() error {
 	// Cancel context to stop all goroutines
 	ph.cancel()
-	
+
 	// Close status channel
 	close(ph.statusChan)
-	
+
 	// Close the host - this will also close NAT mappings
 	return ph.host.Close()
 }
@@ -243,30 +252,36 @@ func (ph *P2PHost) monitorNATStatus() {
 	// Wait a bit for NAT detection to complete
 	time.Sleep(5 * time.Second)
 
-	// Check for NAT type using autonat service
+	// Get NAT status by checking for external addresses
 	addrs := ph.host.Addrs()
 	externalAddrs := filterExternalAddrs(addrs)
-	
-	// Try to determine NAT type based on behavior
-	if len(addrs) > 0 {
-		if len(externalAddrs) == 0 {
-			// No external addresses suggests restrictive NAT
-			fmt.Printf("⚠️ Warning: Restrictive NAT detected (likely symmetric NAT)\n")
-			
-			// Try more aggressive NAT traversal
-			go ph.attemptAdditionalNATTraversal()
-		} else {
-			// We have external addresses, likely a cone NAT
-			fmt.Printf("ℹ️ NAT type: Cone NAT (allows inbound connections via port mapping)\n")
-			fmt.Printf("ℹ️ External addresses detected:\n")
-			for _, addr := range externalAddrs {
-				fmt.Printf("  %s/p2p/%s\n", addr, ph.ID().String())
+
+	// Determine NAT status based on external addresses
+	if len(externalAddrs) > 0 {
+		fmt.Printf("✅ Public connectivity detected (properly mapped ports)\n")
+		fmt.Printf("ℹ️ External addresses detected:\n")
+		
+		// Use a map to track addresses we've already printed to avoid duplicates
+		printedAddrs := make(map[string]bool)
+		
+		for _, addr := range externalAddrs {
+			addrStr := fmt.Sprintf("  %s/p2p/%s", addr, ph.ID().String())
+			if !printedAddrs[addrStr] {
+				fmt.Println(addrStr)
+				printedAddrs[addrStr] = true
 			}
 		}
 	} else {
-		fmt.Printf("⚠️ Warning: Unable to determine NAT status\n")
+		fmt.Printf("⚠️ Warning: No external addresses detected, likely behind restrictive NAT\n")
+		go ph.attemptAdditionalNATTraversal()
 	}
 
+	// Track whether we've found external addresses
+	hasExternalAddrs := len(externalAddrs) > 0
+	
+	// Keep track of consecutive status checks with no external addresses
+	consecutiveFailures := 0
+	
 	// Periodically check and report status
 	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()
@@ -277,15 +292,57 @@ func (ph *P2PHost) monitorNATStatus() {
 			// Get external addresses
 			externalAddrs := filterExternalAddrs(ph.host.Addrs())
 			
+			// Check if external address status has changed
+			currentHasExternal := len(externalAddrs) > 0
+			
+			// Only report status changes after confirming the change is persistent
+			// This prevents flapping between states due to temporary network issues
+			if currentHasExternal {
+				// Reset failure counter when we have external addresses
+				consecutiveFailures = 0
+				
+				if !hasExternalAddrs {
+					// Status changed from no external to having external
+					fmt.Printf("✅ External connectivity established\n")
+					fmt.Printf("ℹ️ External addresses detected:\n")
+					
+					// Use a map to track addresses we've already printed to avoid duplicates
+					printedAddrs := make(map[string]bool)
+					
+					for _, addr := range externalAddrs {
+						addrStr := fmt.Sprintf("  %s/p2p/%s", addr, ph.ID().String())
+						if !printedAddrs[addrStr] {
+							fmt.Println(addrStr)
+							printedAddrs[addrStr] = true
+						}
+					}
+					
+					// Update tracking
+					hasExternalAddrs = true
+				}
+			} else {
+				// Increment failure counter when we don't have external addresses
+				consecutiveFailures++
+				
+				// Only report lost connectivity after 2 consecutive checks (60 seconds)
+				// to avoid false alarms due to temporary network issues
+				if hasExternalAddrs && consecutiveFailures >= 2 {
+					fmt.Println("⚠️ Warning: External connectivity lost. Using relays.")
+					hasExternalAddrs = false
+				}
+			}
+			
+			// Determine NAT status string for reporting
+			natStatusStr := "private"
+			if currentHasExternal {
+				natStatusStr = "public"
+			}
+			
 			// Report status
 			ph.statusChan <- HostStatus{
 				ExternalAddrs: externalAddrs,
+				NATStatus:     natStatusStr,
 				Error:         nil,
-			}
-			
-			// Log if no external addresses
-			if len(externalAddrs) == 0 {
-				fmt.Println("No external addresses detected. Using relays.")
 			}
 		case <-ph.ctx.Done():
 			return
@@ -302,31 +359,31 @@ func (ph *P2PHost) attemptAdditionalNATTraversal() {
 		if err != nil {
 			continue
 		}
-		
+
 		// Try to listen on this address
 		if err := ph.host.Network().Listen(addr); err != nil {
 			continue
 		}
-		
+
 		fmt.Printf("✅ Successfully listening on alternative port %d\n", port)
-		
+
 		// Wait to see if we get external addresses
 		time.Sleep(5 * time.Second)
-		
+
 		// Check if we have external addresses
 		addrs := ph.host.Addrs()
 		externalAddrs := filterExternalAddrs(addrs)
-		
+
 		if len(externalAddrs) > 0 {
 			fmt.Printf("✅ Successfully obtained external address with alternative port %d\n", port)
 			ph.mappedPorts = append(ph.mappedPorts, port)
-			
+
 			// Display the external addresses
 			fmt.Printf("ℹ️ External addresses detected:\n")
 			for _, addr := range externalAddrs {
 				fmt.Printf("  %s/p2p/%s\n", addr, ph.ID().String())
 			}
-			
+
 			return
 		}
 	}
@@ -336,13 +393,41 @@ func (ph *P2PHost) attemptAdditionalNATTraversal() {
 func (ph *P2PHost) logInitialNATStatus() {
 	addrs := ph.host.Addrs()
 	externalAddrs := filterExternalAddrs(addrs)
-	ph.statusChan <- HostStatus{ExternalAddrs: externalAddrs}
+	
+	// Determine NAT status
+	natStatus := "private"
 	if len(externalAddrs) > 0 {
-		fmt.Println("External addresses detected:")
-		for _, addr := range externalAddrs {
-			fmt.Printf("  %s/p2p/%s\n", addr, ph.ID().String())
+		natStatus = "public"
+	}
+	
+	// Report status to the channel
+	ph.statusChan <- HostStatus{
+		ExternalAddrs: externalAddrs,
+		NATStatus:     natStatus,
+		Error:         nil,
+	}
+	
+	// Only log the addresses in the initial startup message
+	// The detailed external address logging will happen in monitorNATStatus
+	// after a short delay to allow for NAT traversal
+	fmt.Printf("Listening addresses:\n")
+	
+	// Use a map to track addresses we've already printed to avoid duplicates
+	printedAddrs := make(map[string]bool)
+	
+	for _, addr := range ph.host.Addrs() {
+		// Only show local addresses in initial startup
+		if isLocalAddress(addr) {
+			addrStr := fmt.Sprintf("  %s/p2p/%s", addr, ph.ID().String())
+			if !printedAddrs[addrStr] {
+				fmt.Println(addrStr)
+				printedAddrs[addrStr] = true
+			}
 		}
-	} else {
+	}
+	
+	// Initial message about external addresses
+	if len(externalAddrs) == 0 {
 		fmt.Println("No external addresses detected. Using relays.")
 	}
 }
@@ -406,10 +491,9 @@ func isLocalAddress(addr multiaddr.Multiaddr) bool {
 			return true
 		}
 		// fe80::/10 (link-local addresses)
-		if ip[0] == 0xfe && (ip[1] & 0xc0) == 0x80 {
+		if ip[0] == 0xfe && (ip[1]&0xc0) == 0x80 {
 			return true
 		}
 	}
-
 	return false
 }
