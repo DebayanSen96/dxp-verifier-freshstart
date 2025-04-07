@@ -1,0 +1,9 @@
+{
+  "ListenPort": 4001,
+  "BootstrapPeers": [],
+  "EthRPCURL": "http://localhost:8545",
+  "ContractAddress": "0x0000000000000000000000000000000000000000",
+  "PrivateKeyHex": "0x0000000000000000000000000000000000000000000000000000000000000000",
+  "LogLevel": "debug",
+  "Debug": true
+}

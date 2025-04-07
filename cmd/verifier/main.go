@@ -416,21 +416,54 @@ func attemptHandshakes(host p2p.Host, protocol *p2p.DexponentProtocol) {
 	}
 }
 
-// displayDexponentPeers periodically displays the list of Dexponent peers
+// displayDexponentPeers periodically checks for peer changes and displays the list only when changes occur
 func displayDexponentPeers(protocol *p2p.DexponentProtocol) {
-	ticker := time.NewTicker(30 * time.Second)
+	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
 
+	// Track previous peer list for comparison
+	var previousPeers []peer.ID
+	
 	for {
 		select {
 		case <-ticker.C:
-			peers := protocol.GetDexponentPeers()
-			fmt.Printf("Connected to %d Dexponent peers:\n", len(peers))
-			for _, peerID := range peers {
-				fmt.Printf("  Dexponent Peer: %s\n", peerID.String())
+			currentPeers := protocol.GetDexponentPeers()
+			
+			// Check if the peer list has changed
+			if peersChanged(previousPeers, currentPeers) {
+				fmt.Printf("Connected to %d Dexponent peers:\n", len(currentPeers))
+				for _, peerID := range currentPeers {
+					fmt.Printf("  Dexponent Peer: %s\n", peerID.String())
+				}
+				
+				// Update previous peers
+				previousPeers = make([]peer.ID, len(currentPeers))
+				copy(previousPeers, currentPeers)
 			}
 		}
 	}
+}
+
+// peersChanged checks if the peer lists are different
+func peersChanged(previous, current []peer.ID) bool {
+	if len(previous) != len(current) {
+		return true
+	}
+	
+	// Create maps for faster lookup
+	prevMap := make(map[string]bool)
+	for _, p := range previous {
+		prevMap[p.String()] = true
+	}
+	
+	// Check if any current peer is not in the previous list
+	for _, p := range current {
+		if !prevMap[p.String()] {
+			return true
+		}
+	}
+	
+	return false
 }
 
 // runConsensusProcess periodically checks if we can start a consensus round
