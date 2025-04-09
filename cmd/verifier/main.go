@@ -23,11 +23,14 @@ func printUsage() {
 	fmt.Println("    --block-polling-interval N  Set block polling interval in seconds (default: 10)")
 	fmt.Println("    --detached                  Run in detached mode")
 	fmt.Println("  register          Register as a verifier with the DXP contract")
+	fmt.Println("    --amount N        Amount of DXP tokens to stake (required)")
 	fmt.Println("  status            Check validator status")
 	fmt.Println("  stop              Stop a running validator")
 	fmt.Println("  rewards           Check pending rewards")
 	fmt.Println("  claim             Claim accumulated rewards")
 	fmt.Println("  send <key> <value>  Send data to all connected Dexponent peers")
+	fmt.Println("  withdraw          Withdraw verifier stake")
+	fmt.Println("    --amount N        Amount of stake to withdraw")
 }
 
 func main() {
@@ -45,18 +48,22 @@ func main() {
 	startCmd := flag.NewFlagSet("start", flag.ExitOnError)
 	blockPollingInterval := startCmd.Int("block-polling-interval", 10, "Interval in seconds for polling new blocks")
 	detached := startCmd.Bool("detached", false, "Run in detached mode")
-	
+
 	// Parse flags for other commands
 	statusCmd := flag.NewFlagSet("status", flag.ExitOnError)
-	stopCmd := flag.NewFlagSet("stop", flag.ExitOnError)
 	rewardsCmd := flag.NewFlagSet("rewards", flag.ExitOnError)
 	claimCmd := flag.NewFlagSet("claim", flag.ExitOnError)
-	
+	stopCmd := flag.NewFlagSet("stop", flag.ExitOnError)
+	registerCmd := flag.NewFlagSet("register", flag.ExitOnError)
+	registerAmount := registerCmd.Int("amount", 0, "Amount of DXP tokens to stake (required)")
+	withdrawCmd := flag.NewFlagSet("withdraw", flag.ExitOnError)
+	withdrawAmount := withdrawCmd.Int("amount", 0, "Amount of stake to withdraw")
+
 	switch cmd {
 	case "start":
 		// Parse start command flags
 		startCmd.Parse(os.Args[2:])
-		
+
 		fmt.Println("Starting Dexponent verifier...")
 		host, err := p2p.NewHost()
 		if err != nil {
@@ -65,10 +72,7 @@ func main() {
 		}
 
 		fmt.Printf("Peer ID: %s\n", host.ID().String())
-		fmt.Println("Listening addresses:")
-		for _, addr := range host.Addrs() {
-			fmt.Printf("  %s/p2p/%s\n", addr, host.ID().String())
-		}
+		// Removed duplicate address printing - this is now handled by the P2PHost
 
 		// Initialize Ethereum client
 		ethClient, err := eth.NewClient()
@@ -80,7 +84,7 @@ func main() {
 		// Initialize the Dexponent protocol
 		fmt.Println("Initializing Dexponent protocol...")
 		protocol := p2p.NewDexponentProtocol(host)
-		
+
 		// Set Ethereum client if available
 		if ethClient != nil {
 			// Perform blockchain connection check
@@ -89,9 +93,9 @@ func main() {
 				fmt.Printf("⚠️ Warning: Failed to connect to blockchain: %v\n", err)
 			} else {
 				fmt.Printf("✅ Successfully connected to blockchain. Current block: %d\n", currentBlock)
-				
+
 				// Check DXP balance
-				dxpBalance, err := ethClient.GetDXPBalance()
+				dxpBalance, err := ethClient.GetDXPBalance(ethClient.GetWalletAddress())
 				if err != nil {
 					fmt.Printf("⚠️ Warning: Failed to check DXP balance: %v\n", err)
 				} else {
@@ -99,7 +103,7 @@ func main() {
 					dxpBalanceFloat := new(big.Float).SetInt(dxpBalance)
 					dxpBalanceFloat = dxpBalanceFloat.Quo(dxpBalanceFloat, big.NewFloat(1e18))
 					dxpBalanceStr := dxpBalanceFloat.Text('f', 4)
-					
+
 					// Check if balance is less than minimum stake (100 DXP)
 					minStake := new(big.Int).Mul(big.NewInt(100), big.NewInt(1000000000000000000))
 					if dxpBalance.Cmp(minStake) < 0 {
@@ -107,9 +111,9 @@ func main() {
 					} else {
 						fmt.Printf("✅ DXP balance: %s DXP\n", dxpBalanceStr)
 					}
-					
+
 					// Check DXP allowance
-					dxpAllowance, err := ethClient.GetDXPAllowance()
+					dxpAllowance, err := ethClient.GetDXPAllowance(ethClient.GetWalletAddress(), ethClient.GetContractAddress())
 					if err != nil {
 						fmt.Printf("⚠️ Warning: Failed to check DXP allowance: %v\n", err)
 					} else {
@@ -117,7 +121,7 @@ func main() {
 						allowanceFloat := new(big.Float).SetInt(dxpAllowance)
 						allowanceFloat = allowanceFloat.Quo(allowanceFloat, big.NewFloat(1e18))
 						allowanceStr := allowanceFloat.Text('f', 4)
-						
+
 						// Check if allowance is less than minimum stake (100 DXP)
 						if dxpAllowance.Cmp(minStake) < 0 {
 							fmt.Printf("⚠️ Warning: DXP allowance (%s DXP) is less than minimum stake amount (100 DXP)\n", allowanceStr)
@@ -127,16 +131,16 @@ func main() {
 					}
 				}
 			}
-			
+
 			protocol.SetEthClient(ethClient)
 		}
-		
+
 		// Configure block polling interval if specified
 		if *blockPollingInterval > 0 {
 			fmt.Printf("Setting block polling interval to %d seconds\n", *blockPollingInterval)
 			// TODO: Implement block polling logic
 		}
-		
+
 		// Check if running in detached mode
 		if *detached {
 			fmt.Println("Running in detached mode")
@@ -173,7 +177,7 @@ func main() {
 
 		// Start a goroutine to periodically display Dexponent peers
 		go displayDexponentPeers(protocol)
-		
+
 		// Start a goroutine to periodically check for consensus opportunities
 		go runConsensusProcess(protocol)
 
@@ -186,34 +190,99 @@ func main() {
 	case "status":
 		// Parse status command flags
 		statusCmd.Parse(os.Args[2:])
-		
+
 		fmt.Println("Checking validator status...")
-		
+
 		// Initialize Ethereum client
 		ethClient, err := eth.NewClient()
 		if err != nil {
 			fmt.Printf("Failed to initialize Ethereum client: %v\n", err)
 			os.Exit(1)
 		}
-		
+
 		// Check if registered as verifier
 		isRegistered, err := ethClient.IsRegisteredVerifier()
 		if err != nil {
 			fmt.Printf("Failed to check verifier status: %v\n", err)
 			os.Exit(1)
 		}
-		
+
+		// Get DXP balance
+		dxpBalance, err := ethClient.GetDXPBalance(ethClient.GetWalletAddress())
+		if err != nil {
+			fmt.Printf("Failed to get DXP balance: %v\n", err)
+		} else {
+			// Format balance for display (convert from wei to tokens)
+			balanceFloat := new(big.Float).Quo(
+				new(big.Float).SetInt(dxpBalance),
+				new(big.Float).SetInt(new(big.Int).Exp(big.NewInt(10), big.NewInt(18), nil)),
+			)
+			var balanceStr string
+			balanceStr = fmt.Sprintf("%.4f", balanceFloat)
+
+			fmt.Printf("DXP Balance: %s DXP\n", balanceStr)
+
+			// Show if balance is sufficient for registration
+			minDXP := new(big.Int).Mul(big.NewInt(100), new(big.Int).Exp(big.NewInt(10), big.NewInt(18), nil))
+			if dxpBalance.Cmp(minDXP) < 0 {
+				fmt.Println("❌ Insufficient DXP balance for registration (minimum required: 100 DXP)")
+			} else {
+				fmt.Println("✅ Sufficient DXP balance for registration")
+			}
+		}
+
 		if isRegistered {
 			fmt.Println("✅ Registered as verifier")
-			
+
 			// Get verifier status
-			status, err := ethClient.GetVerifierStatus()
+			status, err := ethClient.CheckVerifierStatus()
 			if err != nil {
 				fmt.Printf("Failed to get verifier status: %v\n", err)
 			} else {
-				fmt.Println("Verifier status:")
+				fmt.Println("✅ Successfully checked verifier status:")
+
+				// Format and display each status field
 				for k, v := range status {
-					fmt.Printf("  %s: %v\n", k, v)
+					// Format ETH balance
+					if k == "ethBalance" {
+						if ethBal, ok := v.(*big.Int); ok {
+							ethFloat := new(big.Float).Quo(
+								new(big.Float).SetInt(ethBal),
+								new(big.Float).SetInt(new(big.Int).Exp(big.NewInt(10), big.NewInt(18), nil)),
+							)
+							fmt.Printf("  %s: %.4f ETH\n", k, ethFloat)
+						}
+					} else if k == "stake" || k == "dxpBalance" || k == "dxpAllowance" || k == "minStake" {
+						// Format DXP token amounts
+						if tokenBal, ok := v.(*big.Int); ok {
+							tokenFloat := new(big.Float).Quo(
+								new(big.Float).SetInt(tokenBal),
+								new(big.Float).SetInt(new(big.Int).Exp(big.NewInt(10), big.NewInt(18), nil)),
+							)
+							fmt.Printf("  %s: %.4f DXP\n", k, tokenFloat)
+						}
+					} else {
+						// Display other fields as is
+						fmt.Printf("  %s: %v\n", k, v)
+					}
+				}
+				
+				// Add a clear warning if stake is below minimum
+				if stake, ok := status["stake"].(*big.Int); ok {
+					if minStake, ok2 := status["minStake"].(*big.Int); ok2 {
+						if stake.Cmp(minStake) < 0 {
+							fmt.Printf("\n⚠️  WARNING: Your stake (%.4f DXP) is below the minimum requirement (%.4f DXP)\n", 
+								new(big.Float).Quo(
+									new(big.Float).SetInt(stake),
+									new(big.Float).SetInt(new(big.Int).Exp(big.NewInt(10), big.NewInt(18), nil)),
+								),
+								new(big.Float).Quo(
+									new(big.Float).SetInt(minStake),
+									new(big.Float).SetInt(new(big.Int).Exp(big.NewInt(10), big.NewInt(18), nil)),
+								))
+							fmt.Println("   You are registered in the contract but will not be considered an active verifier.")
+						}
+					}
 				}
 			}
 		} else {
@@ -223,7 +292,7 @@ func main() {
 	case "stop":
 		// Parse stop command flags
 		stopCmd.Parse(os.Args[2:])
-		
+
 		fmt.Println("Stopping validator...")
 		// TODO: Implement logic to stop a running validator
 		fmt.Println("Validator stopped")
@@ -231,92 +300,119 @@ func main() {
 	case "rewards":
 		// Parse rewards command flags
 		rewardsCmd.Parse(os.Args[2:])
-		
+
 		fmt.Println("Checking pending rewards...")
-		
+
 		// Initialize Ethereum client
 		ethClient, err := eth.NewClient()
 		if err != nil {
 			fmt.Printf("Failed to initialize Ethereum client: %v\n", err)
 			os.Exit(1)
 		}
-		
+
 		// Get pending rewards
 		rewards, err := ethClient.GetPendingRewards()
 		if err != nil {
 			fmt.Printf("Failed to get pending rewards: %v\n", err)
 			os.Exit(1)
 		}
-		
+
 		fmt.Printf("Pending rewards: %v\n", rewards)
 
 	case "register":
 		// Parse register command flags
-		registerCmd := flag.NewFlagSet("register", flag.ExitOnError)
 		registerCmd.Parse(os.Args[2:])
-		
+
+		// Check if amount flag is provided
+		if *registerAmount == 0 {
+			fmt.Println("Error: Amount flag is required")
+			registerCmd.Usage()
+			os.Exit(1)
+		}
+
 		fmt.Println("Registering as a verifier...")
-		
+
 		// Initialize Ethereum client
 		ethClient, err := eth.NewClient()
 		if err != nil {
 			fmt.Printf("Failed to initialize Ethereum client: %v\n", err)
 			os.Exit(1)
 		}
-		
+
 		// Check if already registered
 		isRegistered, err := ethClient.IsRegisteredVerifier()
 		if err != nil {
-			fmt.Printf("Failed to check registration status: %v\n", err)
+			fmt.Printf("Failed to check verifier status: %v\n", err)
 			os.Exit(1)
 		}
-		
-		if isRegistered {
-			fmt.Println("Already registered as a verifier")
-			os.Exit(0)
+
+		// Convert stake amount to tokens with 18 decimals
+		stakeAmount := new(big.Int).Mul(
+			big.NewInt(int64(*registerAmount)),
+			new(big.Int).Exp(big.NewInt(10), big.NewInt(18), nil),
+		)
+
+		// Get minimum stake requirement
+		minStake, err := ethClient.GetMinVerifierStake()
+		if err != nil {
+			fmt.Printf("Failed to get minimum stake requirement: %v\n", err)
+			os.Exit(1)
 		}
-		
+
+		// If not registered, ensure stake amount meets minimum requirement
+		if !isRegistered && stakeAmount.Cmp(minStake) < 0 {
+			// Format minStake for display (converting from wei to DXP)
+			minStakeFloat := new(big.Float).SetInt(minStake)
+			divisor := new(big.Float).SetInt(new(big.Int).Exp(big.NewInt(10), big.NewInt(18), nil))
+			minStakeFloat = minStakeFloat.Quo(minStakeFloat, divisor)
+			minStakeFormatted := minStakeFloat.Text('f', 4)
+			
+			fmt.Printf("Error: Initial stake amount (%d DXP) must be at least %s DXP\n", 
+				*registerAmount, minStakeFormatted)
+			os.Exit(1)
+		}
+
 		// Register as a verifier
-		txHash, err := ethClient.RegisterVerifier()
+		txHash, err := ethClient.RegisterVerifier(stakeAmount)
 		if err != nil {
 			fmt.Printf("Failed to register as a verifier: %v\n", err)
 			os.Exit(1)
 		}
-		
-		fmt.Printf("Registration transaction submitted: %s\n", txHash)
-		
-		// Wait for transaction confirmation
-		fmt.Println("Waiting for transaction confirmation...")
-		_, err = ethClient.WaitForTransaction(txHash)
-		if err != nil {
-			fmt.Printf("Transaction failed: %v\n", err)
-			os.Exit(1)
+
+		if txHash != "" {
+			fmt.Printf("Registration transaction submitted: %s\n", txHash)
+			fmt.Println("Waiting for transaction confirmation...")
+			receipt, err := ethClient.WaitForTransaction(txHash)
+			if err != nil {
+				fmt.Printf("Failed to wait for transaction: %v\n", err)
+				os.Exit(1)
+			}
+			fmt.Printf("Transaction confirmed in block %d\n", receipt.BlockNumber.Uint64())
+			fmt.Println("Successfully registered as a verifier!")
 		}
-		
-		fmt.Println("Successfully registered as a verifier!")
 
 	case "claim":
 		// Parse claim command flags
 		claimCmd.Parse(os.Args[2:])
-		
+
 		fmt.Println("Claiming rewards...")
-		
+
 		// Initialize Ethereum client
 		ethClient, err := eth.NewClient()
 		if err != nil {
 			fmt.Printf("Failed to initialize Ethereum client: %v\n", err)
 			os.Exit(1)
 		}
-		
+
 		// Claim rewards
 		txHash, err := ethClient.ClaimRewards()
 		if err != nil {
 			fmt.Printf("Failed to claim rewards: %v\n", err)
 			os.Exit(1)
 		}
-		
+
 		fmt.Printf("Rewards claim transaction submitted: %s\n", txHash)
-		
+
 		// Wait for transaction confirmation
 		fmt.Println("Waiting for transaction confirmation...")
 		_, err = ethClient.WaitForTransaction(txHash)
@@ -324,7 +420,7 @@ func main() {
 			fmt.Printf("Transaction failed: %v\n", err)
 			os.Exit(1)
 		}
-		
+
 		fmt.Println("Rewards claimed successfully!")
 
 	case "send":
@@ -372,6 +468,73 @@ func main() {
 		// Wait a bit for the message to be sent
 		time.Sleep(2 * time.Second)
 		fmt.Println("Done.")
+
+	case "withdraw":
+		// Parse withdraw command flags
+		withdrawCmd.Parse(os.Args[2:])
+
+		fmt.Println("Withdrawing verifier stake...")
+
+		// Initialize Ethereum client
+		ethClient, err := eth.NewClient()
+		if err != nil {
+			fmt.Printf("Failed to initialize Ethereum client: %v\n", err)
+			os.Exit(1)
+		}
+
+		// Check if registered
+		isVerifier, err := ethClient.IsVerifier(ethClient.GetWalletAddress())
+		if err != nil {
+			fmt.Printf("Failed to check if registered: %v\n", err)
+			os.Exit(1)
+		}
+		if !isVerifier {
+			fmt.Println("Not registered as a verifier")
+			os.Exit(1)
+		}
+
+		// Get current stake
+		currentStake, err := ethClient.GetVerifierStake()
+		if err != nil {
+			fmt.Printf("Failed to get current stake: %v\n", err)
+			os.Exit(1)
+		}
+
+		// Convert requested amount to big.Int with 18 decimals
+		requestedAmount := new(big.Int).Mul(
+			big.NewInt(int64(*withdrawAmount)),
+			new(big.Int).Exp(big.NewInt(10), big.NewInt(18), nil),
+		)
+
+		// If requested amount is greater than current stake, use current stake
+		withdrawAmount := requestedAmount
+		if requestedAmount.Cmp(currentStake) > 0 {
+			fmt.Printf("Requested amount (%s DXP) is greater than current stake (%s DXP)\n",
+				ethClient.FormatTokenAmount(requestedAmount),
+				ethClient.FormatTokenAmount(currentStake))
+			fmt.Printf("Withdrawing full stake amount: %s DXP\n",
+				ethClient.FormatTokenAmount(currentStake))
+			withdrawAmount = currentStake
+		}
+
+		// Withdraw stake
+		txHash, err := ethClient.WithdrawVerifierStake(withdrawAmount)
+		if err != nil {
+			fmt.Printf("Failed to withdraw stake: %v\n", err)
+			os.Exit(1)
+		}
+
+		fmt.Printf("Withdrawal transaction submitted: %s\n", txHash)
+
+		// Wait for transaction confirmation
+		fmt.Println("Waiting for transaction confirmation...")
+		_, err = ethClient.WaitForTransaction(txHash)
+		if err != nil {
+			fmt.Printf("Transaction failed: %v\n", err)
+			os.Exit(1)
+		}
+
+		fmt.Println("Stake withdrawn successfully!")
 
 	default:
 		fmt.Printf("Unknown command: %s\n", cmd)
@@ -423,19 +586,19 @@ func displayDexponentPeers(protocol *p2p.DexponentProtocol) {
 
 	// Track previous peer list for comparison
 	var previousPeers []peer.ID
-	
+
 	for {
 		select {
 		case <-ticker.C:
 			currentPeers := protocol.GetDexponentPeers()
-			
+
 			// Check if the peer list has changed
 			if peersChanged(previousPeers, currentPeers) {
 				fmt.Printf("Connected to %d Dexponent peers:\n", len(currentPeers))
 				for _, peerID := range currentPeers {
 					fmt.Printf("  Dexponent Peer: %s\n", peerID.String())
 				}
-				
+
 				// Update previous peers
 				previousPeers = make([]peer.ID, len(currentPeers))
 				copy(previousPeers, currentPeers)
@@ -449,20 +612,20 @@ func peersChanged(previous, current []peer.ID) bool {
 	if len(previous) != len(current) {
 		return true
 	}
-	
+
 	// Create maps for faster lookup
 	prevMap := make(map[string]bool)
 	for _, p := range previous {
 		prevMap[p.String()] = true
 	}
-	
+
 	// Check if any current peer is not in the previous list
 	for _, p := range current {
 		if !prevMap[p.String()] {
 			return true
 		}
 	}
-	
+
 	return false
 }
 
@@ -470,11 +633,11 @@ func peersChanged(previous, current []peer.ID) bool {
 func runConsensusProcess(protocol *p2p.DexponentProtocol) {
 	// Wait for initial peer discovery
 	time.Sleep(10 * time.Second)
-	
+
 	// Check for consensus opportunities every 5 seconds
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
-	
+
 	for {
 		select {
 		case <-ticker.C:
