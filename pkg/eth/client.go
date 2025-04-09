@@ -223,8 +223,6 @@ func (c *Client) RegisterVerifier(amount *big.Int) (string, error) {
 		return "", fmt.Errorf("failed to send transaction: %v", err)
 	}
 
-	fmt.Printf("Registration transaction sent: %s\n", tx.Hash().Hex())
-
 	return tx.Hash().Hex(), nil
 }
 
@@ -621,8 +619,6 @@ func (c *Client) WithdrawVerifierStake(amount *big.Int) (string, error) {
 		return "", fmt.Errorf("failed to send transaction: %v", err)
 	}
 
-	fmt.Printf("Withdrawal transaction sent: %s\n", tx.Hash().Hex())
-
 	// Wait for the withdrawal transaction to be mined
 	_, err = c.WaitForTransaction(tx.Hash().Hex())
 	if err != nil {
@@ -683,7 +679,6 @@ func (c *Client) ApproveDXPToken(amount *big.Int) (string, error) {
 		return "", fmt.Errorf("failed to send transaction: %w", err)
 	}
 
-	fmt.Printf("Approval transaction sent: %s\n", signedTx.Hash().Hex())
 	return signedTx.Hash().Hex(), nil
 }
 
