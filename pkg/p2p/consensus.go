@@ -5,6 +5,7 @@ import (
 	"math"
 	"math/rand"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/libp2p/go-libp2p/core/network"
@@ -276,6 +277,8 @@ func (p *DexponentProtocol) finalizeConsensusRound() {
 	// Broadcast consensus result
 	fmt.Printf("✅ Consensus round %d complete. Final score: %.4f with %d participants\n", 
 		p.currentRound, consensusScore, len(participants))
+	fmt.Printf("⏱️ Next consensus round will start after %s\n", 
+		time.Unix(int64(p.cooldownEndTime.Unix()), 0).Format(time.RFC3339))
 	p.BroadcastMessage(MessageTypeConsensusResult, resultPayload)
 	
 	// Release the stateLock that was acquired at the beginning of this function
@@ -284,68 +287,61 @@ func (p *DexponentProtocol) finalizeConsensusRound() {
 
 // handleLeaderElection processes a leader election message
 func (p *DexponentProtocol) handleLeaderElection(stream network.Stream, msg Message) {
-	// Get the remote peer ID (for logging purposes)
-	_ = stream.Conn().RemotePeer()
+	// Get the remote peer ID
+	remotePeer := stream.Conn().RemotePeer()
 	
 	// Parse the payload
 	payload, ok := msg.Payload.(map[string]interface{})
 	if !ok {
-		fmt.Printf("Error: Invalid leader election payload format\n")
+		fmt.Printf("Error: Invalid leader election payload format from %s\n", remotePeer.String())
 		stream.Reset()
 		return
 	}
 	
-	// Extract leader ID and round number
-	leaderIDStr, ok := payload["leader_id"].(string)
-	if !ok {
-		fmt.Printf("Error: Missing leader_id in payload\n")
-		stream.Reset()
-		return
-	}
-	
+	// Extract round number and leader ID
 	roundNumberFloat, ok := payload["round_number"].(float64)
 	if !ok {
-		fmt.Printf("Error: Missing round_number in payload\n")
+		fmt.Printf("Error: Missing round_number in payload from %s\n", remotePeer.String())
 		stream.Reset()
 		return
 	}
 	roundNumber := int64(roundNumberFloat)
 	
-	// Convert leader ID string to peer.ID
-	leaderID, err := peer.Decode(leaderIDStr)
-	if err != nil {
-		fmt.Printf("Error decoding leader ID: %v\n", err)
+	leaderID, ok := payload["leader_id"].(string)
+	if !ok {
+		fmt.Printf("Error: Missing leader_id in payload from %s\n", remotePeer.String())
 		stream.Reset()
 		return
 	}
 	
-	// Update our state with proper locking
+	// Update our state
 	p.stateLock.Lock()
-	p.currentRound = roundNumber
-	p.currentLeader = leaderID
-	p.isLeader = (leaderID == p.host.ID())
-	p.stateLock.Unlock()
-	
-	// Ensure we're in a clean state for this consensus round
-	if !p.isLeader {
-		// Not the leader, reset our state
-		p.roundActive = false
-		p.scores = make(map[peer.ID]float64)
-	} else {
-		// We're the leader, make sure we don't have any old data
-		p.scores = make(map[peer.ID]float64)
-		p.roundActive = true  // Mark as active since we're the leader
+	if roundNumber > p.currentRound {
+		p.currentRound = roundNumber
 	}
 	
-	// Reset cooldown since we're starting a new round
-	// This ensures nodes don't try to start a new round during the current one
-	p.cooldownEndTime = time.Now().Add(30 * time.Second)
+	// Convert leader ID string to peer.ID
+	leaderPeerID, err := peer.Decode(leaderID)
+	if err != nil {
+		fmt.Printf("Error: Invalid leader_id format from %s: %v\n", remotePeer.String(), err)
+		p.stateLock.Unlock()
+		stream.Reset()
+		return
+	}
 	
-	fmt.Printf("📢 Received leader election for round %d. Leader: %s\n", roundNumber, leaderIDStr)
+	p.currentLeader = leaderPeerID
+	p.isLeader = p.host.ID() == leaderPeerID
+	p.stateLock.Unlock()
 	
-	// Close the stream
+	fmt.Printf("📢 Received leader election for round %d from %s. Leader: %s\n", 
+		roundNumber, remotePeer.String()[:12], leaderID)
+	
+	// Close the stream with improved error handling
 	if err := stream.Close(); err != nil {
-		fmt.Printf("Error closing stream: %v\n", err)
+		// Ignore "canceled" errors as they're expected during high message volume
+		if !strings.Contains(err.Error(), "canceled") {
+			fmt.Printf("Error closing stream: %v\n", err)
+		}
 	}
 }
 
@@ -385,7 +381,6 @@ func (p *DexponentProtocol) handleConsensusStart(stream network.Stream, msg Mess
 		return
 	}
 	
-	// Convert farm returns to float64 slice
 	farmReturns := make([]float64, len(farmReturnsInterface))
 	for i, v := range farmReturnsInterface {
 		farmReturns[i], ok = v.(float64)
@@ -396,7 +391,7 @@ func (p *DexponentProtocol) handleConsensusStart(stream network.Stream, msg Mess
 		}
 	}
 	
-	// Extract timing information
+	// Extract start and end times
 	startTimeFloat, ok := payload["start_time"].(float64)
 	if !ok {
 		fmt.Printf("Error: Missing start_time in payload\n")
@@ -412,31 +407,41 @@ func (p *DexponentProtocol) handleConsensusStart(stream network.Stream, msg Mess
 	}
 	
 	// Update our state
+	p.stateLock.Lock()
 	p.roundActive = true
-	p.currentRound = roundNumber
-	p.farmReturns = farmReturns
 	p.roundStartTime = time.Unix(int64(startTimeFloat), 0)
 	p.roundEndTime = time.Unix(int64(endTimeFloat), 0)
+	p.farmReturns = farmReturns
+	
+	// Clear any previous scores
+	p.scoresLock.Lock()
+	p.scores = make(map[peer.ID]float64)
+	p.scoresLock.Unlock()
+	
+	p.stateLock.Unlock()
 	
 	fmt.Printf("🔄 Received consensus start for round %d. Calculating farm score...\n", roundNumber)
 	
 	// Calculate our farm score
 	farmScore := calculateFarmScore(farmReturns)
 	
-	// Create score submission payload
-	scorePayload := ScoreSubmissionPayload{
-		RoundNumber: roundNumber,
-		FarmScore:   farmScore,
-		SubmitterID: p.host.ID().String(),
+	// Create the score submission payload
+	scorePayload := map[string]interface{}{
+		"round_number": roundNumber,
+		"farm_score":   farmScore,
+		"submitter_id": p.host.ID().String(),
 	}
 	
 	// Send our score to the leader
 	fmt.Printf("📊 Submitting farm score %.4f to leader for round %d\n", farmScore, roundNumber)
 	p.SendMessageToPeer(p.currentLeader, MessageTypeScoreSubmission, scorePayload)
 	
-	// Close the stream
+	// Close the stream with improved error handling
 	if err := stream.Close(); err != nil {
-		fmt.Printf("Error closing stream: %v\n", err)
+		// Ignore "canceled" errors as they're expected during high message volume
+		if !strings.Contains(err.Error(), "canceled") {
+			fmt.Printf("Error closing stream: %v\n", err)
+		}
 	}
 }
 
@@ -491,9 +496,12 @@ func (p *DexponentProtocol) handleScoreSubmission(stream network.Stream, msg Mes
 	fmt.Printf("📥 Received farm score %.4f from %s for round %d (%d/%d scores)\n", 
 		farmScoreFloat, remotePeer.String(), roundNumber, scoreCount, len(p.GetDexponentPeers())+1)
 	
-	// Close the stream
+	// Close the stream with improved error handling
 	if err := stream.Close(); err != nil {
-		fmt.Printf("Error closing stream: %v\n", err)
+		// Ignore "canceled" errors as they're expected during high message volume
+		if !strings.Contains(err.Error(), "canceled") {
+			fmt.Printf("Error closing stream: %v\n", err)
+		}
 	}
 }
 
@@ -569,8 +577,11 @@ func (p *DexponentProtocol) handleConsensusResult(stream network.Stream, msg Mes
 	fmt.Printf("⏱️ Next consensus round will start after %s\n", 
 		time.Unix(int64(nextRoundStartFloat), 0).Format(time.RFC3339))
 	
-	// Close the stream
+	// Close the stream with improved error handling
 	if err := stream.Close(); err != nil {
-		fmt.Printf("Error closing stream: %v\n", err)
+		// Ignore "canceled" errors as they're expected during high message volume
+		if !strings.Contains(err.Error(), "canceled") {
+			fmt.Printf("Error closing stream: %v\n", err)
+		}
 	}
 }

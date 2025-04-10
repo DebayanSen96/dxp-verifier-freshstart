@@ -360,7 +360,10 @@ func (p *DexponentProtocol) handleHandshake(stream network.Stream, msg Message) 
 
 	// Close the stream
 	if err := stream.Close(); err != nil {
-		fmt.Printf("Error closing stream: %v\n", err)
+		// Ignore "canceled" errors as they're expected during high message volume
+		if !strings.Contains(err.Error(), "canceled") {
+			fmt.Printf("Error closing stream: %v\n", err)
+		}
 	}
 }
 
@@ -384,7 +387,10 @@ func (p *DexponentProtocol) handlePing(stream network.Stream, msg Message) {
 
 	// Close the stream
 	if err := stream.Close(); err != nil {
-		fmt.Printf("Error closing stream: %v\n", err)
+		// Ignore "canceled" errors as they're expected during high message volume
+		if !strings.Contains(err.Error(), "canceled") {
+			fmt.Printf("Error closing stream: %v\n", err)
+		}
 	}
 }
 
@@ -394,7 +400,10 @@ func (p *DexponentProtocol) handlePong(stream network.Stream, msg Message) {
 
 	// Close the stream
 	if err := stream.Close(); err != nil {
-		fmt.Printf("Error closing stream: %v\n", err)
+		// Ignore "canceled" errors as they're expected during high message volume
+		if !strings.Contains(err.Error(), "canceled") {
+			fmt.Printf("Error closing stream: %v\n", err)
+		}
 	}
 }
 
@@ -428,7 +437,10 @@ func (p *DexponentProtocol) handleData(stream network.Stream, msg Message) {
 
 	// Close the stream
 	if err := stream.Close(); err != nil {
-		fmt.Printf("Error closing stream: %v\n", err)
+		// Ignore "canceled" errors as they're expected during high message volume
+		if !strings.Contains(err.Error(), "canceled") {
+			fmt.Printf("Error closing stream: %v\n", err)
+		}
 	}
 }
 
@@ -491,9 +503,12 @@ func (p *DexponentProtocol) sendMessage(peerID peer.ID, msg Message) error {
 		return fmt.Errorf("error sending message: %w", err)
 	}
 
-	// Close the stream
+	// Close the stream with improved error handling
 	if err := stream.Close(); err != nil {
-		return fmt.Errorf("error closing stream: %w", err)
+		// Ignore "canceled" errors as they're expected during high message volume
+		if !strings.Contains(err.Error(), "canceled") {
+			return fmt.Errorf("error closing stream: %w", err)
+		}
 	}
 
 	return nil
@@ -613,32 +628,13 @@ func (p *DexponentProtocol) SendHandshake(peerID peer.ID) error {
 
 	// Close the stream
 	if err := stream.Close(); err != nil {
-		return fmt.Errorf("error closing stream: %w", err)
+		// Ignore "canceled" errors as they're expected during high message volume
+		if !strings.Contains(err.Error(), "canceled") {
+			return fmt.Errorf("error closing stream: %w", err)
+		}
 	}
 
 	return nil
-}
-
-// GetDexponentPeers returns a list of peers that are running the Dexponent protocol
-func (p *DexponentProtocol) GetDexponentPeers() []peer.ID {
-	p.dexPeersLock.RLock()
-	defer p.dexPeersLock.RUnlock()
-
-	peers := make([]peer.ID, 0, len(p.dexPeers))
-	for peerID := range p.dexPeers {
-		peers = append(peers, peerID)
-	}
-
-	return peers
-}
-
-// IsDexponentPeer checks if a peer is running the Dexponent protocol
-func (p *DexponentProtocol) IsDexponentPeer(peerID peer.ID) bool {
-	p.dexPeersLock.RLock()
-	defer p.dexPeersLock.RUnlock()
-
-	_, ok := p.dexPeers[peerID]
-	return ok
 }
 
 // SendMessageToPeer sends a custom message to a specific Dexponent peer
@@ -672,7 +668,10 @@ func (p *DexponentProtocol) SendMessageToPeer(peerID peer.ID, msgType MessageTyp
 
 	// Close the stream
 	if err := stream.Close(); err != nil {
-		return fmt.Errorf("error closing stream: %w", err)
+		// Ignore "canceled" errors as they're expected during high message volume
+		if !strings.Contains(err.Error(), "canceled") {
+			return fmt.Errorf("error closing stream: %w", err)
+		}
 	}
 
 	return nil
@@ -696,4 +695,26 @@ func (p *DexponentProtocol) SetEthClient(client interface{
 	WaitForTransaction(txHash string) (*types.Receipt, error)
 }) {
 	p.ethClient = client
+}
+
+// GetDexponentPeers returns a list of peers that are running the Dexponent protocol
+func (p *DexponentProtocol) GetDexponentPeers() []peer.ID {
+	p.dexPeersLock.RLock()
+	defer p.dexPeersLock.RUnlock()
+
+	peers := make([]peer.ID, 0, len(p.dexPeers))
+	for peerID := range p.dexPeers {
+		peers = append(peers, peerID)
+	}
+
+	return peers
+}
+
+// IsDexponentPeer checks if a peer is running the Dexponent protocol
+func (p *DexponentProtocol) IsDexponentPeer(peerID peer.ID) bool {
+	p.dexPeersLock.RLock()
+	defer p.dexPeersLock.RUnlock()
+
+	_, ok := p.dexPeers[peerID]
+	return ok
 }

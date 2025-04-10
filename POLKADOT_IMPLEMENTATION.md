@@ -378,21 +378,17 @@ Based on Polkadot's architecture, here are key lessons for our verifier client:
 1. **RPC Interface**:
    - Add JSON-RPC API for external integration
    - Support both HTTP and WebSocket
-
 2. **Telemetry**:
    - Implement basic metrics collection
    - Add reporting to monitoring services
-
 3. **Improved Storage**:
    - Add persistent storage for important data
    - Implement proper database abstraction
-
 4. **Web Dashboard**:
    - Consider adding a simple status dashboard
    - Visualize peer connections and farm scores
 
 ### Implementation Priorities
-
 1. **P2P Enhancements** (Highest Priority):
    - Improve peer discovery with random walk
    - Better connection management

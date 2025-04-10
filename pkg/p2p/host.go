@@ -24,6 +24,8 @@ import (
 	"github.com/libp2p/go-libp2p/p2p/transport/tcp"
 	"github.com/multiformats/go-multiaddr"
 	manet "github.com/multiformats/go-multiaddr/net"
+	
+	"github.com/dexponent/dxp-verifier/pkg/logger"
 )
 
 // P2PHost wraps a libp2p host with context management and status reporting
@@ -174,39 +176,90 @@ func (ph *P2PHost) AddPeerToAddressBook(peerID peer.ID, addr multiaddr.Multiaddr
 // setupPersistentNATMapping attempts to create persistent NAT port mappings
 // with multiple retries to improve connectivity through restrictive NATs
 func (ph *P2PHost) setupPersistentNATMapping(ctx context.Context) {
-	// Wait a moment for the host to initialize
-	time.Sleep(1 * time.Second)
-
-	// Get all listen addresses
-	for _, addr := range ph.host.Network().ListenAddresses() {
-		// Extract port information
+	// Track ports that need mapping
+	portsToMap := make(map[int]bool)
+	
+	// Extract ports from listening addresses
+	for _, addr := range ph.host.Addrs() {
 		port, err := extractPortFromMultiaddr(addr)
 		if err != nil {
 			continue
 		}
-
-		// Try multiple times with increasing timeout
-		for i := 0; i < 5; i++ {
-			// Use the built-in NAT manager from libp2p
-			// This is already configured with NATPortMap() option
+		portsToMap[port] = true
+	}
+	
+	// Skip if no ports to map
+	if len(portsToMap) == 0 {
+		return
+	}
+	
+	// Wait a bit for initial NAT detection
+	time.Sleep(2 * time.Second)
+	
+	// Count successfully mapped ports
+	successCount := 0
+	
+	// Try to map alternative ports if initial mapping fails
+	alternativePorts := []int{10000, 10001, 10002, 10003, 10004}
+	
+	// First try to map the dynamic ports
+	for port := range portsToMap {
+		// Try to map the port
+		logger.LogOnly("Attempting to map port %d", port)
+		
+		// Instead of using NATManager directly, we'll check for external addresses
+		// after attempting to listen on the port
+		time.Sleep(2 * time.Second)
+		
+		// Check if we have external addresses
+		externalAddrs := filterExternalAddrs(ph.host.Addrs())
+		if len(externalAddrs) > 0 {
+			logger.LogOnly("Successfully mapped port %d", port)
+			ph.mappedPorts = append(ph.mappedPorts, port)
+			successCount++
+		} else {
+			logger.LogOnly("Failed to map port %d", port)
+		}
+	}
+	
+	// If no ports were successfully mapped, try the alternative ports
+	if successCount == 0 {
+		logger.Info("Using local connectivity and relays for peer connections")
+		
+		for _, port := range alternativePorts {
+			// Try to listen on the alternative port
+			addr, err := multiaddr.NewMultiaddr(fmt.Sprintf("/ip4/0.0.0.0/tcp/%d", port))
+			if err != nil {
+				logger.LogOnly("Failed to create multiaddr for port %d: %v", port, err)
+				continue
+			}
+			
+			// Try to listen on the port
+			err = ph.host.Network().Listen(addr)
+			if err != nil {
+				logger.LogOnly("Failed to listen on port %d: %v", port, err)
+				continue
+			}
+			
+			logger.LogOnly("Successfully listening on alternative port %d", port)
+			ph.mappedPorts = append(ph.mappedPorts, port)
+			
+			// Wait a moment for NAT mapping to take effect
 			time.Sleep(2 * time.Second)
-
-			// Check if we have external addresses after waiting
-			addrs := ph.host.Addrs()
-			externalAddrs := filterExternalAddrs(addrs)
-
+			
+			// Check if we have external addresses
+			externalAddrs := filterExternalAddrs(ph.host.Addrs())
 			if len(externalAddrs) > 0 {
-				// Found external addresses, port mapping successful
-				ph.mappedPorts = append(ph.mappedPorts, port)
-				fmt.Printf("✅ Successfully mapped port %d after attempt %d\n", port, i+1)
+				successCount++
 				break
 			}
-
-			// If this is the last attempt, log failure
-			if i == 4 {
-				fmt.Printf("⚠️ Failed to map port %d after multiple attempts\n", port)
-			}
 		}
+	}
+	
+	// If still no success, log the issue
+	if successCount == 0 {
+		logger.Info("Could not establish direct external connectivity after trying multiple ports")
+		logger.Info("Will rely on relays and DHT for peer connectivity")
 	}
 }
 
@@ -258,8 +311,8 @@ func (ph *P2PHost) monitorNATStatus() {
 
 	// Determine NAT status based on external addresses
 	if len(externalAddrs) > 0 {
-		fmt.Printf("✅ Public connectivity detected (properly mapped ports)\n")
-		fmt.Printf("ℹ️ External addresses detected:\n")
+		logger.Success("Public connectivity detected (properly mapped ports)")
+		logger.Info("External addresses detected:")
 		
 		// Use a map to track addresses we've already printed to avoid duplicates
 		printedAddrs := make(map[string]bool)
@@ -267,12 +320,12 @@ func (ph *P2PHost) monitorNATStatus() {
 		for _, addr := range externalAddrs {
 			addrStr := fmt.Sprintf("  %s/p2p/%s", addr, ph.ID().String())
 			if !printedAddrs[addrStr] {
-				fmt.Println(addrStr)
+				logger.Info("%s", addrStr)
 				printedAddrs[addrStr] = true
 			}
 		}
 	} else {
-		fmt.Printf("⚠️ Warning: No external addresses detected, likely behind restrictive NAT\n")
+		logger.Info("Using local connectivity and relays for peer connections")
 		go ph.attemptAdditionalNATTraversal()
 	}
 
@@ -283,7 +336,7 @@ func (ph *P2PHost) monitorNATStatus() {
 	consecutiveFailures := 0
 	
 	// Periodically check and report status
-	ticker := time.NewTicker(30 * time.Second)
+	ticker := time.NewTicker(60 * time.Second) // Reduced frequency of checks
 	defer ticker.Stop()
 
 	for {
@@ -303,19 +356,7 @@ func (ph *P2PHost) monitorNATStatus() {
 				
 				if !hasExternalAddrs {
 					// Status changed from no external to having external
-					fmt.Printf("✅ External connectivity established\n")
-					fmt.Printf("ℹ️ External addresses detected:\n")
-					
-					// Use a map to track addresses we've already printed to avoid duplicates
-					printedAddrs := make(map[string]bool)
-					
-					for _, addr := range externalAddrs {
-						addrStr := fmt.Sprintf("  %s/p2p/%s", addr, ph.ID().String())
-						if !printedAddrs[addrStr] {
-							fmt.Println(addrStr)
-							printedAddrs[addrStr] = true
-						}
-					}
+					logger.Success("External connectivity established")
 					
 					// Update tracking
 					hasExternalAddrs = true
@@ -324,10 +365,11 @@ func (ph *P2PHost) monitorNATStatus() {
 				// Increment failure counter when we don't have external addresses
 				consecutiveFailures++
 				
-				// Only report lost connectivity after 2 consecutive checks (60 seconds)
+				// Only report lost connectivity after 5 consecutive checks (5 minutes)
 				// to avoid false alarms due to temporary network issues
-				if hasExternalAddrs && consecutiveFailures >= 2 {
-					fmt.Println("⚠️ Warning: External connectivity lost. Using relays.")
+				if hasExternalAddrs && consecutiveFailures >= 5 {
+					// Log this at a lower priority level since the node can still function with relays
+					logger.Info("Using relay connections for peer discovery")
 					hasExternalAddrs = false
 				}
 			}
@@ -352,8 +394,23 @@ func (ph *P2PHost) monitorNATStatus() {
 
 // attemptAdditionalNATTraversal tries alternative methods to traverse NAT
 func (ph *P2PHost) attemptAdditionalNATTraversal() {
-	// Try alternative port ranges
-	for port := 10000; port < 10010; port++ {
+	// Get initial addresses
+	initialAddrs := ph.host.Addrs()
+	initialExternalAddrs := filterExternalAddrs(initialAddrs)
+	
+	// If we already have external addresses, no need to try alternative ports
+	if len(initialExternalAddrs) > 0 {
+		logger.LogOnly("External connectivity already established, skipping alternative port binding")
+		return
+	}
+
+	// Try alternative port ranges - limit to just a few ports
+	maxPortsToTry := 5
+	portsAttempted := 0
+	
+	for port := 10000; port < 10010 && portsAttempted < maxPortsToTry; port++ {
+		portsAttempted++
+		
 		// Create a new listen address with a specific port
 		addr, err := multiaddr.NewMultiaddr(fmt.Sprintf("/ip4/0.0.0.0/tcp/%d", port))
 		if err != nil {
@@ -362,30 +419,40 @@ func (ph *P2PHost) attemptAdditionalNATTraversal() {
 
 		// Try to listen on this address
 		if err := ph.host.Network().Listen(addr); err != nil {
+			logger.LogOnly("Failed to listen on port %d: %v", port, err)
 			continue
 		}
 
-		fmt.Printf("✅ Successfully listening on alternative port %d\n", port)
+		logger.LogOnly("Successfully listening on alternative port %d", port)
+		ph.mappedPorts = append(ph.mappedPorts, port)
 
 		// Wait to see if we get external addresses
-		time.Sleep(5 * time.Second)
+		time.Sleep(2 * time.Second)
 
 		// Check if we have external addresses
 		addrs := ph.host.Addrs()
 		externalAddrs := filterExternalAddrs(addrs)
 
 		if len(externalAddrs) > 0 {
-			fmt.Printf("✅ Successfully obtained external address with alternative port %d\n", port)
-			ph.mappedPorts = append(ph.mappedPorts, port)
+			logger.LogOnly("Successfully obtained external address with alternative port %d", port)
 
 			// Display the external addresses
-			fmt.Printf("ℹ️ External addresses detected:\n")
+			logger.LogOnly("External addresses detected:")
 			for _, addr := range externalAddrs {
-				fmt.Printf("  %s/p2p/%s\n", addr, ph.ID().String())
+				addrStr := fmt.Sprintf("  %s/p2p/%s", addr, ph.ID().String())
+				logger.LogOnly("%s", addrStr)
 			}
 
+			// We've successfully established external connectivity, no need to try more ports
 			return
 		}
+	}
+	
+	// If we've tried the maximum number of ports and still don't have external connectivity,
+	// inform the user that we'll be using relays
+	if portsAttempted >= maxPortsToTry {
+		logger.Info("Could not establish direct external connectivity after trying multiple ports")
+		logger.Info("Will rely on relays and DHT for peer connectivity")
 	}
 }
 
@@ -407,29 +474,8 @@ func (ph *P2PHost) logInitialNATStatus() {
 		Error:         nil,
 	}
 	
-	// Only log the addresses in the initial startup message
-	// The detailed external address logging will happen in monitorNATStatus
-	// after a short delay to allow for NAT traversal
-	fmt.Printf("Listening addresses:\n")
-	
-	// Use a map to track addresses we've already printed to avoid duplicates
-	printedAddrs := make(map[string]bool)
-	
-	for _, addr := range ph.host.Addrs() {
-		// Only show local addresses in initial startup
-		if isLocalAddress(addr) {
-			addrStr := fmt.Sprintf("  %s/p2p/%s", addr, ph.ID().String())
-			if !printedAddrs[addrStr] {
-				fmt.Println(addrStr)
-				printedAddrs[addrStr] = true
-			}
-		}
-	}
-	
-	// Initial message about external addresses
-	if len(externalAddrs) == 0 {
-		fmt.Println("No external addresses detected. Using relays.")
-	}
+	// We don't print addresses here anymore since they're already printed in main.go
+	// This prevents duplicate address printing
 }
 
 // filterExternalAddrs returns only external (non-local) addresses

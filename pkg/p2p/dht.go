@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sync"
+	"strings"
 	"time"
 
 	dht "github.com/libp2p/go-libp2p-kad-dht"
@@ -106,7 +107,7 @@ func (d *DHTService) findPeersRoutine() {
 		d.errChan <- fmt.Errorf("initial peer discovery failed: %w", err)
 	}
 
-	ticker := time.NewTicker(5 * time.Minute)
+	ticker := time.NewTicker(10 * time.Minute)
 	defer ticker.Stop()
 
 	for {
@@ -161,14 +162,28 @@ func (d *DHTService) discoverPeers() error {
 			// Get protocols safely
 			protocols, _ := d.host.Peerstore().GetProtocols(p)
 			
+			// Determine connection type based on the connection's transport
+			connType := "direct"
+			conns := d.host.Network().ConnsToPeer(p)
+			if len(conns) > 0 {
+				// Check if connection uses a relay
+				remoteAddr := conns[0].RemoteMultiaddr()
+				if strings.Contains(remoteAddr.String(), "/p2p-circuit/") {
+					connType = "relay"
+				} else if strings.Contains(remoteAddr.String(), "/udp/") && strings.Contains(remoteAddr.String(), "/quic") {
+					// This is a simplification - in reality, you'd need more sophisticated detection
+					// for hole-punched connections, possibly using connection tagging
+					connType = "nat-traversal"
+				}
+			}
+			
 			newPeers[p] = &PeerInfo{
 				ID:              p,
 				LastSeen:        time.Now(),
 				IsReachable:     true,
-				ConnectionType:  "direct", // Update based on relay/hole-punching if applicable
+				ConnectionType:  connType,
 				ProtocolSupport: protocols,
 			}
-			fmt.Printf("Connected to peer: %s\n", p)
 		}
 	}
 
@@ -178,7 +193,13 @@ func (d *DHTService) discoverPeers() error {
 	}
 	d.peerStoreMutex.Unlock()
 
-	fmt.Printf("Discovered %d new peers. Total connected: %d\n", len(newPeers), len(d.host.Network().Peers()))
+	// Only log peer discovery information if this isn't the initial discovery
+	// or if we actually found new peers
+	connectedPeers := len(d.host.Network().Peers())
+	if len(newPeers) > 0 || connectedPeers > 0 {
+		fmt.Printf("Discovered %d new peers. Total connected: %d\n", len(newPeers), connectedPeers)
+	}
+	
 	return nil
 }
 

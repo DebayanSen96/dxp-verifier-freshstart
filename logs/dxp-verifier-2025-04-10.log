@@ -1,0 +1,62 @@
+[INFO] 2025/04/10 00:06:40 Withdrawing 100.000000 DXP from stake...
+[INFO] 2025/04/10 00:06:41 Withdrawal transaction submitted: 0xfde2ce5dc8fb7b9c6e9880de688c3b86347a45562936a2a84d3950e5ff8b5b94
+[INFO] 2025/04/10 00:06:41 Waiting for transaction confirmation...
+[INFO] 2025/04/10 00:06:48 Stake withdrawn successfully!
+[INFO] 2025/04/10 00:06:58 Not registered as a verifier
+[INFO] 2025/04/10 00:07:18 Not registered as a verifier
+[INFO] 2025/04/10 00:10:28 Not registered as a verifier
+[INFO] 2025/04/10 00:12:47 Not registered as a verifier
+[INFO] 2025/04/10 00:13:29 Approving DXP token transfer...
+[INFO] 2025/04/10 00:13:30 Approval transaction submitted: 0xb91456313628236e54692c511e137ddbcb8ae7878a63ffde1ced1e3cd4f408ea
+[INFO] 2025/04/10 00:13:30 Waiting for approval transaction to be mined...
+[INFO] 2025/04/10 00:13:37 Approval transaction mined successfully
+[INFO] 2025/04/10 00:13:37 Registering as a verifier with 100 DXP tokens for Farm ID 2...
+[INFO] 2025/04/10 00:13:38 Registration transaction submitted: 0x5b6064330fbaca6988b69ff79d54bf23872a4a5fb7e0e2d2c3a1922237553f47
+[INFO] 2025/04/10 00:13:38 Waiting for registration transaction to be mined...
+[INFO] 2025/04/10 00:13:49 Successfully registered as a verifier!
+[INFO] 2025/04/10 00:13:49 Farm ID: 2
+[INFO] 2025/04/10 00:13:49 Staked Amount: 100 DXP
+[INFO] 2025/04/10 11:38:28 Initializing P2P host...
+[INFO] 2025/04/10 11:38:28 Peer ID: 12D3KooWKLvhL1ULqw7pGTm2XUqDusaBNb7kj7ay67i1HtwQsSxG
+[INFO] 2025/04/10 11:38:28 mDNS discovery service started
+[INFO] 2025/04/10 11:38:29 Initializing Dexponent protocol...
+[INFO] 2025/04/10 11:38:29 Connected to blockchain at block 8088920
+[INFO] 2025/04/10 11:38:29 Registered as a verifier
+[INFO] 2025/04/10 11:38:30 Attempting to map port 52798
+[INFO] 2025/04/10 11:38:32 Failed to map port 52798
+[INFO] 2025/04/10 11:38:32 Attempting to map port 55570
+[INFO] 2025/04/10 11:38:32 Assigned to 1 farms: 2 (Active)
+[INFO] 2025/04/10 11:38:32 Starting peer discovery...
+[INFO] 2025/04/10 11:38:32 Verifier started successfully!
+[INFO] 2025/04/10 11:38:33 Using local connectivity and relays for peer connections
+[INFO] 2025/04/10 11:38:33 Successfully listening on alternative port 10000
+[INFO] 2025/04/10 11:38:34 Failed to map port 55570
+[INFO] 2025/04/10 11:38:34 Attempting to map port 52801
+[INFO] 2025/04/10 11:38:35 Successfully listening on alternative port 10001
+[INFO] 2025/04/10 11:38:36 Failed to map port 52801
+[INFO] 2025/04/10 11:38:36 Attempting to map port 63991
+[INFO] 2025/04/10 11:38:37 Successfully listening on alternative port 10002
+[INFO] 2025/04/10 11:38:38 Failed to map port 63991
+[INFO] 2025/04/10 11:38:38 Using local connectivity and relays for peer connections
+[INFO] 2025/04/10 11:38:38 Successfully listening on alternative port 10000
+[INFO] 2025/04/10 11:38:39 Successfully listening on alternative port 10003
+[INFO] 2025/04/10 11:38:40 Successfully listening on alternative port 10001
+[INFO] 2025/04/10 11:38:41 Successfully listening on alternative port 10004
+[INFO] 2025/04/10 11:38:42 Successfully listening on alternative port 10002
+[INFO] 2025/04/10 11:38:43 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/10 11:38:43 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/10 11:38:44 Successfully listening on alternative port 10003
+[INFO] 2025/04/10 11:38:46 Successfully listening on alternative port 10004
+[INFO] 2025/04/10 11:38:47 Benchmark updater will run every 1m0s
+[INFO] 2025/04/10 11:38:48 Updating benchmark for farm 2: 10.00% -> 9.79%
+[INFO] 2025/04/10 11:38:48 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/10 11:38:48 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/10 11:38:48 Benchmark update transaction submitted: 0x0f08c6cbdf2c0e3eac0e3230acd92685727cf6ef0d72a7135a68a5e829733b00
+[INFO] 2025/04/10 11:39:02 Benchmark update transaction 0x0f08c6cbdf2c0e3eac0e3230acd92685727cf6ef0d72a7135a68a5e829733b00 confirmed successfully
+[INFO] 2025/04/10 11:39:05 Shutting down...
+[INFO] 2025/04/10 14:59:25 Withdrawing 100.000000 DXP from stake...
+[INFO] 2025/04/10 14:59:25 Withdrawal transaction submitted: 0x9d2aef5b009f07d5924d64f5a587d0c4e1fec007efe896a7ed8089d7efe53db1
+[INFO] 2025/04/10 14:59:25 Waiting for transaction confirmation...
+[INFO] 2025/04/10 14:59:37 Stake withdrawn successfully!
+[ERROR] 2025/04/10 15:07:00 Unknown command: --help
+[ERROR] 2025/04/10 15:07:12 Unknown command: help

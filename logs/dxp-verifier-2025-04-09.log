@@ -1,0 +1,202 @@
+[INFO] 2025/04/09 23:18:05 Initializing Dexponent protocol...
+[INFO] 2025/04/09 23:18:06 Attempting to map port 54156
+[WARN] 2025/04/09 23:18:08 Failed to map port 54156
+[INFO] 2025/04/09 23:18:08 Attempting to map port 58177
+[INFO] 2025/04/09 23:18:09 Starting peer discovery...
+[INFO] 2025/04/09 23:18:09 Using local connectivity and relays for peer connections
+[WARN] 2025/04/09 23:18:10 Failed to map port 58177
+[INFO] 2025/04/09 23:18:10 Attempting to map port 54159
+[WARN] 2025/04/09 23:18:12 Failed to map port 54159
+[INFO] 2025/04/09 23:18:12 Attempting to map port 53085
+[WARN] 2025/04/09 23:18:14 Failed to map port 53085
+[INFO] 2025/04/09 23:18:14 Using local connectivity and relays for peer connections
+[INFO] 2025/04/09 23:18:19 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/09 23:18:19 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/09 23:18:24 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/09 23:18:24 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/09 23:18:45 Shutting down...
+[INFO] 2025/04/09 23:19:59 Initializing Dexponent protocol...
+[INFO] 2025/04/09 23:20:00 Attempting to map port 53720
+[WARN] 2025/04/09 23:20:02 Failed to map port 53720
+[INFO] 2025/04/09 23:20:02 Attempting to map port 54309
+[INFO] 2025/04/09 23:20:02 Starting peer discovery...
+[INFO] 2025/04/09 23:20:03 Using local connectivity and relays for peer connections
+[WARN] 2025/04/09 23:20:04 Failed to map port 54309
+[INFO] 2025/04/09 23:20:04 Attempting to map port 53423
+[WARN] 2025/04/09 23:20:06 Failed to map port 53423
+[INFO] 2025/04/09 23:20:06 Attempting to map port 54312
+[WARN] 2025/04/09 23:20:08 Failed to map port 54312
+[INFO] 2025/04/09 23:20:08 Using local connectivity and relays for peer connections
+[INFO] 2025/04/09 23:20:09 Shutting down...
+[INFO] 2025/04/09 23:23:15 Peer ID: 12D3KooWEwd7dSFYMEVm6696NED7Hry3B8QNCU18Wjey8spYRY37
+[INFO] 2025/04/09 23:23:15 mDNS discovery service started
+[INFO] 2025/04/09 23:23:16 Initializing Dexponent protocol...
+[INFO] 2025/04/09 23:23:16 Connected to blockchain at block 8085527
+[INFO] 2025/04/09 23:23:17 Registered as a verifier
+[INFO] 2025/04/09 23:23:17 Attempting to map port 54576
+[INFO] 2025/04/09 23:23:19 Failed to map port 54576
+[INFO] 2025/04/09 23:23:19 Attempting to map port 51292
+[INFO] 2025/04/09 23:23:20 Assigned to 1 farms: 4 (Active)
+[INFO] 2025/04/09 23:23:20 Starting peer discovery...
+[INFO] 2025/04/09 23:23:20 Verifier started successfully!
+[INFO] 2025/04/09 23:23:20 Using local connectivity and relays for peer connections
+[INFO] 2025/04/09 23:23:20 Successfully listening on alternative port 10000
+[INFO] 2025/04/09 23:23:21 Failed to map port 51292
+[INFO] 2025/04/09 23:23:21 Attempting to map port 54579
+[INFO] 2025/04/09 23:23:22 Successfully listening on alternative port 10001
+[INFO] 2025/04/09 23:23:23 Failed to map port 54579
+[INFO] 2025/04/09 23:23:23 Attempting to map port 55250
+[INFO] 2025/04/09 23:23:24 Successfully listening on alternative port 10002
+[INFO] 2025/04/09 23:23:25 Failed to map port 55250
+[INFO] 2025/04/09 23:23:25 Using local connectivity and relays for peer connections
+[INFO] 2025/04/09 23:23:25 Successfully listening on alternative port 10000
+[INFO] 2025/04/09 23:23:26 Successfully listening on alternative port 10003
+[INFO] 2025/04/09 23:23:27 Successfully listening on alternative port 10001
+[INFO] 2025/04/09 23:23:28 Successfully listening on alternative port 10004
+[INFO] 2025/04/09 23:23:29 Successfully listening on alternative port 10002
+[INFO] 2025/04/09 23:23:30 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/09 23:23:30 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/09 23:23:31 Successfully listening on alternative port 10003
+[INFO] 2025/04/09 23:23:33 Successfully listening on alternative port 10004
+[INFO] 2025/04/09 23:23:35 Periodic benchmark update mode activated (interval: 10s)
+[INFO] 2025/04/09 23:23:35 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/09 23:23:35 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/09 23:23:36 Submitted benchmark update for farm 4: 86 (tx: 0x3d53a365...)
+[INFO] 2025/04/09 23:23:47 Submitted benchmark update for farm 4: 95 (tx: 0xbb83d204...)
+[INFO] 2025/04/09 23:23:47 Shutting down...
+[INFO] 2025/04/09 23:25:03 Initializing P2P host...
+[INFO] 2025/04/09 23:25:03 Peer ID: 12D3KooWLMV9vUw1efvT4DRJ4BQ6ADkEW5Zn81Ax71H3qvzmHJyq
+[INFO] 2025/04/09 23:25:03 mDNS discovery service started
+[INFO] 2025/04/09 23:25:04 Initializing Dexponent protocol...
+[INFO] 2025/04/09 23:25:05 Connected to blockchain at block 8085535
+[INFO] 2025/04/09 23:25:05 Registered as a verifier
+[INFO] 2025/04/09 23:25:05 Attempting to map port 54716
+[INFO] 2025/04/09 23:25:07 Assigned to 1 farms: 4 (Active)
+[INFO] 2025/04/09 23:25:07 Starting peer discovery...
+[INFO] 2025/04/09 23:25:07 Verifier started successfully!
+[INFO] 2025/04/09 23:25:07 Failed to map port 54716
+[INFO] 2025/04/09 23:25:07 Attempting to map port 56237
+[INFO] 2025/04/09 23:25:08 Using local connectivity and relays for peer connections
+[INFO] 2025/04/09 23:25:08 Successfully listening on alternative port 10000
+[INFO] 2025/04/09 23:25:09 Failed to map port 56237
+[INFO] 2025/04/09 23:25:09 Attempting to map port 54719
+[INFO] 2025/04/09 23:25:10 Successfully listening on alternative port 10001
+[INFO] 2025/04/09 23:25:11 Failed to map port 54719
+[INFO] 2025/04/09 23:25:11 Attempting to map port 63847
+[INFO] 2025/04/09 23:25:12 Successfully listening on alternative port 10002
+[INFO] 2025/04/09 23:25:13 Failed to map port 63847
+[INFO] 2025/04/09 23:25:13 Using local connectivity and relays for peer connections
+[INFO] 2025/04/09 23:25:13 Successfully listening on alternative port 10000
+[INFO] 2025/04/09 23:25:14 Successfully listening on alternative port 10003
+[INFO] 2025/04/09 23:25:15 Successfully listening on alternative port 10001
+[INFO] 2025/04/09 23:25:16 Successfully listening on alternative port 10004
+[INFO] 2025/04/09 23:25:17 Successfully listening on alternative port 10002
+[INFO] 2025/04/09 23:25:18 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/09 23:25:18 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/09 23:25:19 Successfully listening on alternative port 10003
+[INFO] 2025/04/09 23:25:21 Successfully listening on alternative port 10004
+[INFO] 2025/04/09 23:25:22 Periodic benchmark update mode activated (interval: 10s)
+[INFO] 2025/04/09 23:25:23 Submitted benchmark update for farm 4: 89 (tx: 0xfb744b3b...)
+[INFO] 2025/04/09 23:25:23 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/09 23:25:23 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/09 23:25:35 Submitted benchmark update for farm 4: 100 (tx: 0xdfd8261e...)
+[INFO] 2025/04/09 23:25:37 Benchmark update confirmed (tx: 0xfb744b3b...)
+[INFO] 2025/04/09 23:25:46 Submitted benchmark update for farm 4: 81 (tx: 0x1a9a1c61...)
+[INFO] 2025/04/09 23:25:48 Failed to get receipt for transaction 0xdfd8261ebf9d4a0ec97995c2030e3025c7b19e1fe572c67f9ca43ab0b504235d: not found
+[INFO] 2025/04/09 23:25:53 Benchmark update confirmed (tx: 0xdfd8261e...)
+[INFO] 2025/04/09 23:25:57 Submitted benchmark update for farm 4: 98 (tx: 0xbb27118f...)
+[INFO] 2025/04/09 23:25:58 Benchmark update confirmed (tx: 0x1a9a1c61...)
+[INFO] 2025/04/09 23:26:08 Submitted benchmark update for farm 4: 96 (tx: 0xc87a0a09...)
+[INFO] 2025/04/09 23:26:09 Benchmark update confirmed (tx: 0xbb27118f...)
+[INFO] 2025/04/09 23:26:13 Shutting down...
+[INFO] 2025/04/09 23:28:29 Initializing P2P host...
+[INFO] 2025/04/09 23:28:29 Peer ID: 12D3KooWQRFg4EHW5bpjP9UE7JFcrHHhtM9oTX3qmXwGodtNtGdD
+[INFO] 2025/04/09 23:28:29 mDNS discovery service started
+[INFO] 2025/04/09 23:28:30 Initializing Dexponent protocol...
+[INFO] 2025/04/09 23:28:31 Connected to blockchain at block 8085552
+[INFO] 2025/04/09 23:28:31 Registered as a verifier
+[INFO] 2025/04/09 23:28:31 Attempting to map port 54979
+[INFO] 2025/04/09 23:28:33 Failed to map port 54979
+[INFO] 2025/04/09 23:28:33 Attempting to map port 51351
+[INFO] 2025/04/09 23:28:34 Assigned to 1 farms: 4 (Active)
+[INFO] 2025/04/09 23:28:34 Starting peer discovery...
+[INFO] 2025/04/09 23:28:34 Verifier started successfully!
+[INFO] 2025/04/09 23:28:34 Using local connectivity and relays for peer connections
+[INFO] 2025/04/09 23:28:34 Successfully listening on alternative port 10000
+[INFO] 2025/04/09 23:28:35 Failed to map port 51351
+[INFO] 2025/04/09 23:28:35 Attempting to map port 54982
+[INFO] 2025/04/09 23:28:36 Successfully listening on alternative port 10001
+[INFO] 2025/04/09 23:28:37 Failed to map port 54982
+[INFO] 2025/04/09 23:28:37 Attempting to map port 62325
+[INFO] 2025/04/09 23:28:38 Successfully listening on alternative port 10002
+[INFO] 2025/04/09 23:28:39 Failed to map port 62325
+[INFO] 2025/04/09 23:28:39 Using local connectivity and relays for peer connections
+[INFO] 2025/04/09 23:28:39 Successfully listening on alternative port 10000
+[INFO] 2025/04/09 23:28:40 Successfully listening on alternative port 10003
+[INFO] 2025/04/09 23:28:41 Successfully listening on alternative port 10001
+[INFO] 2025/04/09 23:28:42 Successfully listening on alternative port 10004
+[INFO] 2025/04/09 23:28:43 Successfully listening on alternative port 10002
+[INFO] 2025/04/09 23:28:44 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/09 23:28:44 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/09 23:28:45 Successfully listening on alternative port 10003
+[INFO] 2025/04/09 23:28:47 Successfully listening on alternative port 10004
+[INFO] 2025/04/09 23:28:49 Benchmark updater will run every 10s
+[INFO] 2025/04/09 23:28:49 Updating benchmark for farm 4: 0.96% -> 5.00%
+[INFO] 2025/04/09 23:28:49 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/09 23:28:49 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/09 23:28:50 Benchmark update transaction submitted: 0xc0335780bd71625dafbdbb29b054c887f8455cfb76df0cc679aec9394e7a7ef0
+[INFO] 2025/04/09 23:29:01 Updating benchmark for farm 4: 5.00% -> 5.18%
+[INFO] 2025/04/09 23:29:01 Benchmark update transaction submitted: 0xc33c1fcf01ee29aa41b2cf290126a9ab0da5a10e437fc3114904719a25d3ca13
+[INFO] 2025/04/09 23:29:04 Benchmark update transaction 0xc0335780bd71625dafbdbb29b054c887f8455cfb76df0cc679aec9394e7a7ef0 confirmed successfully
+[INFO] 2025/04/09 23:29:14 Benchmark update transaction 0xc33c1fcf01ee29aa41b2cf290126a9ab0da5a10e437fc3114904719a25d3ca13 confirmed successfully
+[INFO] 2025/04/09 23:29:23 Updating benchmark for farm 4: 5.18% -> 5.00%
+[INFO] 2025/04/09 23:29:23 Benchmark update transaction submitted: 0xbe4fb5d81f7dd849d4aed10be090e39b88d097a63d6757e1fdbd3c14062fd888
+[INFO] 2025/04/09 23:29:34 Updating benchmark for farm 4: 5.18% -> 5.31%
+[WARN] 2025/04/09 23:29:35 Failed to get receipt for transaction 0xbe4fb5d81f7dd849d4aed10be090e39b88d097a63d6757e1fdbd3c14062fd888: not found
+[INFO] 2025/04/09 23:29:35 Benchmark update transaction submitted: 0x82871bfc0543a740708e6343a21e5593cb9d36ba8cb207ffde3d7a30105f93e0
+[INFO] 2025/04/09 23:29:40 Benchmark update transaction 0xbe4fb5d81f7dd849d4aed10be090e39b88d097a63d6757e1fdbd3c14062fd888 confirmed successfully
+[INFO] 2025/04/09 23:29:44 Shutting down...
+[INFO] 2025/04/09 23:31:22 Initializing P2P host...
+[INFO] 2025/04/09 23:31:22 Peer ID: 12D3KooWL9z1U6XPvdUJmg9XEZEsFuNxbATfBXxDvJnnZoWzZv8X
+[INFO] 2025/04/09 23:31:22 mDNS discovery service started
+[INFO] 2025/04/09 23:31:23 Initializing Dexponent protocol...
+[INFO] 2025/04/09 23:31:23 Connected to blockchain at block 8085565
+[INFO] 2025/04/09 23:31:24 Registered as a verifier
+[INFO] 2025/04/09 23:31:24 Attempting to map port 55209
+[INFO] 2025/04/09 23:31:26 Failed to map port 55209
+[INFO] 2025/04/09 23:31:26 Attempting to map port 52812
+[INFO] 2025/04/09 23:31:26 Assigned to 1 farms: 4 (Active)
+[INFO] 2025/04/09 23:31:26 Starting peer discovery...
+[INFO] 2025/04/09 23:31:26 Verifier started successfully!
+[INFO] 2025/04/09 23:31:27 Using local connectivity and relays for peer connections
+[INFO] 2025/04/09 23:31:27 Successfully listening on alternative port 10000
+[INFO] 2025/04/09 23:31:28 Failed to map port 52812
+[INFO] 2025/04/09 23:31:28 Attempting to map port 55212
+[INFO] 2025/04/09 23:31:29 Successfully listening on alternative port 10001
+[INFO] 2025/04/09 23:31:30 Failed to map port 55212
+[INFO] 2025/04/09 23:31:30 Attempting to map port 64779
+[INFO] 2025/04/09 23:31:31 Successfully listening on alternative port 10002
+[INFO] 2025/04/09 23:31:32 Failed to map port 64779
+[INFO] 2025/04/09 23:31:32 Using local connectivity and relays for peer connections
+[INFO] 2025/04/09 23:31:32 Successfully listening on alternative port 10000
+[INFO] 2025/04/09 23:31:33 Successfully listening on alternative port 10003
+[INFO] 2025/04/09 23:31:34 Successfully listening on alternative port 10001
+[INFO] 2025/04/09 23:31:35 Successfully listening on alternative port 10004
+[INFO] 2025/04/09 23:31:36 Successfully listening on alternative port 10002
+[INFO] 2025/04/09 23:31:37 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/09 23:31:37 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/09 23:31:38 Successfully listening on alternative port 10003
+[INFO] 2025/04/09 23:31:40 Successfully listening on alternative port 10004
+[INFO] 2025/04/09 23:31:41 Benchmark updater will run every 1m0s
+[INFO] 2025/04/09 23:31:42 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/09 23:31:42 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/09 23:31:42 Updating benchmark for farm 4: 5.30% -> 5.48%
+[INFO] 2025/04/09 23:31:43 Benchmark update transaction submitted: 0xec7760041576daf041d82e8603e42076618892f2da1590031422998f5b8e65af
+[INFO] 2025/04/09 23:31:57 Benchmark update transaction 0xec7760041576daf041d82e8603e42076618892f2da1590031422998f5b8e65af confirmed successfully
+[INFO] 2025/04/09 23:32:43 Updating benchmark for farm 4: 5.48% -> 5.42%
+[INFO] 2025/04/09 23:32:44 Benchmark update transaction submitted: 0x0b6ff3b94a0d0a16b4f7cf963c31cd28cc95c840f8c121251feeb67dc65446c4
+[INFO] 2025/04/09 23:32:57 Benchmark update transaction 0x0b6ff3b94a0d0a16b4f7cf963c31cd28cc95c840f8c121251feeb67dc65446c4 confirmed successfully
+[INFO] 2025/04/09 23:33:45 Updating benchmark for farm 4: 5.41% -> 5.51%
+[INFO] 2025/04/09 23:33:46 Benchmark update transaction submitted: 0x4cae10668baa731a09cd7dd8d0d235aab3f9c69c9d99e8922a69c28bb19974a4
+[INFO] 2025/04/09 23:33:57 Benchmark update transaction 0x4cae10668baa731a09cd7dd8d0d235aab3f9c69c9d99e8922a69c28bb19974a4 confirmed successfully
+[INFO] 2025/04/09 23:34:02 Shutting down...
