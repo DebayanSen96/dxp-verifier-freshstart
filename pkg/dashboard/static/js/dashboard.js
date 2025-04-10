@@ -142,14 +142,43 @@ window.withdrawStake = function() {
             showStatus('Waiting for transaction confirmation...', 'info');
         }, 3000);
         
-        // Wait for transaction confirmation and then refresh the page
-        setTimeout(() => {
-            showStatus('Transaction confirmed! Refreshing page...', 'success');
-            // Refresh the entire page after successful withdrawal
-            setTimeout(() => {
-                window.location.reload();
-            }, 2000);
-        }, 10000);
+        // Set up polling to check registration status
+        let attempts = 0;
+        const maxAttempts = 30; // 30 seconds (1s intervals)
+        const statusCheckInterval = setInterval(() => {
+            attempts++;
+            
+            // Check if the user is now unregistered
+            fetch('/api/status')
+                .then(response => response.json())
+                .then(statusData => {
+                    console.log('Status check attempt', attempts, statusData);
+                    
+                    if (!statusData.isRegistered) {
+                        // Successfully unregistered!
+                        clearInterval(statusCheckInterval);
+                        showStatus('Withdrawal confirmed! Refreshing page...', 'success');
+                        
+                        // Refresh the page after a short delay
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 2000);
+                    } else if (attempts >= maxAttempts) {
+                        // Timeout after max attempts, force refresh anyway
+                        clearInterval(statusCheckInterval);
+                        showStatus('Status update taking longer than expected. Refreshing page...', 'info');
+                        
+                        // Force refresh after timeout
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 2000);
+                    }
+                })
+                .catch(error => {
+                    console.error('Status check error:', error);
+                    // Don't clear interval, keep trying
+                });
+        }, 1000); // Check every second
     })
     .catch(error => {
         console.error('Withdrawal error:', error);
