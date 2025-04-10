@@ -5,6 +5,11 @@ let confirmWithdrawBtn;
 let withdrawAmount;
 let actionStatus;
 let refreshBtn;
+let toggleNodeBtn;
+let nodeStatusIndicator;
+let terminalContainer;
+let terminalOutput;
+let nodeOutputPollInterval;
 
 // ASCII art for DEXPONENT
 const dexponentAscii = [
@@ -178,6 +183,10 @@ document.addEventListener('DOMContentLoaded', function() {
     withdrawAmount = document.getElementById('withdraw-amount');
     actionStatus = document.getElementById('action-status');
     refreshBtn = document.getElementById('refresh-btn');
+    toggleNodeBtn = document.getElementById('toggle-node-btn');
+    nodeStatusIndicator = document.getElementById('node-status-indicator');
+    terminalContainer = document.getElementById('terminal-container');
+    terminalOutput = document.getElementById('terminal-output');
 
     // Debug element references
     console.log('Elements loaded:', {
@@ -186,7 +195,11 @@ document.addEventListener('DOMContentLoaded', function() {
         confirmWithdrawBtn: confirmWithdrawBtn,
         withdrawAmount: withdrawAmount,
         actionStatus: actionStatus,
-        refreshBtn: refreshBtn
+        refreshBtn: refreshBtn,
+        toggleNodeBtn: toggleNodeBtn,
+        nodeStatusIndicator: nodeStatusIndicator,
+        terminalContainer: terminalContainer,
+        terminalOutput: terminalOutput
     });
 
     // Fetch initial status
@@ -196,6 +209,11 @@ document.addEventListener('DOMContentLoaded', function() {
     if (claimRewardsBtn) {
         claimRewardsBtn.addEventListener('click', claimRewards);
         console.log('Claim rewards button listener attached');
+    }
+    
+    if (toggleNodeBtn) {
+        toggleNodeBtn.addEventListener('click', toggleNode);
+        console.log('Toggle node button listener attached');
     }
 
     // We're using onclick in HTML, so don't add another event listener here
@@ -338,6 +356,134 @@ function showStatus(message, type) {
     setTimeout(() => {
         actionStatus.classList.add('hidden');
     }, 5000);
+}
+
+// Function to toggle node status
+function toggleNode() {
+    if (!toggleNodeBtn) return;
+    
+    const isStarting = toggleNodeBtn.classList.contains('start-btn');
+    const endpoint = isStarting ? '/api/start-node' : '/api/stop-node';
+    
+    // Disable button during operation
+    toggleNodeBtn.disabled = true;
+    
+    fetch(endpoint, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data.error || 'Failed to toggle node');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Node toggle success:', data);
+        
+        if (isStarting) {
+            // Update UI for running node
+            toggleNodeBtn.textContent = 'Stop Node';
+            toggleNodeBtn.classList.remove('start-btn');
+            toggleNodeBtn.classList.add('stop-btn');
+            nodeStatusIndicator.textContent = 'Node Active';
+            nodeStatusIndicator.classList.remove('inactive');
+            nodeStatusIndicator.classList.add('active');
+            terminalContainer.classList.remove('hidden');
+            
+            // Start polling for node output
+            startNodeOutputPolling();
+        } else {
+            // Update UI for stopped node
+            toggleNodeBtn.textContent = 'Start Node';
+            toggleNodeBtn.classList.remove('stop-btn');
+            toggleNodeBtn.classList.add('start-btn');
+            nodeStatusIndicator.textContent = 'Node Inactive';
+            nodeStatusIndicator.classList.remove('active');
+            nodeStatusIndicator.classList.add('inactive');
+            
+            // Stop polling for node output
+            if (nodeOutputPollInterval) {
+                clearInterval(nodeOutputPollInterval);
+            }
+        }
+        
+        // Re-enable button
+        toggleNodeBtn.disabled = false;
+    })
+    .catch(error => {
+        console.error('Node toggle error:', error);
+        showStatus(`Error: ${error.message}`, 'error');
+        
+        // Re-enable button
+        toggleNodeBtn.disabled = false;
+    });
+}
+
+// Function to poll for node output
+function startNodeOutputPolling() {
+    // Clear any existing interval
+    if (nodeOutputPollInterval) {
+        clearInterval(nodeOutputPollInterval);
+    }
+    
+    // Function to fetch node output
+    function fetchNodeOutput() {
+        fetch('/api/node-output')
+            .then(response => response.json())
+            .then(data => {
+                if (terminalOutput) {
+                    // Update terminal output
+                    terminalOutput.innerHTML = '';
+                    
+                    // Process and format the output lines
+                    data.output.forEach(line => {
+                        const formattedLine = document.createElement('div');
+                        
+                        // Apply styling based on line content
+                        if (line.startsWith('✅')) {
+                            formattedLine.classList.add('success');
+                        } else if (line.startsWith('[ERROR]')) {
+                            formattedLine.classList.add('error');
+                        } else if (line.startsWith('[INFO]')) {
+                            formattedLine.classList.add('info');
+                        }
+                        
+                        formattedLine.textContent = line;
+                        terminalOutput.appendChild(formattedLine);
+                    });
+                    
+                    // Scroll to bottom
+                    terminalOutput.scrollTop = terminalOutput.scrollHeight;
+                    
+                    // If node is no longer running, update UI
+                    if (!data.running && nodeStatusIndicator && nodeStatusIndicator.classList.contains('active')) {
+                        toggleNodeBtn.textContent = 'Start Node';
+                        toggleNodeBtn.classList.remove('stop-btn');
+                        toggleNodeBtn.classList.add('start-btn');
+                        nodeStatusIndicator.textContent = 'Node Inactive';
+                        nodeStatusIndicator.classList.remove('active');
+                        nodeStatusIndicator.classList.add('inactive');
+                        
+                        // Stop polling
+                        clearInterval(nodeOutputPollInterval);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching node output:', error);
+            });
+    }
+    
+    // Fetch output immediately
+    fetchNodeOutput();
+    
+    // Then start polling every 1 second
+    nodeOutputPollInterval = setInterval(fetchNodeOutput, 1000);
 }
 
 // Make the registerVerifier function globally accessible

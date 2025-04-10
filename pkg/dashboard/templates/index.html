@@ -90,26 +90,51 @@
             </div>
 
             {{ if .IsRegistered }}
-            <div class="card actions-card">
-                <h2>Withdraw Stake</h2>
-                <div id="withdraw-form">
-                    <p>Enter the amount of stake to withdraw:</p>
-                    <input type="text" id="withdraw-amount" placeholder="Amount in DXP (e.g. 10.5)">
-                    <div class="form-buttons">
-                        <button onclick="withdrawStake()" id="confirm-withdraw-btn" class="btn primary">Confirm Withdrawal</button>
+            <div class="card-row">
+                <div class="card withdraw-card">
+                    <h2>Withdraw Stake</h2>
+                    <div id="withdraw-form">
+                        <p>Enter the amount of stake to withdraw:</p>
+                        <input type="text" id="withdraw-amount" placeholder="Amount in DXP (e.g. 10.5)">
+                        <div class="form-buttons">
+                            <button onclick="withdrawStake()" id="confirm-withdraw-btn" class="btn primary">Confirm Withdrawal</button>
+                        </div>
+                    </div>
+                    <div id="action-status" class="status-message hidden"></div>
+                </div>
+
+                <div class="card balance-card">
+                    <h2>Token Balance</h2>
+                    <div class="balance">{{ .TokenBalance }} DXP</div>
+                </div>
+
+                <div class="card node-status-card">
+                    <h2>Node Status</h2>
+                    <div class="node-status-container">
+                        <div class="node-status">
+                            <span class="node-status-indicator inactive" id="node-status-indicator">Node Inactive</span>
+                        </div>
+                        <button id="toggle-node-btn" class="btn primary start-btn">Start Node</button>
                     </div>
                 </div>
-                <div id="action-status" class="status-message hidden"></div>
+            </div>
+            {{ else }}
+            <div class="card-row">
+                <div class="card balance-card">
+                    <h2>Token Balance</h2>
+                    <div class="balance">{{ .TokenBalance }} DXP</div>
+                </div>
             </div>
             {{ end }}
 
-            <div class="card balance-card">
-                <h2>Token Balance</h2>
-                <div class="balance">{{ .TokenBalance }} DXP</div>
-            </div>
-
-            <!-- Chart Section -->
             {{ if .IsRegistered }}
+            <!-- Terminal Output -->
+            <div id="terminal-container" class="card terminal-card hidden">
+                <h2>Terminal Output</h2>
+                <div id="terminal-output" class="terminal-output"></div>
+            </div>
+            
+            <!-- Chart Section -->
             <div class="card chart-card">
                 <h2>Verification Activity</h2>
                 <div class="chart-container">

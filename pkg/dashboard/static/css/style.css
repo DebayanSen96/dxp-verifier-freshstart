@@ -62,20 +62,28 @@ h2 {
 }
 
 .main-content {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 1.5rem;
+    padding: 1.5rem;
 }
 
 .card {
-    background-color: var(--card-bg-color);
+    background-color: #1e2130;
     border-radius: 8px;
     padding: 1.5rem;
-    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.card h2 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    color: #fff;
 }
 
 .status-card {
-    grid-column: 1 / -1;
     position: relative;
 }
 
@@ -370,7 +378,6 @@ footer a {
 
 /* Chart styles */
 .chart-card {
-    grid-column: 1 / -1;
     margin-top: 1.5rem;
 }
 
@@ -464,7 +471,7 @@ footer a {
 
 @media (max-width: 768px) {
     .main-content {
-        grid-template-columns: 1fr;
+        flex-direction: column;
     }
     
     header {
@@ -597,4 +604,117 @@ footer a {
     80% { transform: skew(-2deg); }
     90% { transform: skew(-1deg); }
     100% { transform: skew(1deg); }
+}
+
+/* Card Row Layout */
+.card-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.card-row .card {
+    flex: 1;
+    min-width: 0;
+}
+
+.withdraw-card {
+    flex: 1.2;
+}
+
+.balance-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.node-status-card {
+    flex: 0.8;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.balance {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #4a8af4;
+    margin-top: 1rem;
+    text-align: center;
+}
+
+.node-status-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    width: 100%;
+}
+
+.node-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.node-status-indicator {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.node-status-indicator.active {
+    background-color: rgba(46, 204, 113, 0.2);
+    color: #2ecc71;
+}
+
+.node-status-indicator.inactive {
+    background-color: rgba(231, 76, 60, 0.2);
+    color: #e74c3c;
+}
+
+.start-btn {
+    background-color: #2ecc71;
+}
+
+.stop-btn {
+    background-color: #e74c3c;
+}
+
+/* Terminal Output */
+.terminal-card {
+    margin-bottom: 1rem;
+}
+
+.terminal-output {
+    background-color: #1a1d28;
+    border-radius: 4px;
+    padding: 1rem;
+    font-family: 'Courier New', monospace;
+    color: #ddd;
+    height: 300px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    line-height: 1.4;
+}
+
+.terminal-output .success {
+    color: #2ecc71;
+}
+
+.terminal-output .error {
+    color: #e74c3c;
+}
+
+.terminal-output .info {
+    color: #3498db;
 }

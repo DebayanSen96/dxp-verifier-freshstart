@@ -1,6 +1,7 @@
 package dashboard
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -8,6 +9,8 @@ import (
 	"os/exec"
 	"runtime"
 	"strconv"
+	"sync"
+	"syscall"
 	"time"
 
 	"github.com/dexponent/dxp-verifier/pkg/eth"
@@ -19,6 +22,10 @@ type Server struct {
 	ethClient *eth.Client
 	templates *template.Template
 	port      string
+	nodeCmd   *exec.Cmd
+	nodeMutex sync.Mutex
+	nodeOutput []string
+	isNodeRunning bool
 }
 
 // NewServer creates a new dashboard server
@@ -43,6 +50,9 @@ func (s *Server) Start() error {
 	mux.HandleFunc("/api/claim-rewards", s.handleClaimRewardsAPI)
 	mux.HandleFunc("/api/withdraw", s.handleWithdrawAPI)
 	mux.HandleFunc("/api/register", s.handleRegisterAPI)
+	mux.HandleFunc("/api/start-node", s.handleStartNodeAPI)
+	mux.HandleFunc("/api/stop-node", s.handleStopNodeAPI)
+	mux.HandleFunc("/api/node-output", s.handleNodeOutputAPI)
 
 	// Main page
 	mux.HandleFunc("/", s.handleIndex)
@@ -464,4 +474,141 @@ func (s *Server) openBrowser(url string) {
 func StartDashboard(ethClient *eth.Client) error {
 	server := NewServer(ethClient)
 	return server.Start()
+}
+
+// handleStartNodeAPI starts the verifier node
+func (s *Server) handleStartNodeAPI(w http.ResponseWriter, r *http.Request) {
+	// Only allow POST requests
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	s.nodeMutex.Lock()
+	defer s.nodeMutex.Unlock()
+
+	// Check if node is already running
+	if s.isNodeRunning {
+		http.Error(w, `{"error": "Node is already running"}`, http.StatusBadRequest)
+		return
+	}
+
+	// Start the node process
+	cmd := exec.Command("./dxp-verifier", "start")
+	
+	// Create pipes for stdout and stderr
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		logger.Error("Failed to create stdout pipe: %v", err)
+		http.Error(w, fmt.Sprintf(`{"error": "Failed to create stdout pipe: %v"}`, err), http.StatusInternalServerError)
+		return
+	}
+	
+	stderr, err := cmd.StderrPipe()
+	if err != nil {
+		logger.Error("Failed to create stderr pipe: %v", err)
+		http.Error(w, fmt.Sprintf(`{"error": "Failed to create stderr pipe: %v"}`, err), http.StatusInternalServerError)
+		return
+	}
+
+	// Start the command
+	if err := cmd.Start(); err != nil {
+		logger.Error("Failed to start node: %v", err)
+		http.Error(w, fmt.Sprintf(`{"error": "Failed to start node: %v"}`, err), http.StatusInternalServerError)
+		return
+	}
+
+	// Store the command
+	s.nodeCmd = cmd
+	s.isNodeRunning = true
+	s.nodeOutput = []string{}
+
+	// Start goroutines to read output
+	go func() {
+		scanner := bufio.NewScanner(stdout)
+		for scanner.Scan() {
+			line := scanner.Text()
+			s.nodeMutex.Lock()
+			s.nodeOutput = append(s.nodeOutput, line)
+			s.nodeMutex.Unlock()
+			logger.Info("Node: %s", line)
+		}
+	}()
+
+	go func() {
+		scanner := bufio.NewScanner(stderr)
+		for scanner.Scan() {
+			line := scanner.Text()
+			s.nodeMutex.Lock()
+			s.nodeOutput = append(s.nodeOutput, line)
+			s.nodeMutex.Unlock()
+			logger.Error("Node: %s", line)
+		}
+	}()
+
+	// Start a goroutine to wait for the process to finish
+	go func() {
+		if err := cmd.Wait(); err != nil {
+			logger.Error("Node process exited with error: %v", err)
+		} else {
+			logger.Info("Node process exited normally")
+		}
+
+		s.nodeMutex.Lock()
+		s.isNodeRunning = false
+		s.nodeMutex.Unlock()
+	}()
+
+	// Return success response
+	response := map[string]interface{}{
+		"status": "Node started successfully",
+	}
+	json.NewEncoder(w).Encode(response)
+}
+
+// handleStopNodeAPI stops the verifier node
+func (s *Server) handleStopNodeAPI(w http.ResponseWriter, r *http.Request) {
+	// Only allow POST requests
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	s.nodeMutex.Lock()
+	defer s.nodeMutex.Unlock()
+
+	// Check if node is running
+	if !s.isNodeRunning || s.nodeCmd == nil || s.nodeCmd.Process == nil {
+		http.Error(w, `{"error": "Node is not running"}`, http.StatusBadRequest)
+		return
+	}
+
+	// Stop the node process
+	if err := s.nodeCmd.Process.Signal(syscall.SIGTERM); err != nil {
+		logger.Error("Failed to stop node: %v", err)
+		http.Error(w, fmt.Sprintf(`{"error": "Failed to stop node: %v"}`, err), http.StatusInternalServerError)
+		return
+	}
+
+	// Add a message to the output
+	s.nodeOutput = append(s.nodeOutput, "[INFO] Stopping node...")
+
+	// Return success response
+	response := map[string]interface{}{
+		"status": "Node stopping...",
+	}
+	json.NewEncoder(w).Encode(response)
+}
+
+// handleNodeOutputAPI returns the current node output
+func (s *Server) handleNodeOutputAPI(w http.ResponseWriter, r *http.Request) {
+	s.nodeMutex.Lock()
+	defer s.nodeMutex.Unlock()
+
+	// Return the current output
+	response := map[string]interface{}{
+		"output":  s.nodeOutput,
+		"running": s.isNodeRunning,
+	}
+	json.NewEncoder(w).Encode(response)
 }
