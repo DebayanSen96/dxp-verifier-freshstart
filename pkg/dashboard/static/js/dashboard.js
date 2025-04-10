@@ -282,10 +282,11 @@ window.withdrawStake = function() {
         return;
     }
 
-    // Disable the button to prevent multiple submissions
+    // Disable the button and change text to "Processing"
     if (confirmWithdrawBtn) {
         confirmWithdrawBtn.disabled = true;
         confirmWithdrawBtn.classList.add('disabled');
+        confirmWithdrawBtn.textContent = 'Processing...';
     }
     
     // Show loading status
@@ -316,31 +317,28 @@ window.withdrawStake = function() {
     })
     .then(data => {
         console.log('Withdrawal success:', data);
-        showStatus(`Success: ${data.status}. Transaction: ${data.txHash}`, 'success');
+        // Simplified success message without transaction hash
+        showStatus('Withdrawal successful!', 'success');
         withdrawAmount.value = '';
-        
-        // Add transaction waiting message
-        setTimeout(() => {
-            showStatus('Waiting for transaction confirmation...', 'info');
-        }, 3000);
         
         // Wait for transaction confirmation and then refresh the page
         setTimeout(() => {
-            showStatus('Transaction confirmed! Refreshing page...', 'success');
+            showStatus('Refreshing page...', 'info');
             // Refresh the entire page after successful withdrawal
             setTimeout(() => {
                 window.location.reload();
-            }, 2000);
-        }, 10000);
+            }, 1000);
+        }, 2000);
     })
     .catch(error => {
         console.error('Withdrawal error:', error);
         showStatus(`Error: ${error.message}`, 'error');
         
-        // Re-enable the button on error
+        // Re-enable the button on error and restore text
         if (confirmWithdrawBtn) {
             confirmWithdrawBtn.disabled = false;
             confirmWithdrawBtn.classList.remove('disabled');
+            confirmWithdrawBtn.textContent = 'Confirm Withdrawal';
         }
     });
 };
