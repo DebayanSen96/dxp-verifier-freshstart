@@ -22,12 +22,7 @@ const hackerPhrases = [
     "Verifying blockchain integrity...",
     "Establishing P2P network...",
     "Synchronizing with DXP protocol...",
-    "Loading verifier credentials...",
-    "Decrypting secure channels...",
-    "Connecting to distributed network...",
-    "Analyzing verification metrics...",
-    "Calculating pending rewards...",
-    "Establishing secure dashboard..."
+    "Loading dashboard..."
 ];
 
 // Function to animate ASCII art
@@ -147,11 +142,11 @@ function animateHackerPhrases() {
                 phraseIndex++;
                 
                 // Show next phrase after a delay
-                setTimeout(showNextPhrase, 800);
-            }, 400);
+                setTimeout(showNextPhrase, 400);
+            }, 200);
         } else {
             // All phrases shown, hide loading screen after a delay
-            setTimeout(hideLoadingScreen, 1000);
+            setTimeout(hideLoadingScreen, 500);
         }
     }
     
