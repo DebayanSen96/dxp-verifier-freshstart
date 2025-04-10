@@ -6,7 +6,176 @@ let withdrawAmount;
 let actionStatus;
 let refreshBtn;
 
+// ASCII art for DEXPONENT
+const dexponentAscii = [
+"██████╗ ███████╗██╗  ██╗██████╗  ██████╗ ███╗   ██╗███████╗███╗   ██╗████████╗",
+"██╔══██╗██╔════╝╚██╗██╔╝██╔══██╗██╔═══██╗████╗  ██║██╔════╝████╗  ██║╚══██╔══╝",
+"██║  ██║█████╗   ╚███╔╝ ██████╔╝██║   ██║██╔██╗ ██║█████╗  ██╔██╗ ██║   ██║   ",
+"██║  ██║██╔══╝   ██╔██╗ ██╔═══╝ ██║   ██║██║╚██╗██║██╔══╝  ██║╚██╗██║   ██║   ",
+"██████╔╝███████╗██╔╝ ██╗██║     ╚██████╔╝██║ ╚████║███████╗██║ ╚████║   ██║   ",
+"╚═════╝ ╚══════╝╚═╝  ╚═╝╚═╝      ╚═════╝ ╚═╝  ╚═══╝╚══════╝╚═╝  ╚═══╝   ╚═╝   "
+];
+
+// Hacker-style phrases to display during loading
+const hackerPhrases = [
+    "Initializing secure connection...",
+    "Verifying blockchain integrity...",
+    "Establishing P2P network...",
+    "Synchronizing with DXP protocol...",
+    "Loading verifier credentials...",
+    "Decrypting secure channels...",
+    "Connecting to distributed network...",
+    "Analyzing verification metrics...",
+    "Calculating pending rewards...",
+    "Establishing secure dashboard..."
+];
+
+// Function to animate ASCII art
+function animateAscii() {
+    const asciiEl = document.getElementById('ascii-animation');
+    if (!asciiEl) return;
+    
+    // Clear any existing content
+    asciiEl.innerHTML = '';
+    
+    // First animation: Typing effect for the ASCII art
+    let lineIndex = 0;
+    let charIndex = 0;
+    
+    function typeAsciiArt() {
+        if (lineIndex < dexponentAscii.length) {
+            if (charIndex === 0) {
+                // Create a new line
+                const line = document.createElement('div');
+                line.className = 'ascii-line';
+                asciiEl.appendChild(line);
+            }
+            
+            const currentLine = asciiEl.querySelectorAll('.ascii-line')[lineIndex];
+            
+            if (charIndex < dexponentAscii[lineIndex].length) {
+                // Add next character
+                currentLine.textContent += dexponentAscii[lineIndex][charIndex];
+                charIndex++;
+                setTimeout(typeAsciiArt, 5); // Type each character quickly
+            } else {
+                // Move to next line
+                lineIndex++;
+                charIndex = 0;
+                setTimeout(typeAsciiArt, 50); // Small pause between lines
+            }
+        } else {
+            // Start the glitch effect after typing is complete
+            setTimeout(glitchEffect, 500);
+        }
+    }
+    
+    // Second animation: Glitch effect
+    function glitchEffect() {
+        const lines = asciiEl.querySelectorAll('.ascii-line');
+        let glitchCount = 0;
+        const maxGlitches = 10;
+        
+        const glitchInterval = setInterval(() => {
+            if (glitchCount >= maxGlitches) {
+                clearInterval(glitchInterval);
+                
+                // Reset to original ASCII art
+                lines.forEach((line, index) => {
+                    line.textContent = dexponentAscii[index];
+                });
+                
+                // Start matrix rain effect
+                setTimeout(() => {
+                    // Pulse effect on the ASCII art
+                    asciiEl.classList.add('pulse');
+                    
+                    // Start hacker phrases
+                    animateHackerPhrases();
+                }, 500);
+                
+                return;
+            }
+            
+            // Apply glitch to random line
+            const randomLineIndex = Math.floor(Math.random() * lines.length);
+            const originalText = dexponentAscii[randomLineIndex];
+            const line = lines[randomLineIndex];
+            
+            // Create glitched text by replacing random characters
+            let glitchedText = '';
+            for (let i = 0; i < originalText.length; i++) {
+                if (Math.random() < 0.1) { // 10% chance to glitch each character
+                    const glitchChars = '!@#$%^&*()_+-=[]{}|;:,.<>?/\\';
+                    glitchedText += glitchChars[Math.floor(Math.random() * glitchChars.length)];
+                } else {
+                    glitchedText += originalText[i];
+                }
+            }
+            
+            line.textContent = glitchedText;
+            
+            // Reset line after short delay
+            setTimeout(() => {
+                line.textContent = originalText;
+            }, 100);
+            
+            glitchCount++;
+        }, 200);
+    }
+    
+    // Start the typing animation
+    typeAsciiArt();
+}
+
+// Function to animate hacker phrases
+function animateHackerPhrases() {
+    const loadingText = document.querySelector('.loading-text');
+    if (!loadingText) return;
+    
+    let phraseIndex = 0;
+    
+    function showNextPhrase() {
+        if (phraseIndex < hackerPhrases.length) {
+            // Fade out current text
+            loadingText.style.opacity = '0';
+            
+            // Change text and fade in after a short delay
+            setTimeout(() => {
+                loadingText.textContent = hackerPhrases[phraseIndex];
+                loadingText.style.opacity = '1';
+                phraseIndex++;
+                
+                // Show next phrase after a delay
+                setTimeout(showNextPhrase, 800);
+            }, 400);
+        } else {
+            // All phrases shown, hide loading screen after a delay
+            setTimeout(hideLoadingScreen, 1000);
+        }
+    }
+    
+    // Start showing phrases
+    showNextPhrase();
+}
+
+// Function to hide loading screen
+function hideLoadingScreen() {
+    const loadingOverlay = document.getElementById('loading-overlay');
+    if (loadingOverlay) {
+        loadingOverlay.classList.add('hidden');
+        
+        // Remove from DOM after transition completes
+        setTimeout(() => {
+            loadingOverlay.style.display = 'none';
+        }, 500);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
+    // Start ASCII animation
+    animateAscii();
+    
     // Elements
     pendingRewardsEl = document.getElementById('pending-rewards');
     claimRewardsBtn = document.getElementById('claim-rewards-btn');
