@@ -11,13 +11,13 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/joho/godotenv"
-	"github.com/libp2p/go-libp2p/core/peer"
-
+	"github.com/dexponent/dxp-verifier/pkg/dashboard"
 	"github.com/dexponent/dxp-verifier/pkg/eth"
 	"github.com/dexponent/dxp-verifier/pkg/logger"
 	"github.com/dexponent/dxp-verifier/pkg/p2p"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/joho/godotenv"
+	"github.com/libp2p/go-libp2p/core/peer"
 )
 
 // printUsage prints the usage information for the verifier
@@ -36,6 +36,7 @@ func printUsage() {
 	fmt.Println("  send <key> <value>  Send data to all connected Dexponent peers")
 	fmt.Println("  withdraw          Withdraw verifier stake")
 	fmt.Println("    --amount N        Amount of stake to withdraw")
+	fmt.Println("  dashboard         Open web dashboard in browser")
 }
 
 func main() {
@@ -636,6 +637,22 @@ func main() {
 		err = os.Remove(pidFile)
 		if err != nil {
 			logger.Warn("Failed to remove PID file: %v", err)
+		}
+
+	case "dashboard":
+		// Initialize Ethereum client
+		ethClient, err := eth.NewClient(rpcURL, privateKeyHex, contractAddress, tokenAddress)
+		if err != nil {
+			logger.Error("Failed to initialize Ethereum client: %v", err)
+			os.Exit(1)
+		}
+		
+		// Start the dashboard server
+		logger.Info("Starting dashboard server...")
+		err = dashboard.StartDashboard(ethClient)
+		if err != nil {
+			logger.Error("Failed to start dashboard server: %v", err)
+			os.Exit(1)
 		}
 
 	default:
