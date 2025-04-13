@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"math/big"
 	"net/http"
 	"os/exec"
 	"runtime"
@@ -303,6 +304,22 @@ func (s *Server) handleWithdrawAPI(w http.ResponseWriter, r *http.Request) {
 		errorMsg := fmt.Sprintf("Insufficient stake. Requested: %s DXP, Available: %s DXP",
 			s.ethClient.FormatTokenAmount(amountWei),
 			s.ethClient.FormatTokenAmount(stake))
+		logger.Error(errorMsg)
+		http.Error(w, fmt.Sprintf(`{"error": "%s"}`, errorMsg), http.StatusBadRequest)
+		return
+	}
+
+	// Define minimum stake requirement (100 DXP)
+	minStakeWei, _ := s.ethClient.ConvertToWei("100")
+	
+	// Calculate remaining stake after withdrawal
+	remainingStake := new(big.Int).Sub(stake, amountWei)
+	
+	// Check if remaining stake would be below minimum but greater than zero
+	if remainingStake.Cmp(big.NewInt(0)) > 0 && remainingStake.Cmp(minStakeWei) < 0 {
+		errorMsg := fmt.Sprintf("Withdrawal would leave stake below minimum requirement. Requested: %s DXP, Remaining would be: %s DXP, Minimum required: 100 DXP",
+			s.ethClient.FormatTokenAmount(amountWei),
+			s.ethClient.FormatTokenAmount(remainingStake))
 		logger.Error(errorMsg)
 		http.Error(w, fmt.Sprintf(`{"error": "%s"}`, errorMsg), http.StatusBadRequest)
 		return

@@ -282,10 +282,45 @@ window.withdrawStake = function() {
         return;
     }
 
+    // Get the current stake amount from the page
+    const currentStakeElement = document.querySelector('.metric:nth-child(5) .value');
+    if (!currentStakeElement) {
+        showStatus('Error: Could not determine current stake', 'error');
+        return;
+    }
+
+    const currentStakeText = currentStakeElement.textContent.trim();
+    const currentStake = parseFloat(currentStakeText);
+    const withdrawAmountValue = parseFloat(amount);
+    
+    // Check if withdrawal amount exceeds current stake
+    if (withdrawAmountValue > currentStake) {
+        showStatus(`Error: Cannot withdraw more than your current stake of ${currentStake} DXP`, 'error');
+        return;
+    }
+    
+    const remainingStake = currentStake - withdrawAmountValue;
+    const minimumStake = 100; // Minimum stake requirement is 100 DXP
+
+    // Check if the remaining stake would be below the minimum requirement but greater than zero
+    if (remainingStake > 0 && remainingStake < minimumStake) {
+        // Calculate the maximum amount they can withdraw while keeping minimum stake
+        const maxWithdrawal = currentStake - minimumStake;
+        
+        if (confirm(`Withdrawing ${amount} DXP would leave your stake at ${remainingStake.toFixed(6)} DXP, which is below the minimum requirement of ${minimumStake} DXP.\n\nYou can either:\n- Withdraw up to ${maxWithdrawal.toFixed(6)} DXP to maintain the minimum stake\n- Withdraw your full stake of ${currentStake} DXP\n\nWould you like to proceed with a full withdrawal instead?`)) {
+            // User chose to withdraw everything
+            document.getElementById('withdraw-amount').value = currentStake;
+        } else {
+            // User canceled
+            return;
+        }
+    }
+
     // Disable the button to prevent multiple submissions
     if (confirmWithdrawBtn) {
         confirmWithdrawBtn.disabled = true;
         confirmWithdrawBtn.classList.add('disabled');
+        confirmWithdrawBtn.textContent = 'Processing...';
     }
     
     // Show loading status
@@ -293,9 +328,9 @@ window.withdrawStake = function() {
     
     // Create URL-encoded form data instead of FormData
     const formData = new URLSearchParams();
-    formData.append('amount', amount);
+    formData.append('amount', document.getElementById('withdraw-amount').value.trim());
 
-    console.log('Submitting withdrawal request for amount:', amount);
+    console.log('Submitting withdrawal request for amount:', document.getElementById('withdraw-amount').value.trim());
 
     fetch('/api/withdraw', {
         method: 'POST',
@@ -341,6 +376,7 @@ window.withdrawStake = function() {
         if (confirmWithdrawBtn) {
             confirmWithdrawBtn.disabled = false;
             confirmWithdrawBtn.classList.remove('disabled');
+            confirmWithdrawBtn.textContent = 'Confirm Withdrawal';
         }
     });
 };
