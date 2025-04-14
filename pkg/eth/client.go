@@ -727,6 +727,39 @@ func (c *Client) GetTransactionReceipt(txHash common.Hash) (*types.Receipt, erro
 	return c.ethClient.TransactionReceipt(ctx, txHash)
 }
 
+// GetTransactionStatus checks if a transaction has been mined
+func (c *Client) GetTransactionStatus(txHash string) (map[string]interface{}, error) {
+	// Parse the transaction hash
+	hash := common.HexToHash(txHash)
+	
+	// Check if the transaction has been mined
+	receipt, err := c.GetTransactionReceipt(hash)
+	if err != nil {
+		if err == ethereum.NotFound {
+			// Transaction not yet mined
+			return map[string]interface{}{
+				"mined": false,
+				"status": "pending",
+			}, nil
+		}
+		return nil, fmt.Errorf("failed to get transaction receipt: %v", err)
+	}
+	
+	// Transaction has been mined
+	status := "success"
+	if receipt.Status == 0 {
+		status = "failed"
+	}
+	
+	return map[string]interface{}{
+		"mined": true,
+		"status": status,
+		"blockNumber": receipt.BlockNumber.Uint64(),
+		"blockHash": receipt.BlockHash.Hex(),
+		"gasUsed": receipt.GasUsed,
+	}, nil
+}
+
 // Helper function to create and sign a transaction
 func (c *Client) createAndSignTransaction(to common.Address, value *big.Int, data []byte) (*types.Transaction, error) {
 	// Get the current nonce
