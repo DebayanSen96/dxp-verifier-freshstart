@@ -1,0 +1,378 @@
+[INFO] 2025/04/13 09:34:32 Starting dashboard server...
+[INFO] 2025/04/13 09:34:32 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/13 09:35:35 Starting dashboard server...
+[INFO] 2025/04/13 09:35:35 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/13 09:35:52 Initializing P2P host...
+[INFO] 2025/04/13 09:35:52 Node: [INFO] Initializing P2P host...
+[INFO] 2025/04/13 09:35:52 Peer ID: 12D3KooWPAtubgXU1MhNNpGRsx84oaVwi3xoocJMQVWj5PrrnLCF
+[INFO] 2025/04/13 09:35:52 Node: ✅ Peer ID: 12D3KooWPAtubgXU1MhNNpGRsx84oaVwi3xoocJMQVWj5PrrnLCF
+[INFO] 2025/04/13 09:35:52 mDNS discovery service started
+[INFO] 2025/04/13 09:35:52 Node: ✅ mDNS discovery service started
+[INFO] 2025/04/13 09:35:53 Initializing Dexponent protocol...
+[INFO] 2025/04/13 09:35:53 Node: [INFO] Initializing Dexponent protocol...
+[INFO] 2025/04/13 09:35:53 Connected to blockchain at block 8108126
+[INFO] 2025/04/13 09:35:53 Node: ✅ Connected to blockchain at block 8108126
+[INFO] 2025/04/13 09:35:54 Registered as a verifier
+[INFO] 2025/04/13 09:35:54 Node: ✅ Registered as a verifier
+[INFO] 2025/04/13 09:35:54 Attempting to map port 51177
+[INFO] 2025/04/13 09:35:56 Assigned to 1 farms: 1 (Active)
+[INFO] 2025/04/13 09:35:56 Starting peer discovery...
+[INFO] 2025/04/13 09:35:56 Verifier started successfully!
+[INFO] 2025/04/13 09:35:56 Node: ✅ Assigned to 1 farms: 1 (Active)
+[INFO] 2025/04/13 09:35:56 Node: [INFO] Starting peer discovery...
+[INFO] 2025/04/13 09:35:56 Node: ✅ Verifier started successfully!
+[INFO] 2025/04/13 09:35:56 Failed to map port 51177
+[INFO] 2025/04/13 09:35:56 Attempting to map port 51460
+[INFO] 2025/04/13 09:35:57 Using local connectivity and relays for peer connections
+[INFO] 2025/04/13 09:35:57 Node: [INFO] Using local connectivity and relays for peer connections
+[INFO] 2025/04/13 09:35:57 Successfully listening on alternative port 10000
+[INFO] 2025/04/13 09:35:58 Failed to map port 51460
+[INFO] 2025/04/13 09:35:58 Attempting to map port 51180
+[INFO] 2025/04/13 09:35:59 Successfully listening on alternative port 10001
+[INFO] 2025/04/13 09:36:00 Failed to map port 51180
+[INFO] 2025/04/13 09:36:00 Attempting to map port 57239
+[INFO] 2025/04/13 09:36:01 Successfully listening on alternative port 10002
+[INFO] 2025/04/13 09:36:02 Failed to map port 57239
+[INFO] 2025/04/13 09:36:02 Using local connectivity and relays for peer connections
+[INFO] 2025/04/13 09:36:02 Node: [INFO] Using local connectivity and relays for peer connections
+[INFO] 2025/04/13 09:36:02 Successfully listening on alternative port 10000
+[INFO] 2025/04/13 09:36:03 Successfully listening on alternative port 10003
+[INFO] 2025/04/13 09:36:04 Successfully listening on alternative port 10001
+[INFO] 2025/04/13 09:36:05 Successfully listening on alternative port 10004
+[INFO] 2025/04/13 09:36:06 Successfully listening on alternative port 10002
+[INFO] 2025/04/13 09:36:07 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/13 09:36:07 Node: [INFO] Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/13 09:36:07 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/13 09:36:07 Node: [INFO] Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/13 09:36:08 Successfully listening on alternative port 10003
+[INFO] 2025/04/13 09:36:10 Successfully listening on alternative port 10004
+[INFO] 2025/04/13 09:36:11 Benchmark updater will run every 1m0s
+[INFO] 2025/04/13 09:36:11 Node: ✅ Benchmark updater will run every 1m0s
+[INFO] 2025/04/13 09:36:11 Updating benchmark for farm 1: 9.69% -> 9.58%
+[INFO] 2025/04/13 09:36:11 Node: ✅ Updating benchmark for farm 1: 9.69% -> 9.58%
+[INFO] 2025/04/13 09:36:12 Benchmark update transaction submitted: 0x82a122678222b5554f7f1f5acb81255f52961430c46b621979b8b4533ffb00b1
+[INFO] 2025/04/13 09:36:12 Node: ✅ Benchmark update transaction submitted: 0x82a122678222b5554f7f1f5acb81255f52961430c46b621979b8b4533ffb00b1
+[INFO] 2025/04/13 09:36:12 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/13 09:36:12 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/13 09:36:12 Node: [INFO] Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/13 09:36:12 Node: [INFO] Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/13 09:36:26 Benchmark update transaction 0x82a122678222b5554f7f1f5acb81255f52961430c46b621979b8b4533ffb00b1 confirmed successfully
+[INFO] 2025/04/13 09:36:26 Node: ✅ Benchmark update transaction 0x82a122678222b5554f7f1f5acb81255f52961430c46b621979b8b4533ffb00b1 confirmed successfully
+[INFO] 2025/04/13 09:37:13 Updating benchmark for farm 1: 9.58% -> 9.78%
+[INFO] 2025/04/13 09:37:13 Node: ✅ Updating benchmark for farm 1: 9.58% -> 9.78%
+[INFO] 2025/04/13 09:37:13 Benchmark update transaction submitted: 0x352d8de1f9547a5589dcd14697d39a10490571e8fa9f5c0246e5ff239e71520d
+[INFO] 2025/04/13 09:37:13 Node: ✅ Benchmark update transaction submitted: 0x352d8de1f9547a5589dcd14697d39a10490571e8fa9f5c0246e5ff239e71520d
+[INFO] 2025/04/13 09:37:27 Benchmark update transaction 0x352d8de1f9547a5589dcd14697d39a10490571e8fa9f5c0246e5ff239e71520d confirmed successfully
+[INFO] 2025/04/13 09:37:27 Node: ✅ Benchmark update transaction 0x352d8de1f9547a5589dcd14697d39a10490571e8fa9f5c0246e5ff239e71520d confirmed successfully
+[INFO] 2025/04/13 09:38:14 Updating benchmark for farm 1: 9.78% -> 10.13%
+[INFO] 2025/04/13 09:38:14 Node: ✅ Updating benchmark for farm 1: 9.78% -> 10.13%
+[INFO] 2025/04/13 09:38:15 Benchmark update transaction submitted: 0xfcd4a346065c5797b281e1e63d1542c55635e71cc792a7283133bcdc353bdf2a
+[INFO] 2025/04/13 09:38:15 Node: ✅ Benchmark update transaction submitted: 0xfcd4a346065c5797b281e1e63d1542c55635e71cc792a7283133bcdc353bdf2a
+[INFO] 2025/04/13 09:38:27 Benchmark update transaction 0xfcd4a346065c5797b281e1e63d1542c55635e71cc792a7283133bcdc353bdf2a confirmed successfully
+[INFO] 2025/04/13 09:38:27 Node: ✅ Benchmark update transaction 0xfcd4a346065c5797b281e1e63d1542c55635e71cc792a7283133bcdc353bdf2a confirmed successfully
+[INFO] 2025/04/13 09:39:15 Updating benchmark for farm 1: 10.12% -> 9.94%
+[INFO] 2025/04/13 09:39:15 Node: ✅ Updating benchmark for farm 1: 10.12% -> 9.94%
+[INFO] 2025/04/13 09:39:16 Benchmark update transaction submitted: 0x48196e69e7703dd1ac10b19030dbcb504dbafef3734e49a39103e6626663d785
+[INFO] 2025/04/13 09:39:16 Node: ✅ Benchmark update transaction submitted: 0x48196e69e7703dd1ac10b19030dbcb504dbafef3734e49a39103e6626663d785
+[INFO] 2025/04/13 09:39:27 Benchmark update transaction 0x48196e69e7703dd1ac10b19030dbcb504dbafef3734e49a39103e6626663d785 confirmed successfully
+[INFO] 2025/04/13 09:39:27 Node: ✅ Benchmark update transaction 0x48196e69e7703dd1ac10b19030dbcb504dbafef3734e49a39103e6626663d785 confirmed successfully
+[INFO] 2025/04/13 09:40:16 Updating benchmark for farm 1: 9.93% -> 9.58%
+[INFO] 2025/04/13 09:40:16 Node: ✅ Updating benchmark for farm 1: 9.93% -> 9.58%
+[INFO] 2025/04/13 09:40:17 Benchmark update transaction submitted: 0xd5a6ed7c6c3a83569fe44b3779139d2c3ca2788087f4e6008b80d5407e108cbe
+[INFO] 2025/04/13 09:40:17 Node: ✅ Benchmark update transaction submitted: 0xd5a6ed7c6c3a83569fe44b3779139d2c3ca2788087f4e6008b80d5407e108cbe
+[INFO] 2025/04/13 09:40:27 Benchmark update transaction 0xd5a6ed7c6c3a83569fe44b3779139d2c3ca2788087f4e6008b80d5407e108cbe confirmed successfully
+[INFO] 2025/04/13 09:40:27 Node: ✅ Benchmark update transaction 0xd5a6ed7c6c3a83569fe44b3779139d2c3ca2788087f4e6008b80d5407e108cbe confirmed successfully
+[INFO] 2025/04/13 09:41:18 Updating benchmark for farm 1: 9.57% -> 9.82%
+[INFO] 2025/04/13 09:41:18 Node: ✅ Updating benchmark for farm 1: 9.57% -> 9.82%
+[INFO] 2025/04/13 09:41:18 Benchmark update transaction submitted: 0x774c610412ca380df6cca6347d2ccb36532b9d27adbd197144369bb525d4392c
+[INFO] 2025/04/13 09:41:18 Node: ✅ Benchmark update transaction submitted: 0x774c610412ca380df6cca6347d2ccb36532b9d27adbd197144369bb525d4392c
+[INFO] 2025/04/13 09:41:33 Benchmark update transaction 0x774c610412ca380df6cca6347d2ccb36532b9d27adbd197144369bb525d4392c confirmed successfully
+[INFO] 2025/04/13 09:41:33 Node: ✅ Benchmark update transaction 0x774c610412ca380df6cca6347d2ccb36532b9d27adbd197144369bb525d4392c confirmed successfully
+[INFO] 2025/04/13 09:42:19 Updating benchmark for farm 1: 9.81% -> 10.06%
+[INFO] 2025/04/13 09:42:19 Node: ✅ Updating benchmark for farm 1: 9.81% -> 10.06%
+[INFO] 2025/04/13 09:42:20 Benchmark update transaction submitted: 0x4e229e370d679efdedf372c1a16c5a707213f7a6e66b17e0462ce048b56bef4c
+[INFO] 2025/04/13 09:42:20 Node: ✅ Benchmark update transaction submitted: 0x4e229e370d679efdedf372c1a16c5a707213f7a6e66b17e0462ce048b56bef4c
+[INFO] 2025/04/13 09:42:33 Benchmark update transaction 0x4e229e370d679efdedf372c1a16c5a707213f7a6e66b17e0462ce048b56bef4c confirmed successfully
+[INFO] 2025/04/13 09:42:33 Node: ✅ Benchmark update transaction 0x4e229e370d679efdedf372c1a16c5a707213f7a6e66b17e0462ce048b56bef4c confirmed successfully
+[INFO] 2025/04/13 09:43:20 Updating benchmark for farm 1: 10.06% -> 9.74%
+[INFO] 2025/04/13 09:43:20 Node: ✅ Updating benchmark for farm 1: 10.06% -> 9.74%
+[INFO] 2025/04/13 09:43:21 Benchmark update transaction submitted: 0xa000d9bcbfba7e41659fbe8d30a5af2332af5dae3ad7241e6a3692292530e83f
+[INFO] 2025/04/13 09:43:21 Node: ✅ Benchmark update transaction submitted: 0xa000d9bcbfba7e41659fbe8d30a5af2332af5dae3ad7241e6a3692292530e83f
+[WARN] 2025/04/13 09:43:33 Failed to get receipt for transaction 0xa000d9bcbfba7e41659fbe8d30a5af2332af5dae3ad7241e6a3692292530e83f: not found
+[INFO] 2025/04/13 09:43:33 Node: [WARN] Failed to get receipt for transaction 0xa000d9bcbfba7e41659fbe8d30a5af2332af5dae3ad7241e6a3692292530e83f: not found
+[INFO] 2025/04/13 09:43:38 Benchmark update transaction 0xa000d9bcbfba7e41659fbe8d30a5af2332af5dae3ad7241e6a3692292530e83f confirmed successfully
+[INFO] 2025/04/13 09:43:38 Node: ✅ Benchmark update transaction 0xa000d9bcbfba7e41659fbe8d30a5af2332af5dae3ad7241e6a3692292530e83f confirmed successfully
+[INFO] 2025/04/13 09:44:22 Updating benchmark for farm 1: 9.74% -> 10.11%
+[INFO] 2025/04/13 09:44:22 Node: ✅ Updating benchmark for farm 1: 9.74% -> 10.11%
+[INFO] 2025/04/13 09:44:22 Benchmark update transaction submitted: 0xfcc5d65eaceffa696f3ed2bd43481f38611c9c5f8ec544d63b727cb3931280f5
+[INFO] 2025/04/13 09:44:22 Node: ✅ Benchmark update transaction submitted: 0xfcc5d65eaceffa696f3ed2bd43481f38611c9c5f8ec544d63b727cb3931280f5
+[INFO] 2025/04/13 09:44:34 Benchmark update transaction 0xfcc5d65eaceffa696f3ed2bd43481f38611c9c5f8ec544d63b727cb3931280f5 confirmed successfully
+[INFO] 2025/04/13 09:44:34 Node: ✅ Benchmark update transaction 0xfcc5d65eaceffa696f3ed2bd43481f38611c9c5f8ec544d63b727cb3931280f5 confirmed successfully
+[INFO] 2025/04/13 09:45:23 Updating benchmark for farm 1: 10.11% -> 10.30%
+[INFO] 2025/04/13 09:45:23 Node: ✅ Updating benchmark for farm 1: 10.11% -> 10.30%
+[INFO] 2025/04/13 09:45:24 Benchmark update transaction submitted: 0x7b9b3e2ac6f85464112b002286cdf955ef192eba4fb2978d9d869f9a6a51811d
+[INFO] 2025/04/13 09:45:24 Node: ✅ Benchmark update transaction submitted: 0x7b9b3e2ac6f85464112b002286cdf955ef192eba4fb2978d9d869f9a6a51811d
+[INFO] 2025/04/13 09:45:39 Benchmark update transaction 0x7b9b3e2ac6f85464112b002286cdf955ef192eba4fb2978d9d869f9a6a51811d confirmed successfully
+[INFO] 2025/04/13 09:45:39 Node: ✅ Benchmark update transaction 0x7b9b3e2ac6f85464112b002286cdf955ef192eba4fb2978d9d869f9a6a51811d confirmed successfully
+[INFO] 2025/04/13 09:46:24 Updating benchmark for farm 1: 10.29% -> 10.22%
+[INFO] 2025/04/13 09:46:24 Node: ✅ Updating benchmark for farm 1: 10.29% -> 10.22%
+[INFO] 2025/04/13 09:46:25 Benchmark update transaction submitted: 0xfe56ef76b5217ef8707685f98f7778891fccb26b60f12873bd9a254bbf6ae804
+[INFO] 2025/04/13 09:46:25 Node: ✅ Benchmark update transaction submitted: 0xfe56ef76b5217ef8707685f98f7778891fccb26b60f12873bd9a254bbf6ae804
+[INFO] 2025/04/13 09:46:39 Benchmark update transaction 0xfe56ef76b5217ef8707685f98f7778891fccb26b60f12873bd9a254bbf6ae804 confirmed successfully
+[INFO] 2025/04/13 09:46:39 Node: ✅ Benchmark update transaction 0xfe56ef76b5217ef8707685f98f7778891fccb26b60f12873bd9a254bbf6ae804 confirmed successfully
+[INFO] 2025/04/13 09:47:26 Updating benchmark for farm 1: 10.22% -> 10.59%
+[INFO] 2025/04/13 09:47:26 Node: ✅ Updating benchmark for farm 1: 10.22% -> 10.59%
+[INFO] 2025/04/13 09:47:26 Benchmark update transaction submitted: 0x1d62160379774693b1a734889f43c7987d852b9966ac3f1c4ccae489766db57d
+[INFO] 2025/04/13 09:47:26 Node: ✅ Benchmark update transaction submitted: 0x1d62160379774693b1a734889f43c7987d852b9966ac3f1c4ccae489766db57d
+[INFO] 2025/04/13 09:47:40 Benchmark update transaction 0x1d62160379774693b1a734889f43c7987d852b9966ac3f1c4ccae489766db57d confirmed successfully
+[INFO] 2025/04/13 09:47:40 Node: ✅ Benchmark update transaction 0x1d62160379774693b1a734889f43c7987d852b9966ac3f1c4ccae489766db57d confirmed successfully
+[INFO] 2025/04/13 09:48:27 Updating benchmark for farm 1: 10.58% -> 10.16%
+[INFO] 2025/04/13 09:48:27 Node: ✅ Updating benchmark for farm 1: 10.58% -> 10.16%
+[INFO] 2025/04/13 09:48:27 Benchmark update transaction submitted: 0x8839466b456b01059bd7bdd0bd790e95cb2ab5a889626fd0277bc753be8666ee
+[INFO] 2025/04/13 09:48:27 Node: ✅ Benchmark update transaction submitted: 0x8839466b456b01059bd7bdd0bd790e95cb2ab5a889626fd0277bc753be8666ee
+[INFO] 2025/04/13 09:48:40 Benchmark update transaction 0x8839466b456b01059bd7bdd0bd790e95cb2ab5a889626fd0277bc753be8666ee confirmed successfully
+[INFO] 2025/04/13 09:48:40 Node: ✅ Benchmark update transaction 0x8839466b456b01059bd7bdd0bd790e95cb2ab5a889626fd0277bc753be8666ee confirmed successfully
+[INFO] 2025/04/13 09:49:28 Updating benchmark for farm 1: 10.16% -> 9.83%
+[INFO] 2025/04/13 09:49:28 Node: ✅ Updating benchmark for farm 1: 10.16% -> 9.83%
+[INFO] 2025/04/13 09:49:29 Benchmark update transaction submitted: 0x04c7530700f827c4eccb579b07aecd438ec5a042c57fb7194c4719818da2d154
+[INFO] 2025/04/13 09:49:29 Node: ✅ Benchmark update transaction submitted: 0x04c7530700f827c4eccb579b07aecd438ec5a042c57fb7194c4719818da2d154
+[WARN] 2025/04/13 09:49:40 Failed to get receipt for transaction 0x04c7530700f827c4eccb579b07aecd438ec5a042c57fb7194c4719818da2d154: not found
+[INFO] 2025/04/13 09:49:40 Node: [WARN] Failed to get receipt for transaction 0x04c7530700f827c4eccb579b07aecd438ec5a042c57fb7194c4719818da2d154: not found
+[WARN] 2025/04/13 09:49:45 Failed to get receipt for transaction 0x04c7530700f827c4eccb579b07aecd438ec5a042c57fb7194c4719818da2d154: not found
+[INFO] 2025/04/13 09:49:45 Node: [WARN] Failed to get receipt for transaction 0x04c7530700f827c4eccb579b07aecd438ec5a042c57fb7194c4719818da2d154: not found
+[INFO] 2025/04/13 09:49:51 Benchmark update transaction 0x04c7530700f827c4eccb579b07aecd438ec5a042c57fb7194c4719818da2d154 confirmed successfully
+[INFO] 2025/04/13 09:49:51 Node: ✅ Benchmark update transaction 0x04c7530700f827c4eccb579b07aecd438ec5a042c57fb7194c4719818da2d154 confirmed successfully
+[INFO] 2025/04/13 09:50:29 Updating benchmark for farm 1: 9.83% -> 9.63%
+[INFO] 2025/04/13 09:50:29 Node: ✅ Updating benchmark for farm 1: 9.83% -> 9.63%
+[INFO] 2025/04/13 09:50:30 Benchmark update transaction submitted: 0x4225ce1beec4b9e700c84c3ce694eb0c821843754cac0d733e458437c4cd5572
+[INFO] 2025/04/13 09:50:30 Node: ✅ Benchmark update transaction submitted: 0x4225ce1beec4b9e700c84c3ce694eb0c821843754cac0d733e458437c4cd5572
+[INFO] 2025/04/13 09:50:41 Benchmark update transaction 0x4225ce1beec4b9e700c84c3ce694eb0c821843754cac0d733e458437c4cd5572 confirmed successfully
+[INFO] 2025/04/13 09:50:41 Node: ✅ Benchmark update transaction 0x4225ce1beec4b9e700c84c3ce694eb0c821843754cac0d733e458437c4cd5572 confirmed successfully
+[INFO] 2025/04/13 09:51:30 Updating benchmark for farm 1: 9.62% -> 9.95%
+[INFO] 2025/04/13 09:51:30 Node: ✅ Updating benchmark for farm 1: 9.62% -> 9.95%
+[INFO] 2025/04/13 09:51:31 Benchmark update transaction submitted: 0xd1d4b3b1fb81dcda4526be7aecf3a3a2a8124a7d5c86de47510e0adb8fe49574
+[INFO] 2025/04/13 09:51:31 Node: ✅ Benchmark update transaction submitted: 0xd1d4b3b1fb81dcda4526be7aecf3a3a2a8124a7d5c86de47510e0adb8fe49574
+[INFO] 2025/04/13 09:51:46 Benchmark update transaction 0xd1d4b3b1fb81dcda4526be7aecf3a3a2a8124a7d5c86de47510e0adb8fe49574 confirmed successfully
+[INFO] 2025/04/13 09:51:46 Node: ✅ Benchmark update transaction 0xd1d4b3b1fb81dcda4526be7aecf3a3a2a8124a7d5c86de47510e0adb8fe49574 confirmed successfully
+[INFO] 2025/04/13 09:52:32 Updating benchmark for farm 1: 9.94% -> 9.86%
+[INFO] 2025/04/13 09:52:32 Node: ✅ Updating benchmark for farm 1: 9.94% -> 9.86%
+[INFO] 2025/04/13 09:52:32 Benchmark update transaction submitted: 0x6f93c09ddbfa30ebc60dc627081b81d53b0777f02940ac827e8f47b782a6353d
+[INFO] 2025/04/13 09:52:32 Node: ✅ Benchmark update transaction submitted: 0x6f93c09ddbfa30ebc60dc627081b81d53b0777f02940ac827e8f47b782a6353d
+[INFO] 2025/04/13 09:52:47 Benchmark update transaction 0x6f93c09ddbfa30ebc60dc627081b81d53b0777f02940ac827e8f47b782a6353d confirmed successfully
+[INFO] 2025/04/13 09:52:47 Node: ✅ Benchmark update transaction 0x6f93c09ddbfa30ebc60dc627081b81d53b0777f02940ac827e8f47b782a6353d confirmed successfully
+[INFO] 2025/04/13 09:53:33 Updating benchmark for farm 1: 9.86% -> 9.76%
+[INFO] 2025/04/13 09:53:33 Node: ✅ Updating benchmark for farm 1: 9.86% -> 9.76%
+[INFO] 2025/04/13 09:53:34 Benchmark update transaction submitted: 0x46d1bb2e20ed104cd8dfbbdbdb22dbe3f33e00edc3fab57e6fd56db1b29e5228
+[INFO] 2025/04/13 09:53:34 Node: ✅ Benchmark update transaction submitted: 0x46d1bb2e20ed104cd8dfbbdbdb22dbe3f33e00edc3fab57e6fd56db1b29e5228
+[INFO] 2025/04/13 09:53:47 Benchmark update transaction 0x46d1bb2e20ed104cd8dfbbdbdb22dbe3f33e00edc3fab57e6fd56db1b29e5228 confirmed successfully
+[INFO] 2025/04/13 09:53:47 Node: ✅ Benchmark update transaction 0x46d1bb2e20ed104cd8dfbbdbdb22dbe3f33e00edc3fab57e6fd56db1b29e5228 confirmed successfully
+[INFO] 2025/04/13 09:54:34 Updating benchmark for farm 1: 9.75% -> 10.14%
+[INFO] 2025/04/13 09:54:34 Node: ✅ Updating benchmark for farm 1: 9.75% -> 10.14%
+[INFO] 2025/04/13 09:54:35 Benchmark update transaction submitted: 0x0b3b51531517f11724bc67ce649d8f2be8b225c6ff0d2d7e79ecb8287af87257
+[INFO] 2025/04/13 09:54:35 Node: ✅ Benchmark update transaction submitted: 0x0b3b51531517f11724bc67ce649d8f2be8b225c6ff0d2d7e79ecb8287af87257
+[WARN] 2025/04/13 09:54:47 Failed to get receipt for transaction 0x0b3b51531517f11724bc67ce649d8f2be8b225c6ff0d2d7e79ecb8287af87257: not found
+[INFO] 2025/04/13 09:54:47 Node: [WARN] Failed to get receipt for transaction 0x0b3b51531517f11724bc67ce649d8f2be8b225c6ff0d2d7e79ecb8287af87257: not found
+[INFO] 2025/04/13 09:54:52 Benchmark update transaction 0x0b3b51531517f11724bc67ce649d8f2be8b225c6ff0d2d7e79ecb8287af87257 confirmed successfully
+[INFO] 2025/04/13 09:54:52 Node: ✅ Benchmark update transaction 0x0b3b51531517f11724bc67ce649d8f2be8b225c6ff0d2d7e79ecb8287af87257 confirmed successfully
+[INFO] 2025/04/13 09:55:36 Updating benchmark for farm 1: 10.13% -> 10.46%
+[INFO] 2025/04/13 09:55:36 Node: ✅ Updating benchmark for farm 1: 10.13% -> 10.46%
+[INFO] 2025/04/13 09:55:36 Benchmark update transaction submitted: 0x9f6901f00a4141540e96f25cc48a84aa1db8143a0fa1902661c667c746f101be
+[INFO] 2025/04/13 09:55:36 Node: ✅ Benchmark update transaction submitted: 0x9f6901f00a4141540e96f25cc48a84aa1db8143a0fa1902661c667c746f101be
+[WARN] 2025/04/13 09:55:48 Failed to get receipt for transaction 0x9f6901f00a4141540e96f25cc48a84aa1db8143a0fa1902661c667c746f101be: not found
+[INFO] 2025/04/13 09:55:48 Node: [WARN] Failed to get receipt for transaction 0x9f6901f00a4141540e96f25cc48a84aa1db8143a0fa1902661c667c746f101be: not found
+[WARN] 2025/04/13 09:55:53 Failed to get receipt for transaction 0x9f6901f00a4141540e96f25cc48a84aa1db8143a0fa1902661c667c746f101be: not found
+[INFO] 2025/04/13 09:55:53 Node: [WARN] Failed to get receipt for transaction 0x9f6901f00a4141540e96f25cc48a84aa1db8143a0fa1902661c667c746f101be: not found
+[WARN] 2025/04/13 09:55:58 Failed to get receipt for transaction 0x9f6901f00a4141540e96f25cc48a84aa1db8143a0fa1902661c667c746f101be: not found
+[INFO] 2025/04/13 09:55:58 Node: [WARN] Failed to get receipt for transaction 0x9f6901f00a4141540e96f25cc48a84aa1db8143a0fa1902661c667c746f101be: not found
+[INFO] 2025/04/13 09:56:03 Benchmark update transaction 0x9f6901f00a4141540e96f25cc48a84aa1db8143a0fa1902661c667c746f101be confirmed successfully
+[INFO] 2025/04/13 09:56:03 Node: ✅ Benchmark update transaction 0x9f6901f00a4141540e96f25cc48a84aa1db8143a0fa1902661c667c746f101be confirmed successfully
+[INFO] 2025/04/13 09:56:22 Shutting down...
+[INFO] 2025/04/13 09:56:22 Node: [INFO] Shutting down...
+[INFO] 2025/04/13 09:56:22 Node process exited normally
+[INFO] 2025/04/13 10:00:26 Starting dashboard server...
+[INFO] 2025/04/13 10:00:26 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/13 10:05:46 Starting dashboard server...
+[INFO] 2025/04/13 10:05:46 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/13 10:14:26 Starting dashboard server...
+[INFO] 2025/04/13 10:14:26 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/13 10:14:46 Approving DXP token transfer...
+[INFO] 2025/04/13 10:14:47 Approval transaction submitted: 0x8cadbd42565ad0b9975bba5a9bcea14f0de4f163b5a9ff45ddf8e13abbf9b3bd
+[INFO] 2025/04/13 10:14:47 Waiting for approval transaction to be mined...
+[INFO] 2025/04/13 10:15:01 Approval transaction mined successfully
+[INFO] 2025/04/13 10:15:01 Registering verifier with amount 150.000000 and farm ID 1
+[INFO] 2025/04/13 10:15:02 Registration transaction submitted: 0x27bf006119c98199a96391b805fffe28bf5dab121e68c97bee5b4c92307382e2
+[INFO] 2025/04/13 10:15:02 Waiting for registration transaction to be mined...
+[INFO] 2025/04/13 10:15:13 Successfully registered as a verifier!
+[INFO] 2025/04/13 10:15:13 Farm ID: 1
+[INFO] 2025/04/13 10:15:13 Staked Amount: 150.000000
+[INFO] 2025/04/13 10:19:02 Starting dashboard server...
+[INFO] 2025/04/13 10:19:02 Starting dashboard on http://localhost:8080
+[ERROR] 2025/04/13 10:19:02 Failed to start dashboard server: listen tcp :8080: bind: address already in use
+[INFO] 2025/04/13 10:19:20 Starting dashboard server...
+[INFO] 2025/04/13 10:19:20 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/13 10:23:26 Starting dashboard server...
+[INFO] 2025/04/13 10:23:26 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/13 10:26:41 Starting dashboard server...
+[INFO] 2025/04/13 10:26:41 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/13 10:28:43 Starting dashboard server...
+[INFO] 2025/04/13 10:28:43 Starting dashboard on http://localhost:8080
+[ERROR] 2025/04/13 10:29:03 Failed to decode request body: invalid character 'a' looking for beginning of value
+[INFO] 2025/04/13 10:29:03 Received withdrawal request: amount=, withdrawAll=false
+[ERROR] 2025/04/13 10:29:03 Failed to parse amount as float: strconv.ParseFloat: parsing "": invalid syntax
+[ERROR] 2025/04/13 10:29:06 Failed to decode request body: invalid character 'a' looking for beginning of value
+[INFO] 2025/04/13 10:29:06 Received withdrawal request: amount=, withdrawAll=false
+[ERROR] 2025/04/13 10:29:06 Failed to parse amount as float: strconv.ParseFloat: parsing "": invalid syntax
+[ERROR] 2025/04/13 10:29:07 Failed to decode request body: invalid character 'a' looking for beginning of value
+[INFO] 2025/04/13 10:29:07 Received withdrawal request: amount=, withdrawAll=false
+[ERROR] 2025/04/13 10:29:07 Failed to parse amount as float: strconv.ParseFloat: parsing "": invalid syntax
+[INFO] 2025/04/13 10:30:52 Starting dashboard server...
+[INFO] 2025/04/13 10:30:52 Starting dashboard on http://localhost:8080
+[ERROR] 2025/04/13 10:31:13 Failed to decode request body: invalid character 'a' looking for beginning of value
+[INFO] 2025/04/13 10:32:31 Starting dashboard server...
+[INFO] 2025/04/13 10:32:31 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/13 10:33:15 Starting dashboard server...
+[INFO] 2025/04/13 10:33:15 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/13 10:33:35 Withdraw request received for amount: 140
+[INFO] 2025/04/13 10:33:36 Withdrawing 140.000000 DXP from stake...
+[INFO] 2025/04/13 10:33:37 Withdrawal transaction submitted: 0x0166ce61f49eed2ef7cdd15787c1c7188f3c1590bf5e88bf83fcde5923179559
+[INFO] 2025/04/13 10:46:04 Starting dashboard server...
+[INFO] 2025/04/13 10:46:04 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/13 10:48:04 Starting dashboard server...
+[INFO] 2025/04/13 10:48:04 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/13 10:48:30 Approving DXP token transfer...
+[INFO] 2025/04/13 10:48:31 Approval transaction submitted: 0x61128c18e10dc8ebb1b6a47ee69d1fe72a849e7171b50c9d5bbf6e8ee8ebb898
+[INFO] 2025/04/13 10:48:31 Waiting for approval transaction to be mined...
+[INFO] 2025/04/13 10:48:38 Approval transaction mined successfully
+[INFO] 2025/04/13 10:48:38 Registering verifier with amount 120.000000 and farm ID 2
+[INFO] 2025/04/13 10:48:39 Registration transaction submitted: 0x2575354903ca548a40f59fd0d082085cc3f1631941ffb2bdac28e21d8c5d24c6
+[INFO] 2025/04/13 10:48:39 Waiting for registration transaction to be mined...
+[INFO] 2025/04/13 10:48:49 Successfully registered as a verifier!
+[INFO] 2025/04/13 10:48:49 Farm ID: 2
+[INFO] 2025/04/13 10:48:49 Staked Amount: 120.000000
+[INFO] 2025/04/13 10:50:01 Withdraw request received for amount: 90
+[INFO] 2025/04/13 10:50:02 Withdrawing 90.000000 DXP from stake...
+[INFO] 2025/04/13 10:50:03 Withdrawal transaction submitted: 0xbce572db67df9d089a794fb061cc24ff64e15c011fff9de3568f479912d5dbb8
+[INFO] 2025/04/13 10:51:17 Starting dashboard server...
+[INFO] 2025/04/13 10:51:17 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/13 10:52:00 Starting dashboard server...
+[INFO] 2025/04/13 10:52:00 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/13 10:52:18 Starting dashboard server...
+[INFO] 2025/04/13 10:52:18 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/13 10:52:37 Withdraw request received for amount: 30
+[INFO] 2025/04/13 10:52:37 Withdrawing 30.000000 DXP from stake...
+[INFO] 2025/04/13 10:52:38 Withdrawal transaction submitted: 0x0e5c18d5dd81f637ff03ad11e75691c7b458c8728c8d5f4d91fca82eaa582b37
+[INFO] 2025/04/13 10:55:55 Starting dashboard server...
+[INFO] 2025/04/13 10:55:55 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/13 10:56:13 Approving DXP token transfer...
+[INFO] 2025/04/13 10:56:14 Approval transaction submitted: 0xbc1ff892a867423fc793f94568ff25a5d8cd02886ac52f6d309f40355493c4b3
+[INFO] 2025/04/13 10:56:14 Waiting for approval transaction to be mined...
+[INFO] 2025/04/13 10:56:25 Approval transaction mined successfully
+[INFO] 2025/04/13 10:56:25 Registering verifier with amount 150.000000 and farm ID 1
+[INFO] 2025/04/13 10:56:26 Registration transaction submitted: 0xcdc49b8ecd67937fbc335c0650dfb75cf22e27ec6dd8f45b5a9c204182b8969a
+[INFO] 2025/04/13 10:56:26 Waiting for registration transaction to be mined...
+[INFO] 2025/04/13 10:56:37 Successfully registered as a verifier!
+[INFO] 2025/04/13 10:56:37 Farm ID: 1
+[INFO] 2025/04/13 10:56:37 Staked Amount: 150.000000
+[INFO] 2025/04/13 10:57:06 Withdraw request received for amount: 120
+[ERROR] 2025/04/13 10:57:06 Withdrawal would leave stake below minimum requirement. Requested: 120.000000 DXP, Remaining would be: 30.000000 DXP, Minimum required: 100 DXP
+[INFO] 2025/04/13 10:57:12 Withdraw request received for amount: 120
+[ERROR] 2025/04/13 10:57:13 Withdrawal would leave stake below minimum requirement. Requested: 120.000000 DXP, Remaining would be: 30.000000 DXP, Minimum required: 100 DXP
+[INFO] 2025/04/13 10:57:26 Withdraw request received for amount: 100
+[ERROR] 2025/04/13 10:57:27 Withdrawal would leave stake below minimum requirement. Requested: 100.000000 DXP, Remaining would be: 50.000000 DXP, Minimum required: 100 DXP
+[INFO] 2025/04/13 10:57:32 Withdraw request received for amount: 150
+[INFO] 2025/04/13 10:57:33 Withdrawing 150.000000 DXP from stake...
+[INFO] 2025/04/13 10:57:34 Withdrawal transaction submitted: 0x40ef92d03077b790f7b5c5e9edcd6d61030447e2aa182ff2f9d883f50a0d4bf0
+[INFO] 2025/04/13 10:58:14 Starting dashboard server...
+[INFO] 2025/04/13 10:58:14 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/13 10:58:55 Approving DXP token transfer...
+[INFO] 2025/04/13 10:58:56 Approval transaction submitted: 0x5c6b56a83d413cb6d6ff6bc91d92de38949bd2967154f7e2174c33a5126a43c1
+[INFO] 2025/04/13 10:58:56 Waiting for approval transaction to be mined...
+[INFO] 2025/04/13 10:59:01 Approval transaction mined successfully
+[INFO] 2025/04/13 10:59:01 Registering verifier with amount 150.000000 and farm ID 12
+[INFO] 2025/04/13 10:59:02 Registration transaction submitted: 0xcc352caca393a0aafd7d1840268dd797b54f9230253c11a1dc0e655863214828
+[INFO] 2025/04/13 10:59:02 Waiting for registration transaction to be mined...
+[INFO] 2025/04/13 10:59:13 Successfully registered as a verifier!
+[INFO] 2025/04/13 10:59:13 Farm ID: 12
+[INFO] 2025/04/13 10:59:13 Staked Amount: 150.000000
+[INFO] 2025/04/13 11:00:26 Approving DXP token transfer...
+[INFO] 2025/04/13 11:00:27 Approval transaction submitted: 0xdbc834111deee7c415936bd0f82aa176f68f3b40b9ee0308d7b941fe3315a410
+[INFO] 2025/04/13 11:00:27 Waiting for approval transaction to be mined...
+[INFO] 2025/04/13 11:00:36 Approval transaction mined successfully
+[INFO] 2025/04/13 11:00:36 Registering verifier with amount 150.000000 and farm ID 2
+[INFO] 2025/04/13 11:00:37 Registration transaction submitted: 0x630f51cb80872feafd6296df22b74f7100e02c0cee3ba0f646b78f9d2a5cead8
+[INFO] 2025/04/13 11:00:37 Waiting for registration transaction to be mined...
+[INFO] 2025/04/13 11:01:02 Successfully registered as a verifier!
+[INFO] 2025/04/13 11:01:02 Farm ID: 2
+[INFO] 2025/04/13 11:01:02 Staked Amount: 150.000000
+[INFO] 2025/04/13 11:01:43 Initializing P2P host...
+[INFO] 2025/04/13 11:01:43 Node: [INFO] Initializing P2P host...
+[INFO] 2025/04/13 11:01:43 Peer ID: 12D3KooWJa4euWtT1mBiGUjLLWzHzrWpX53RPKsqjnpteBm3ky6a
+[INFO] 2025/04/13 11:01:43 Node: ✅ Peer ID: 12D3KooWJa4euWtT1mBiGUjLLWzHzrWpX53RPKsqjnpteBm3ky6a
+[INFO] 2025/04/13 11:01:43 mDNS discovery service started
+[INFO] 2025/04/13 11:01:43 Node: ✅ mDNS discovery service started
+[INFO] 2025/04/13 11:01:44 Initializing Dexponent protocol...
+[INFO] 2025/04/13 11:01:44 Node: [INFO] Initializing Dexponent protocol...
+[INFO] 2025/04/13 11:01:44 Connected to blockchain at block 8108518
+[INFO] 2025/04/13 11:01:44 Node: ✅ Connected to blockchain at block 8108518
+[INFO] 2025/04/13 11:01:44 Registered as a verifier
+[INFO] 2025/04/13 11:01:44 Node: ✅ Registered as a verifier
+[INFO] 2025/04/13 11:01:45 Attempting to map port 49900
+[INFO] 2025/04/13 11:01:47 Assigned to 1 farms: 2 (Active)
+[INFO] 2025/04/13 11:01:47 Starting peer discovery...
+[INFO] 2025/04/13 11:01:47 Node: ✅ Assigned to 1 farms: 2 (Active)
+[INFO] 2025/04/13 11:01:47 Verifier started successfully!
+[INFO] 2025/04/13 11:01:47 Node: [INFO] Starting peer discovery...
+[INFO] 2025/04/13 11:01:47 Node: ✅ Verifier started successfully!
+[INFO] 2025/04/13 11:01:47 Failed to map port 49900
+[INFO] 2025/04/13 11:01:47 Attempting to map port 57389
+[INFO] 2025/04/13 11:01:48 Using local connectivity and relays for peer connections
+[INFO] 2025/04/13 11:01:48 Node: [INFO] Using local connectivity and relays for peer connections
+[INFO] 2025/04/13 11:01:48 Successfully listening on alternative port 10000
+[INFO] 2025/04/13 11:01:49 Failed to map port 57389
+[INFO] 2025/04/13 11:01:49 Attempting to map port 51489
+[INFO] 2025/04/13 11:01:50 Successfully listening on alternative port 10001
+[INFO] 2025/04/13 11:01:51 Failed to map port 51489
+[INFO] 2025/04/13 11:01:51 Attempting to map port 57386
+[INFO] 2025/04/13 11:01:52 Successfully listening on alternative port 10002
+[INFO] 2025/04/13 11:01:53 Failed to map port 57386
+[INFO] 2025/04/13 11:01:53 Using local connectivity and relays for peer connections
+[INFO] 2025/04/13 11:01:53 Node: [INFO] Using local connectivity and relays for peer connections
+[INFO] 2025/04/13 11:01:53 Successfully listening on alternative port 10000
+[INFO] 2025/04/13 11:01:54 Successfully listening on alternative port 10003
+[INFO] 2025/04/13 11:01:55 Successfully listening on alternative port 10001
+[INFO] 2025/04/13 11:01:56 Successfully listening on alternative port 10004
+[INFO] 2025/04/13 11:01:57 Successfully listening on alternative port 10002
+[INFO] 2025/04/13 11:01:58 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/13 11:01:58 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/13 11:01:58 Node: [INFO] Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/13 11:01:58 Node: [INFO] Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/13 11:01:59 Successfully listening on alternative port 10003
+[INFO] 2025/04/13 11:02:01 Successfully listening on alternative port 10004
+[INFO] 2025/04/13 11:02:02 Benchmark updater will run every 1m0s
+[INFO] 2025/04/13 11:02:02 Node: ✅ Benchmark updater will run every 1m0s
+[INFO] 2025/04/13 11:02:02 Updating benchmark for farm 2: 10.00% -> 10.12%
+[INFO] 2025/04/13 11:02:02 Node: ✅ Updating benchmark for farm 2: 10.00% -> 10.12%
+[INFO] 2025/04/13 11:02:03 Benchmark update transaction submitted: 0xa61f8f1d5ce804614b8c3ea276e6ed7f6a442a4b59cc3a273d6e55ba6b75a0fe
+[INFO] 2025/04/13 11:02:03 Node: ✅ Benchmark update transaction submitted: 0xa61f8f1d5ce804614b8c3ea276e6ed7f6a442a4b59cc3a273d6e55ba6b75a0fe
+[INFO] 2025/04/13 11:02:03 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/13 11:02:03 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/13 11:02:03 Node: [INFO] Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/13 11:02:03 Node: [INFO] Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/13 11:02:17 Benchmark update transaction 0xa61f8f1d5ce804614b8c3ea276e6ed7f6a442a4b59cc3a273d6e55ba6b75a0fe confirmed successfully
+[INFO] 2025/04/13 11:02:17 Node: ✅ Benchmark update transaction 0xa61f8f1d5ce804614b8c3ea276e6ed7f6a442a4b59cc3a273d6e55ba6b75a0fe confirmed successfully
+[INFO] 2025/04/13 11:03:03 Updating benchmark for farm 2: 10.11% -> 9.79%
+[INFO] 2025/04/13 11:03:03 Node: ✅ Updating benchmark for farm 2: 10.11% -> 9.79%
+[INFO] 2025/04/13 11:03:04 Benchmark update transaction submitted: 0x14c7b6aa2f95226a42a9bff3989606b3535ca7736b543565a90d77439d06baea
+[INFO] 2025/04/13 11:03:04 Node: ✅ Benchmark update transaction submitted: 0x14c7b6aa2f95226a42a9bff3989606b3535ca7736b543565a90d77439d06baea
+[INFO] 2025/04/13 11:03:17 Benchmark update transaction 0x14c7b6aa2f95226a42a9bff3989606b3535ca7736b543565a90d77439d06baea confirmed successfully
+[INFO] 2025/04/13 11:03:17 Node: ✅ Benchmark update transaction 0x14c7b6aa2f95226a42a9bff3989606b3535ca7736b543565a90d77439d06baea confirmed successfully
+[INFO] 2025/04/13 11:03:21 Shutting down...
+[INFO] 2025/04/13 11:03:21 Node: [INFO] Shutting down...
+[INFO] 2025/04/13 11:03:21 Node process exited normally
+[INFO] 2025/04/14 11:23:29 Withdraw request received for amount: 90
+[ERROR] 2025/04/14 11:23:30 Withdrawal would leave stake below minimum requirement. Requested: 90.000000 DXP, Remaining would be: 60.000000 DXP, Minimum required: 100 DXP
+[INFO] 2025/04/14 11:23:37 Withdraw request received for amount: 90
+[ERROR] 2025/04/14 11:23:37 Withdrawal would leave stake below minimum requirement. Requested: 90.000000 DXP, Remaining would be: 60.000000 DXP, Minimum required: 100 DXP
+[INFO] 2025/04/14 11:23:48 Withdraw request received for amount: 150
+[INFO] 2025/04/14 11:23:49 Withdrawing 150.000000 DXP from stake...
+[INFO] 2025/04/14 11:23:49 Withdrawal transaction submitted: 0x47649a5a219372c8073504da16f245c350599ca4278d24e151082610424e5bf8

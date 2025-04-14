@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DXP Verifier Dashboard</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Loading Screen Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-content">
+            <pre id="ascii-animation" class="ascii-animation"></pre>
+            <div class="loading-text">Initializing Verifier Dashboard...</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>DXP Verifier Dashboard</h1>
+            <div class="wallet-info">
+                <span class="label">Wallet:</span>
+                <span class="address">{{ .WalletAddress }}</span>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="card status-card">
+                <h2>Verifier Status</h2>
+                <div class="status-badge {{ if .IsRegistered }}active{{ else }}inactive{{ end }}">
+                    {{ if .IsRegistered }}Active{{ else }}Not Registered{{ end }}
+                </div>
+                
+                {{ if .IsRegistered }}
+                <div class="metrics-grid">
+                    <div class="metric">
+                        <span class="label">Verifications:</span>
+                        <span class="value">{{ .Metrics.VerificationsPerformed }}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">Last Active:</span>
+                        <span class="value">{{ .Metrics.LastActiveTime }}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">Total Uptime:</span>
+                        <span class="value">{{ .Metrics.TotalUptimeFormatted }}</span>
+                    </div>
+                    <div class="metric rewards-metric">
+                        <span class="label">Pending Rewards:</span>
+                        <div class="rewards-row">
+                            <span class="value">{{ .PendingRewards }} DXP</span>
+                            {{ if ne .PendingRewards "0.000000" }}
+                            <button id="claim-rewards-btn" class="btn primary">Claim Rewards</button>
+                            {{ end }}
+                        </div>
+                    </div>
+                    <div class="metric">
+                        <span class="label">Current Stake:</span>
+                        <span class="value">{{ .VerifierStake }} DXP</span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">Assigned Farm:</span>
+                        <span class="value">{{ if .AssignedFarms }}Farm #{{ index .AssignedFarms 0 }}{{ else }}None{{ end }}</span>
+                    </div>
+                </div>
+                {{ else }}
+                <div class="register-prompt">
+                    <p>Register as a verifier to start earning rewards.</p>
+                    <div id="register-form">
+                        <div class="form-group">
+                            <label for="register-amount">Stake Amount (DXP):</label>
+                            <input type="text" id="register-amount" placeholder="e.g. 100">
+                        </div>
+                        <div class="form-group">
+                            <label for="register-farmid">Farm ID:</label>
+                            <input type="number" id="register-farmid" placeholder="e.g. 1" min="1">
+                        </div>
+                        <div class="form-buttons">
+                            <button onclick="registerVerifier()" id="register-btn" class="btn primary">Register as Verifier</button>
+                        </div>
+                    </div>
+                    <div id="register-status" class="status-message hidden"></div>
+                    <div class="cli-command">
+                        <p>Or use the command line:</p>
+                        <code>./dxp-verifier register --amount 100 --farmid 1</code>
+                    </div>
+                </div>
+                {{ end }}
+            </div>
+
+            {{ if .IsRegistered }}
+            <div class="card-row">
+                <div class="card withdraw-card">
+                    <h2>Withdraw Stake</h2>
+                    <div id="withdraw-form">
+                        <p>Enter the amount of stake to withdraw:</p>
+                        <input type="text" id="withdraw-amount" placeholder="Amount in DXP (e.g. 10.5)">
+                        <div class="form-buttons">
+                            <button onclick="withdrawStake()" id="confirm-withdraw-btn" class="btn primary">Confirm Withdrawal</button>
+                        </div>
+                    </div>
+                    <div id="action-status" class="status-message hidden"></div>
+                </div>
+
+                <div class="card balance-card">
+                    <h2>Token Balance</h2>
+                    <div class="balance">{{ .TokenBalance }} DXP</div>
+                </div>
+
+                <div class="card node-status-card">
+                    <h2>Node Status</h2>
+                    <div class="node-status-container">
+                        <div class="node-status">
+                            <span class="node-status-indicator inactive" id="node-status-indicator">Node Inactive</span>
+                        </div>
+                        <button id="toggle-node-btn" class="btn primary start-btn">Start Node</button>
+                    </div>
+                </div>
+            </div>
+            {{ else }}
+            <div class="card-row">
+                <div class="card balance-card">
+                    <h2>Token Balance</h2>
+                    <div class="balance">{{ .TokenBalance }} DXP</div>
+                </div>
+            </div>
+            {{ end }}
+
+            {{ if .IsRegistered }}
+            <!-- Terminal Output -->
+            <div id="terminal-container" class="card terminal-card hidden">
+                <h2>Terminal Output</h2>
+                <div id="terminal-output" class="terminal-output"></div>
+            </div>
+            
+            <!-- Chart Section -->
+            <div class="card chart-card">
+                <h2>Verification Activity</h2>
+                <div class="chart-container">
+                    <canvas id="verificationsChart"></canvas>
+                </div>
+            </div>
+            {{ end }}
+        </div>
+
+        <footer>
+            <p>DXP Verifier | {{ .CurrentTime }}</p>
+            <p><a href="#" id="refresh-btn">Refresh Data</a></p>
+        </footer>
+    </div>
+
+    <script src="/static/js/dashboard.js"></script>
+</body>
+</html>

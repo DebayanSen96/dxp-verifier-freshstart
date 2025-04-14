@@ -1,0 +1,937 @@
+[INFO] 2025/04/11 11:21:25 Starting dashboard server...
+[INFO] 2025/04/11 11:21:25 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/11 11:21:51 Withdraw request received for amount: 150
+[INFO] 2025/04/11 11:21:51 Withdrawing 150.000000 DXP from stake...
+[INFO] 2025/04/11 11:21:53 Withdrawal transaction submitted: 0x1554489643b2f19d591fd5ddb8e186bec45d52b524732637f6c4469283fa185e
+[INFO] 2025/04/11 11:22:48 Withdraw request received for amount: 150
+[INFO] 2025/04/11 11:22:49 Withdrawing 150.000000 DXP from stake...
+[INFO] 2025/04/11 11:22:50 Withdrawal transaction submitted: 0x25a2a4c679655476466e3afa932480dccac0150354cb848c77bf16aa72383e45
+[INFO] 2025/04/11 11:24:00 Withdraw request received for amount: 150
+[INFO] 2025/04/11 11:24:01 Withdrawing 150.000000 DXP from stake...
+[INFO] 2025/04/11 11:24:02 Withdrawal transaction submitted: 0x8837d5978c61c3ad54bb16a3ae41269658aee3ec6e82898f246d2fc7099432f7
+[INFO] 2025/04/11 11:29:27 Withdrawing 150.000000 DXP from stake...
+[INFO] 2025/04/11 11:29:28 Withdrawal transaction submitted: 0xcece78c30fb4f5f897f4bcda704c0b899019c664e31852dc81137084039f0cfd
+[INFO] 2025/04/11 11:29:28 Waiting for transaction confirmation...
+[INFO] 2025/04/11 11:29:37 Stake withdrawn successfully!
+[ERROR] 2025/04/11 11:30:32 Unknown command: help
+[INFO] 2025/04/11 11:34:34 Starting dashboard server...
+[INFO] 2025/04/11 11:34:34 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/11 11:39:02 Starting dashboard server...
+[INFO] 2025/04/11 11:39:02 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/11 11:39:35 Withdraw request received for amount: 150.540278150
+[ERROR] 2025/04/11 11:39:36 Insufficient stake. Requested: 150.540278 DXP, Available: 150.000000 DXP
+[INFO] 2025/04/11 11:39:42 Withdraw request received for amount: 150
+[INFO] 2025/04/11 11:39:42 Withdrawing 150.000000 DXP from stake...
+[INFO] 2025/04/11 11:39:43 Withdrawal transaction submitted: 0xf3960548d948a590048f1de7304fee2b64d0790a96eef511f379540bc508e167
+[INFO] 2025/04/11 11:44:49 Starting dashboard server...
+[INFO] 2025/04/11 11:44:49 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/11 11:45:19 Withdraw request received for amount: 150
+[INFO] 2025/04/11 11:45:19 Withdrawing 150.000000 DXP from stake...
+[INFO] 2025/04/11 11:45:20 Withdrawal transaction submitted: 0x3b7435de50e1793f8e97c72935cef8496c2f5b170c025e4e8f0ec5c020b181ce
+[INFO] 2025/04/11 11:45:54 Withdraw request received for amount: 149
+[INFO] 2025/04/11 11:45:54 Withdrawing 149.000000 DXP from stake...
+[INFO] 2025/04/11 11:45:55 Withdrawal transaction submitted: 0x8e7d4354f9dd8cba4c1c018b8fc33574620227ece05e51571ee522f82fdd321c
+[INFO] 2025/04/11 11:46:18 Withdraw request received for amount: 149
+[ERROR] 2025/04/11 11:46:18 Insufficient stake. Requested: 149.000000 DXP, Available: 1.000000 DXP
+[INFO] 2025/04/11 11:47:41 Starting dashboard server...
+[INFO] 2025/04/11 11:47:41 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/11 11:48:03 Withdraw request received for amount: 1
+[INFO] 2025/04/11 11:48:03 Withdrawing 1.000000 DXP from stake...
+[INFO] 2025/04/11 11:48:04 Withdrawal transaction submitted: 0x00a2316e93c714029deefc71394a9eb10012bc8223611929d6edf204e1d3a398
+[INFO] 2025/04/11 11:48:24 Withdraw request received for amount: 1
+[INFO] 2025/04/11 11:48:25 Withdrawing 1.000000 DXP from stake...
+[INFO] 2025/04/11 11:48:26 Withdrawal transaction submitted: 0x96df1bd2a99dd163c319a5d5a300e9e935e5afba7ebe58fabc8e9feb7fef3a84
+[INFO] 2025/04/11 11:48:47 Withdraw request received for amount: 1
+[INFO] 2025/04/11 11:48:48 Withdrawing 1.000000 DXP from stake...
+[INFO] 2025/04/11 11:48:49 Withdrawal transaction submitted: 0x55fe5df1ab09bb7e98d62ba3233808811116fb62df95e5777abc52195e9a5aec
+[INFO] 2025/04/11 12:15:51 Starting dashboard server...
+[INFO] 2025/04/11 12:15:51 Starting dashboard on http://localhost:8080
+[ERROR] 2025/04/11 12:15:51 Failed to start dashboard server: listen tcp :8080: bind: address already in use
+[INFO] 2025/04/11 12:16:00 Starting dashboard server...
+[INFO] 2025/04/11 12:16:00 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/11 12:21:02 Starting dashboard server...
+[INFO] 2025/04/11 12:21:02 Starting dashboard on http://localhost:8080
+[ERROR] 2025/04/11 12:21:02 Failed to start dashboard server: listen tcp :8080: bind: address already in use
+[INFO] 2025/04/11 12:21:16 Starting dashboard server...
+[INFO] 2025/04/11 12:21:16 Starting dashboard on http://localhost:8080
+[ERROR] 2025/04/11 12:21:16 Failed to check if verifier is registered: failed to call isVerifier: execution reverted
+[INFO] 2025/04/11 12:22:30 Starting dashboard server...
+[INFO] 2025/04/11 12:22:30 Starting dashboard on http://localhost:8080
+[ERROR] 2025/04/11 12:22:30 Failed to start dashboard server: listen tcp :8080: bind: address already in use
+[INFO] 2025/04/11 12:22:57 Starting dashboard server...
+[INFO] 2025/04/11 12:22:57 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/11 12:23:46 Approving DXP token transfer...
+[INFO] 2025/04/11 12:23:47 Approval transaction submitted: 0xa0d0276df7ecc1c004f1ca994ea2fca0952195026b2ca683a3a204329e23059e
+[INFO] 2025/04/11 12:23:47 Waiting for approval transaction to be mined...
+[INFO] 2025/04/11 12:24:01 Approval transaction mined successfully
+[INFO] 2025/04/11 12:24:01 Registering verifier with amount 100.000000 and farm ID 1
+[INFO] 2025/04/11 12:24:02 Registration transaction submitted: 0x5b4d199b96418f98bab5c551c241fae85a6fc499f4300c8189be94ca2850253f
+[INFO] 2025/04/11 12:24:02 Waiting for registration transaction to be mined...
+[INFO] 2025/04/11 12:24:13 Successfully registered as a verifier!
+[INFO] 2025/04/11 12:24:13 Farm ID: 1
+[INFO] 2025/04/11 12:24:13 Staked Amount: 100.000000
+[INFO] 2025/04/11 12:27:25 Withdraw request received for amount: 100
+[INFO] 2025/04/11 12:27:25 Withdrawing 100.000000 DXP from stake...
+[INFO] 2025/04/11 12:27:26 Withdrawal transaction submitted: 0x4442c8a64d304c630fb18abf93a49c3e7b6d51bad1b158ecffcb759bb09383cd
+[INFO] 2025/04/11 12:27:50 Withdraw request received for amount: 100
+[ERROR] 2025/04/11 12:27:51 Not registered as a verifier
+[INFO] 2025/04/11 12:32:37 Starting dashboard server...
+[INFO] 2025/04/11 12:32:37 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/11 12:32:55 Approving DXP token transfer...
+[INFO] 2025/04/11 12:32:56 Approval transaction submitted: 0x0d7e1401eab455a79d41f3048298530c1f6c29376bc334d67b99ce9915be2d90
+[INFO] 2025/04/11 12:32:56 Waiting for approval transaction to be mined...
+[INFO] 2025/04/11 12:33:01 Approval transaction mined successfully
+[INFO] 2025/04/11 12:33:01 Registering verifier with amount 100.000000 and farm ID 3
+[INFO] 2025/04/11 12:33:01 Registration transaction submitted: 0x538c51df1c7fb718dea1aa61a4a4377019954cc4152bb9017ce3602338f90e40
+[INFO] 2025/04/11 12:33:01 Waiting for registration transaction to be mined...
+[INFO] 2025/04/11 12:33:13 Successfully registered as a verifier!
+[INFO] 2025/04/11 12:33:13 Farm ID: 3
+[INFO] 2025/04/11 12:33:13 Staked Amount: 100.000000
+[INFO] 2025/04/11 12:33:44 Withdraw request received for amount: 100
+[INFO] 2025/04/11 12:33:45 Withdrawing 100.000000 DXP from stake...
+[INFO] 2025/04/11 12:33:46 Withdrawal transaction submitted: 0x1116b41e576c16bc2d74be3fa241a5cb60c9938df041440965217fa23f243424
+[INFO] 2025/04/11 12:34:29 Starting dashboard server...
+[INFO] 2025/04/11 12:34:29 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/11 12:34:47 Starting dashboard server...
+[INFO] 2025/04/11 12:34:47 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/11 12:35:05 Approving DXP token transfer...
+[INFO] 2025/04/11 12:35:06 Approval transaction submitted: 0xd7a1030714f8ea01edf449ea282966062388e96485ded048ddb98d8bb4edf123
+[INFO] 2025/04/11 12:35:06 Waiting for approval transaction to be mined...
+[INFO] 2025/04/11 12:35:15 Approval transaction mined successfully
+[INFO] 2025/04/11 12:35:15 Registering verifier with amount 100.000000 and farm ID 2
+[INFO] 2025/04/11 12:35:16 Registration transaction submitted: 0x425f57001abda1e0fa4fdc6497fdffc30b28333d010c336fd629812bbafe8209
+[INFO] 2025/04/11 12:35:16 Waiting for registration transaction to be mined...
+[INFO] 2025/04/11 12:35:25 Successfully registered as a verifier!
+[INFO] 2025/04/11 12:35:25 Farm ID: 2
+[INFO] 2025/04/11 12:35:25 Staked Amount: 100.000000
+[INFO] 2025/04/11 12:36:06 Withdraw request received for amount: 100
+[INFO] 2025/04/11 12:36:07 Withdrawing 100.000000 DXP from stake...
+[INFO] 2025/04/11 12:36:07 Withdrawal transaction submitted: 0x452131746622093d5183d3c015bad06b68b0b9f34478e4d89c0db1570ed09489
+[INFO] 2025/04/11 12:36:07 Waiting for withdrawal transaction to be mined...
+[INFO] 2025/04/11 12:36:12 Withdrawal transaction mined successfully
+[INFO] 2025/04/11 12:36:12 Withdrawal completed successfully!
+[INFO] 2025/04/11 12:36:13 Remaining stake: 0.000000
+[INFO] 2025/04/11 12:40:24 Starting dashboard server...
+[INFO] 2025/04/11 12:40:24 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/11 12:41:08 Approving DXP token transfer...
+[INFO] 2025/04/11 12:41:09 Approval transaction submitted: 0x0766c5c5b0c777f1639b109ae80e79f16a406f83a46f716b56c127d6bb41df4f
+[INFO] 2025/04/11 12:41:09 Waiting for approval transaction to be mined...
+[INFO] 2025/04/11 12:41:14 Approval transaction mined successfully
+[INFO] 2025/04/11 12:41:14 Registering verifier with amount 120.000000 and farm ID 2
+[INFO] 2025/04/11 12:41:14 Registration transaction submitted: 0xe107d1d5ab13a786828a9c115841526f4b1f1c061f3f0574f001f56a3177c3dc
+[INFO] 2025/04/11 12:41:14 Waiting for registration transaction to be mined...
+[INFO] 2025/04/11 12:41:26 Successfully registered as a verifier!
+[INFO] 2025/04/11 12:41:26 Farm ID: 2
+[INFO] 2025/04/11 12:41:26 Staked Amount: 120.000000
+[INFO] 2025/04/11 12:42:07 Withdraw request received for amount: 130
+[ERROR] 2025/04/11 12:42:08 Withdrawal error: Insufficient stake. Requested: 130.000000 DXP, Available: 120.000000 DXP
+[INFO] 2025/04/11 12:42:16 Withdraw request received for amount: 120
+[INFO] 2025/04/11 12:42:17 Withdrawing 120.000000 DXP from stake...
+[INFO] 2025/04/11 12:42:17 Withdrawal transaction submitted: 0xd5f0801ca5324ab81f4375191a4fbd6656c237b25a2eddfa360e524ee7a4acf1
+[INFO] 2025/04/11 12:42:17 Waiting for withdrawal transaction to be mined...
+[INFO] 2025/04/11 12:42:27 Withdrawal transaction mined successfully
+[INFO] 2025/04/11 12:42:27 Withdrawal completed successfully!
+[INFO] 2025/04/11 12:42:27 Remaining stake: 0.000000
+[INFO] 2025/04/11 12:44:30 Starting dashboard server...
+[INFO] 2025/04/11 12:44:30 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/11 12:44:49 Approving DXP token transfer...
+[INFO] 2025/04/11 12:44:49 Approval transaction submitted: 0x6ff9accc57b45c640732598264f11fc03ce84460c3d7692ac30230d3258ed2d3
+[INFO] 2025/04/11 12:44:49 Waiting for approval transaction to be mined...
+[INFO] 2025/04/11 12:45:01 Approval transaction mined successfully
+[INFO] 2025/04/11 12:45:01 Registering verifier with amount 120.000000 and farm ID 3
+[INFO] 2025/04/11 12:45:02 Registration transaction submitted: 0xc9b024ae462159b0c579264a0ca0ff650cea33ef1cf2d7c5e387b70ba1c1252a
+[INFO] 2025/04/11 12:45:02 Waiting for registration transaction to be mined...
+[INFO] 2025/04/11 12:45:13 Successfully registered as a verifier!
+[INFO] 2025/04/11 12:45:13 Farm ID: 3
+[INFO] 2025/04/11 12:45:13 Staked Amount: 120.000000
+[INFO] 2025/04/11 12:46:20 Withdraw request received for amount: 120
+[INFO] 2025/04/11 12:46:20 Withdrawing 120.000000 DXP from stake...
+[INFO] 2025/04/11 12:46:21 Withdrawal transaction submitted: 0xe8b320d9df355acb573120263b206dac9ec8566569f39aa4d03584766c5945ec
+[INFO] 2025/04/11 12:46:21 Waiting for withdrawal transaction to be mined...
+[INFO] 2025/04/11 12:46:26 Withdrawal transaction mined successfully
+[INFO] 2025/04/11 12:46:26 Withdrawal completed successfully!
+[INFO] 2025/04/11 12:46:26 Remaining stake: 0.000000
+[INFO] 2025/04/11 13:08:07 Starting dashboard server...
+[INFO] 2025/04/11 13:08:07 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/11 13:08:24 Approving DXP token transfer...
+[INFO] 2025/04/11 13:08:25 Approval transaction submitted: 0x57b5425d7bee087581266f0fcc21b9930bb0ec8266b4688b769e05b30b4e88b2
+[INFO] 2025/04/11 13:08:25 Waiting for approval transaction to be mined...
+[INFO] 2025/04/11 13:08:38 Approval transaction mined successfully
+[INFO] 2025/04/11 13:08:38 Registering verifier with amount 100.000000 and farm ID 1
+[INFO] 2025/04/11 13:08:39 Registration transaction submitted: 0xa43e9ca330f30a59c960a19adf48f249aec5eb6bff7ddacc085ac93e81364d7c
+[INFO] 2025/04/11 13:08:39 Waiting for registration transaction to be mined...
+[INFO] 2025/04/11 13:08:49 Successfully registered as a verifier!
+[INFO] 2025/04/11 13:08:49 Farm ID: 1
+[INFO] 2025/04/11 13:08:49 Staked Amount: 100.000000
+[INFO] 2025/04/11 13:09:59 Withdraw request received for amount: 100
+[INFO] 2025/04/11 13:09:59 Withdrawing 100.000000 DXP from stake...
+[INFO] 2025/04/11 13:10:00 Withdrawal transaction submitted: 0x3f16012846d4fccd3d16af97c4b8e81b2a982990ab25d006c8222a68dc3b4774
+[INFO] 2025/04/11 13:10:00 Waiting for withdrawal transaction to be mined...
+[INFO] 2025/04/11 13:10:14 Withdrawal transaction mined successfully
+[INFO] 2025/04/11 13:10:14 Withdrawal completed successfully!
+[INFO] 2025/04/11 13:10:14 Remaining stake: 0.000000
+[INFO] 2025/04/11 13:12:23 Starting dashboard server...
+[INFO] 2025/04/11 13:12:23 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/11 13:12:41 Approving DXP token transfer...
+[INFO] 2025/04/11 13:12:42 Approval transaction submitted: 0xd963415290ce24a79c81f0a5bf9dd85fa60da6857307c06dfc3245177376e2f5
+[INFO] 2025/04/11 13:12:42 Waiting for approval transaction to be mined...
+[INFO] 2025/04/11 13:12:49 Approval transaction mined successfully
+[INFO] 2025/04/11 13:12:49 Registering verifier with amount 120.000000 and farm ID 3
+[INFO] 2025/04/11 13:12:50 Registration transaction submitted: 0x8106465bf4fdc6a22a061bce1db4d688b7231b17cf6be79830d12adef34eb02b
+[INFO] 2025/04/11 13:12:50 Waiting for registration transaction to be mined...
+[INFO] 2025/04/11 13:13:01 Successfully registered as a verifier!
+[INFO] 2025/04/11 13:13:01 Farm ID: 3
+[INFO] 2025/04/11 13:13:01 Staked Amount: 120.000000
+[INFO] 2025/04/11 13:15:07 Starting dashboard server...
+[INFO] 2025/04/11 13:15:07 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/11 13:16:42 Starting dashboard server...
+[INFO] 2025/04/11 13:16:42 Starting dashboard on http://localhost:8080
+[ERROR] 2025/04/11 13:16:42 Failed to start dashboard server: listen tcp :8080: bind: address already in use
+[INFO] 2025/04/11 13:17:03 Starting dashboard server...
+[INFO] 2025/04/11 13:17:03 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/11 13:17:24 Approving DXP token transfer...
+[INFO] 2025/04/11 13:17:25 Approval transaction submitted: 0x9af5f116afe35c64aa9b2659da9bc864a38b334cc11ca73d9b78d795d6d37f3e
+[INFO] 2025/04/11 13:17:25 Waiting for approval transaction to be mined...
+[INFO] 2025/04/11 13:18:01 Approval transaction mined successfully
+[INFO] 2025/04/11 13:18:01 Registering verifier with amount 100.000000 and farm ID 1
+[INFO] 2025/04/11 13:18:02 Registration transaction submitted: 0x2d1120d4b51839dca15fea54face98dece9e0651a553e5a6ccd64e0cd30269c2
+[INFO] 2025/04/11 13:18:02 Waiting for registration transaction to be mined...
+[INFO] 2025/04/11 13:18:14 Successfully registered as a verifier!
+[INFO] 2025/04/11 13:18:14 Farm ID: 1
+[INFO] 2025/04/11 13:18:14 Staked Amount: 100.000000
+[INFO] 2025/04/11 13:20:08 Starting dashboard server...
+[INFO] 2025/04/11 13:20:08 Starting dashboard on http://localhost:8080
+[ERROR] 2025/04/11 13:20:08 Failed to start dashboard server: listen tcp :8080: bind: address already in use
+[INFO] 2025/04/11 13:22:19 Starting dashboard server...
+[INFO] 2025/04/11 13:22:19 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/11 13:26:09 Starting dashboard server...
+[INFO] 2025/04/11 13:26:09 Starting dashboard on http://localhost:8080
+[ERROR] 2025/04/11 13:26:09 Failed to start dashboard server: listen tcp :8080: bind: address already in use
+[INFO] 2025/04/11 13:26:24 Starting dashboard server...
+[INFO] 2025/04/11 13:26:24 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/11 13:26:43 Initializing P2P host...
+[INFO] 2025/04/11 13:26:43 Node: [INFO] Initializing P2P host...
+[INFO] 2025/04/11 13:26:43 Peer ID: 12D3KooWGjCtJ7i67djy3n4NXit7YfWkz1ZvcDnG2dHip3ehgLwT
+[INFO] 2025/04/11 13:26:43 Node: ✅ Peer ID: 12D3KooWGjCtJ7i67djy3n4NXit7YfWkz1ZvcDnG2dHip3ehgLwT
+[INFO] 2025/04/11 13:26:43 mDNS discovery service started
+[INFO] 2025/04/11 13:26:43 Node: ✅ mDNS discovery service started
+[INFO] 2025/04/11 13:26:44 Initializing Dexponent protocol...
+[INFO] 2025/04/11 13:26:44 Node: [INFO] Initializing Dexponent protocol...
+[INFO] 2025/04/11 13:26:44 Connected to blockchain at block 8096029
+[INFO] 2025/04/11 13:26:44 Node: ✅ Connected to blockchain at block 8096029
+[INFO] 2025/04/11 13:26:45 Registered as a verifier
+[INFO] 2025/04/11 13:26:45 Node: ✅ Registered as a verifier
+[INFO] 2025/04/11 13:26:45 Attempting to map port 56650
+[INFO] 2025/04/11 13:26:46 Assigned to 1 farms: 1
+[INFO] 2025/04/11 13:26:46 Starting peer discovery...
+[INFO] 2025/04/11 13:26:46 Verifier started successfully!
+[INFO] 2025/04/11 13:26:46 Node: ✅ Assigned to 1 farms: 1
+[INFO] 2025/04/11 13:26:46 Node: [INFO] Starting peer discovery...
+[INFO] 2025/04/11 13:26:46 Node: ✅ Verifier started successfully!
+[INFO] 2025/04/11 13:26:47 Failed to map port 56650
+[INFO] 2025/04/11 13:26:47 Attempting to map port 58777
+[INFO] 2025/04/11 13:26:48 Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 13:26:48 Node: [INFO] Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 13:26:48 Successfully listening on alternative port 10000
+[INFO] 2025/04/11 13:26:49 Failed to map port 58777
+[INFO] 2025/04/11 13:26:49 Attempting to map port 56653
+[INFO] 2025/04/11 13:26:50 Successfully listening on alternative port 10001
+[INFO] 2025/04/11 13:26:51 Failed to map port 56653
+[INFO] 2025/04/11 13:26:51 Attempting to map port 53000
+[INFO] 2025/04/11 13:26:52 Successfully listening on alternative port 10002
+[INFO] 2025/04/11 13:26:53 Failed to map port 53000
+[INFO] 2025/04/11 13:26:53 Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 13:26:53 Node: [INFO] Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 13:26:53 Successfully listening on alternative port 10000
+[INFO] 2025/04/11 13:26:54 Successfully listening on alternative port 10003
+[INFO] 2025/04/11 13:26:55 Successfully listening on alternative port 10001
+[INFO] 2025/04/11 13:26:56 Successfully listening on alternative port 10004
+[INFO] 2025/04/11 13:26:57 Successfully listening on alternative port 10002
+[INFO] 2025/04/11 13:26:58 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/11 13:26:58 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/11 13:26:58 Node: [INFO] Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/11 13:26:58 Node: [INFO] Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/11 13:26:59 Successfully listening on alternative port 10003
+[INFO] 2025/04/11 13:27:01 Benchmark updater will run every 1m0s
+[INFO] 2025/04/11 13:27:01 Node: ✅ Benchmark updater will run every 1m0s
+[ERROR] 2025/04/11 13:27:01 Failed to check if verifier is active for farm 1: failed to call isVerifierActiveForFarm: execution reverted
+[INFO] 2025/04/11 13:27:01 Node: [ERROR] Failed to check if verifier is active for farm 1: failed to call isVerifierActiveForFarm: execution reverted
+[INFO] 2025/04/11 13:27:01 Successfully listening on alternative port 10004
+[INFO] 2025/04/11 13:27:03 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/11 13:27:03 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/11 13:27:03 Node: [INFO] Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/11 13:27:03 Node: [INFO] Will rely on relays and DHT for peer connectivity
+[ERROR] 2025/04/11 13:28:02 Failed to check if verifier is active for farm 1: failed to call isVerifierActiveForFarm: execution reverted
+[INFO] 2025/04/11 13:28:02 Node: [ERROR] Failed to check if verifier is active for farm 1: failed to call isVerifierActiveForFarm: execution reverted
+[ERROR] 2025/04/11 13:29:03 Failed to check if verifier is active for farm 1: failed to call isVerifierActiveForFarm: execution reverted
+[INFO] 2025/04/11 13:29:03 Node: [ERROR] Failed to check if verifier is active for farm 1: failed to call isVerifierActiveForFarm: execution reverted
+[ERROR] 2025/04/11 13:30:04 Failed to check if verifier is active for farm 1: failed to call isVerifierActiveForFarm: execution reverted
+[INFO] 2025/04/11 13:30:04 Node: [ERROR] Failed to check if verifier is active for farm 1: failed to call isVerifierActiveForFarm: execution reverted
+[ERROR] 2025/04/11 13:31:05 Failed to check if verifier is active for farm 1: failed to call isVerifierActiveForFarm: execution reverted
+[INFO] 2025/04/11 13:31:05 Node: [ERROR] Failed to check if verifier is active for farm 1: failed to call isVerifierActiveForFarm: execution reverted
+[INFO] 2025/04/11 13:31:16 Shutting down...
+[INFO] 2025/04/11 13:32:23 Starting dashboard server...
+[INFO] 2025/04/11 13:32:23 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/11 13:32:37 Initializing P2P host...
+[INFO] 2025/04/11 13:32:37 Node: [INFO] Initializing P2P host...
+[INFO] 2025/04/11 13:32:37 Peer ID: 12D3KooWKhMTzAR2wgH7zH6RedxtWZFHLFcZhj6rfdcnxuzEPMgs
+[INFO] 2025/04/11 13:32:37 Node: ✅ Peer ID: 12D3KooWKhMTzAR2wgH7zH6RedxtWZFHLFcZhj6rfdcnxuzEPMgs
+[INFO] 2025/04/11 13:32:37 mDNS discovery service started
+[INFO] 2025/04/11 13:32:37 Node: ✅ mDNS discovery service started
+[INFO] 2025/04/11 13:32:38 Initializing Dexponent protocol...
+[INFO] 2025/04/11 13:32:38 Node: [INFO] Initializing Dexponent protocol...
+[INFO] 2025/04/11 13:32:38 Connected to blockchain at block 8096054
+[INFO] 2025/04/11 13:32:38 Node: ✅ Connected to blockchain at block 8096054
+[INFO] 2025/04/11 13:32:39 Registered as a verifier
+[INFO] 2025/04/11 13:32:39 Node: ✅ Registered as a verifier
+[INFO] 2025/04/11 13:32:39 Attempting to map port 56401
+[INFO] 2025/04/11 13:32:39 Assigned to 1 farms: 1
+[INFO] 2025/04/11 13:32:39 Starting peer discovery...
+[INFO] 2025/04/11 13:32:39 Verifier started successfully!
+[INFO] 2025/04/11 13:32:39 Node: ✅ Assigned to 1 farms: 1
+[INFO] 2025/04/11 13:32:39 Node: [INFO] Starting peer discovery...
+[INFO] 2025/04/11 13:32:39 Node: ✅ Verifier started successfully!
+[INFO] 2025/04/11 13:32:41 Failed to map port 56401
+[INFO] 2025/04/11 13:32:41 Attempting to map port 57214
+[INFO] 2025/04/11 13:32:42 Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 13:32:42 Node: [INFO] Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 13:32:42 Successfully listening on alternative port 10000
+[INFO] 2025/04/11 13:32:43 Failed to map port 57214
+[INFO] 2025/04/11 13:32:43 Attempting to map port 54923
+[INFO] 2025/04/11 13:32:44 Successfully listening on alternative port 10001
+[INFO] 2025/04/11 13:32:45 Failed to map port 54923
+[INFO] 2025/04/11 13:32:45 Attempting to map port 57217
+[INFO] 2025/04/11 13:32:46 Successfully listening on alternative port 10002
+[INFO] 2025/04/11 13:32:47 Failed to map port 57217
+[INFO] 2025/04/11 13:32:47 Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 13:32:47 Successfully listening on alternative port 10000
+[INFO] 2025/04/11 13:32:47 Node: [INFO] Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 13:32:48 Successfully listening on alternative port 10003
+[INFO] 2025/04/11 13:32:49 Successfully listening on alternative port 10001
+[INFO] 2025/04/11 13:32:50 Successfully listening on alternative port 10004
+[INFO] 2025/04/11 13:32:51 Successfully listening on alternative port 10002
+[INFO] 2025/04/11 13:32:52 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/11 13:32:52 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/11 13:32:52 Node: [INFO] Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/11 13:32:52 Node: [INFO] Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/11 13:32:53 Successfully listening on alternative port 10003
+[INFO] 2025/04/11 13:32:54 Benchmark updater will run every 1m0s
+[INFO] 2025/04/11 13:32:54 Node: ✅ Benchmark updater will run every 1m0s
+[WARN] 2025/04/11 13:32:55 Verifier is no longer active for farm 1, skipping benchmark update
+[INFO] 2025/04/11 13:32:55 Node: [WARN] Verifier is no longer active for farm 1, skipping benchmark update
+[INFO] 2025/04/11 13:32:55 Successfully listening on alternative port 10004
+[INFO] 2025/04/11 13:32:57 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/11 13:32:57 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/11 13:32:57 Node: [INFO] Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/11 13:32:57 Node: [INFO] Will rely on relays and DHT for peer connectivity
+[WARN] 2025/04/11 13:33:56 Verifier is no longer active for farm 1, skipping benchmark update
+[INFO] 2025/04/11 13:33:56 Node: [WARN] Verifier is no longer active for farm 1, skipping benchmark update
+[INFO] 2025/04/11 13:34:35 Shutting down...
+[INFO] 2025/04/11 13:34:39 Activating verifier for Farm ID 1...
+[INFO] 2025/04/11 13:34:40 Activation transaction submitted: 0xb972a54c44de51103293c8d76d17f1943bf3b9a136c9514e17c630f1464379cc
+[INFO] 2025/04/11 13:34:40 Waiting for transaction confirmation...
+[INFO] 2025/04/11 13:34:49 Verifier activated successfully!
+[INFO] 2025/04/11 13:34:54 Starting dashboard server...
+[INFO] 2025/04/11 13:34:54 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/11 13:35:10 Initializing P2P host...
+[INFO] 2025/04/11 13:35:10 Node: [INFO] Initializing P2P host...
+[INFO] 2025/04/11 13:35:10 Peer ID: 12D3KooWCPmoc45NbCQnNhfkikmvKeqGYYkUxRW41eBjxLTt2Knj
+[INFO] 2025/04/11 13:35:10 Node: ✅ Peer ID: 12D3KooWCPmoc45NbCQnNhfkikmvKeqGYYkUxRW41eBjxLTt2Knj
+[INFO] 2025/04/11 13:35:10 mDNS discovery service started
+[INFO] 2025/04/11 13:35:10 Node: ✅ mDNS discovery service started
+[INFO] 2025/04/11 13:35:11 Initializing Dexponent protocol...
+[INFO] 2025/04/11 13:35:11 Node: [INFO] Initializing Dexponent protocol...
+[INFO] 2025/04/11 13:35:11 Connected to blockchain at block 8096066
+[INFO] 2025/04/11 13:35:11 Node: ✅ Connected to blockchain at block 8096066
+[INFO] 2025/04/11 13:35:11 Registered as a verifier
+[INFO] 2025/04/11 13:35:11 Node: ✅ Registered as a verifier
+[INFO] 2025/04/11 13:35:12 Attempting to map port 57498
+[INFO] 2025/04/11 13:35:12 Assigned to 1 farms: 1 (Active)
+[INFO] 2025/04/11 13:35:12 Starting peer discovery...
+[INFO] 2025/04/11 13:35:12 Verifier started successfully!
+[INFO] 2025/04/11 13:35:12 Node: ✅ Assigned to 1 farms: 1 (Active)
+[INFO] 2025/04/11 13:35:12 Node: [INFO] Starting peer discovery...
+[INFO] 2025/04/11 13:35:12 Node: ✅ Verifier started successfully!
+[INFO] 2025/04/11 13:35:14 Failed to map port 57498
+[INFO] 2025/04/11 13:35:14 Attempting to map port 58531
+[INFO] 2025/04/11 13:35:15 Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 13:35:15 Node: [INFO] Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 13:35:15 Successfully listening on alternative port 10000
+[INFO] 2025/04/11 13:35:16 Failed to map port 58531
+[INFO] 2025/04/11 13:35:16 Attempting to map port 57501
+[INFO] 2025/04/11 13:35:17 Successfully listening on alternative port 10001
+[INFO] 2025/04/11 13:35:18 Failed to map port 57501
+[INFO] 2025/04/11 13:35:18 Attempting to map port 54456
+[INFO] 2025/04/11 13:35:19 Successfully listening on alternative port 10002
+[INFO] 2025/04/11 13:35:20 Failed to map port 54456
+[INFO] 2025/04/11 13:35:20 Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 13:35:20 Node: [INFO] Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 13:35:20 Successfully listening on alternative port 10000
+[INFO] 2025/04/11 13:35:21 Successfully listening on alternative port 10003
+[INFO] 2025/04/11 13:35:22 Successfully listening on alternative port 10001
+[INFO] 2025/04/11 13:35:23 Successfully listening on alternative port 10004
+[INFO] 2025/04/11 13:35:24 Successfully listening on alternative port 10002
+[INFO] 2025/04/11 13:35:25 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/11 13:35:25 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/11 13:35:25 Node: [INFO] Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/11 13:35:25 Node: [INFO] Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/11 13:35:26 Successfully listening on alternative port 10003
+[INFO] 2025/04/11 13:35:27 Benchmark updater will run every 1m0s
+[INFO] 2025/04/11 13:35:27 Node: ✅ Benchmark updater will run every 1m0s
+[ERROR] 2025/04/11 13:35:27 Failed to get farm data for farm 1: failed to call getFarmData: execution reverted
+[INFO] 2025/04/11 13:35:27 Node: [ERROR] Failed to get farm data for farm 1: failed to call getFarmData: execution reverted
+[INFO] 2025/04/11 13:35:28 Successfully listening on alternative port 10004
+[INFO] 2025/04/11 13:35:30 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/11 13:35:30 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/11 13:35:30 Node: [INFO] Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/11 13:35:30 Node: [INFO] Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/11 13:35:41 Shutting down...
+[INFO] 2025/04/11 13:45:16 Starting dashboard server...
+[INFO] 2025/04/11 13:45:16 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/11 13:45:37 Approving DXP token transfer...
+[INFO] 2025/04/11 13:45:38 Approval transaction submitted: 0xeb1fccb9a6df23832ca98506df0f327fa112f720fdae06f956e5b503f3f50caa
+[INFO] 2025/04/11 13:45:38 Waiting for approval transaction to be mined...
+[INFO] 2025/04/11 13:45:51 Approval transaction mined successfully
+[INFO] 2025/04/11 13:45:51 Registering verifier with amount 100.000000 and farm ID 1
+[INFO] 2025/04/11 13:45:52 Registration transaction submitted: 0xde3d42a855b5f1f1f2eb0893a3494d6be12dbca393b1320f752f743247b4bc66
+[INFO] 2025/04/11 13:45:52 Waiting for registration transaction to be mined...
+[INFO] 2025/04/11 13:46:01 Successfully registered as a verifier!
+[INFO] 2025/04/11 13:46:01 Farm ID: 1
+[INFO] 2025/04/11 13:46:01 Staked Amount: 100.000000
+[INFO] 2025/04/11 13:46:45 Initializing P2P host...
+[INFO] 2025/04/11 13:46:45 Node: [INFO] Initializing P2P host...
+[INFO] 2025/04/11 13:46:45 Peer ID: 12D3KooWBGsuYAFpLEwX2FQKZCzCpNBVoFQ8s5Y4juZZ8GYq6y9i
+[INFO] 2025/04/11 13:46:45 Node: ✅ Peer ID: 12D3KooWBGsuYAFpLEwX2FQKZCzCpNBVoFQ8s5Y4juZZ8GYq6y9i
+[INFO] 2025/04/11 13:46:45 mDNS discovery service started
+[INFO] 2025/04/11 13:46:45 Node: ✅ mDNS discovery service started
+[INFO] 2025/04/11 13:46:46 Initializing Dexponent protocol...
+[INFO] 2025/04/11 13:46:46 Node: [INFO] Initializing Dexponent protocol...
+[INFO] 2025/04/11 13:46:47 Connected to blockchain at block 8096120
+[INFO] 2025/04/11 13:46:47 Node: ✅ Connected to blockchain at block 8096120
+[INFO] 2025/04/11 13:46:47 Registered as a verifier
+[INFO] 2025/04/11 13:46:47 Node: ✅ Registered as a verifier
+[INFO] 2025/04/11 13:46:47 Attempting to map port 64807
+[INFO] 2025/04/11 13:46:48 Assigned to 1 farms: 1
+[INFO] 2025/04/11 13:46:48 Starting peer discovery...
+[INFO] 2025/04/11 13:46:48 Verifier started successfully!
+[INFO] 2025/04/11 13:46:48 Node: ✅ Assigned to 1 farms: 1
+[INFO] 2025/04/11 13:46:48 Node: [INFO] Starting peer discovery...
+[INFO] 2025/04/11 13:46:48 Node: ✅ Verifier started successfully!
+[INFO] 2025/04/11 13:46:49 Failed to map port 64807
+[INFO] 2025/04/11 13:46:49 Attempting to map port 59195
+[INFO] 2025/04/11 13:46:50 Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 13:46:50 Node: [INFO] Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 13:46:50 Successfully listening on alternative port 10000
+[INFO] 2025/04/11 13:46:51 Failed to map port 59195
+[INFO] 2025/04/11 13:46:51 Attempting to map port 50525
+[INFO] 2025/04/11 13:46:52 Successfully listening on alternative port 10001
+[INFO] 2025/04/11 13:46:53 Failed to map port 50525
+[INFO] 2025/04/11 13:46:53 Attempting to map port 59192
+[INFO] 2025/04/11 13:46:54 Successfully listening on alternative port 10002
+[INFO] 2025/04/11 13:46:55 Failed to map port 59192
+[INFO] 2025/04/11 13:46:55 Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 13:46:55 Node: [INFO] Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 13:46:55 Successfully listening on alternative port 10000
+[INFO] 2025/04/11 13:46:56 Successfully listening on alternative port 10003
+[INFO] 2025/04/11 13:46:57 Successfully listening on alternative port 10001
+[INFO] 2025/04/11 13:46:58 Successfully listening on alternative port 10004
+[INFO] 2025/04/11 13:46:59 Successfully listening on alternative port 10002
+[INFO] 2025/04/11 13:47:00 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/11 13:47:00 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/11 13:47:00 Node: [INFO] Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/11 13:47:00 Node: [INFO] Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/11 13:47:01 Successfully listening on alternative port 10003
+[INFO] 2025/04/11 13:47:03 Benchmark updater will run every 1m0s
+[INFO] 2025/04/11 13:47:03 Node: ✅ Benchmark updater will run every 1m0s
+[WARN] 2025/04/11 13:47:03 Verifier is no longer active for farm 1, skipping benchmark update
+[INFO] 2025/04/11 13:47:03 Node: [WARN] Verifier is no longer active for farm 1, skipping benchmark update
+[INFO] 2025/04/11 13:47:03 Successfully listening on alternative port 10004
+[INFO] 2025/04/11 13:47:05 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/11 13:47:05 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/11 13:47:05 Node: [INFO] Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/11 13:47:05 Node: [INFO] Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/11 13:47:17 Shutting down...
+[INFO] 2025/04/11 13:47:17 Node: [INFO] Shutting down...
+[INFO] 2025/04/11 13:47:17 Node process exited normally
+[INFO] 2025/04/11 13:55:09 Starting dashboard server...
+[INFO] 2025/04/11 13:55:09 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/11 13:55:25 Initializing P2P host...
+[INFO] 2025/04/11 13:55:25 Node: [INFO] Initializing P2P host...
+[INFO] 2025/04/11 13:55:25 Peer ID: 12D3KooWJtRu4DKnpfuYs6RrxLGaWfuLzAbKfXBUcE1B3mhZx1D4
+[INFO] 2025/04/11 13:55:25 Node: ✅ Peer ID: 12D3KooWJtRu4DKnpfuYs6RrxLGaWfuLzAbKfXBUcE1B3mhZx1D4
+[INFO] 2025/04/11 13:55:25 mDNS discovery service started
+[INFO] 2025/04/11 13:55:25 Node: ✅ mDNS discovery service started
+[INFO] 2025/04/11 13:55:26 Initializing Dexponent protocol...
+[INFO] 2025/04/11 13:55:26 Node: [INFO] Initializing Dexponent protocol...
+[INFO] 2025/04/11 13:55:27 Connected to blockchain at block 8096160
+[INFO] 2025/04/11 13:55:27 Node: ✅ Connected to blockchain at block 8096160
+[INFO] 2025/04/11 13:55:27 Registered as a verifier
+[INFO] 2025/04/11 13:55:27 Node: ✅ Registered as a verifier
+[INFO] 2025/04/11 13:55:27 Attempting to map port 59888
+[INFO] 2025/04/11 13:55:27 Activating verifier for Farm ID 1...
+[INFO] 2025/04/11 13:55:27 Node: [INFO] Activating verifier for Farm ID 1...
+[INFO] 2025/04/11 13:55:28 Activation transaction submitted: 0x44cbb600f92b02e10d05fd00717098d4779afb8afd31c7d81ca2565befd1159e
+[INFO] 2025/04/11 13:55:28 Waiting for activation transaction to be mined...
+[INFO] 2025/04/11 13:55:28 Node: ✅ Activation transaction submitted: 0x44cbb600f92b02e10d05fd00717098d4779afb8afd31c7d81ca2565befd1159e
+[INFO] 2025/04/11 13:55:28 Node: [INFO] Waiting for activation transaction to be mined...
+[INFO] 2025/04/11 13:55:29 Failed to map port 59888
+[INFO] 2025/04/11 13:55:29 Attempting to map port 58386
+[INFO] 2025/04/11 13:55:30 Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 13:55:30 Node: [INFO] Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 13:55:30 Successfully listening on alternative port 10000
+[INFO] 2025/04/11 13:55:31 Failed to map port 58386
+[INFO] 2025/04/11 13:55:31 Attempting to map port 59891
+[INFO] 2025/04/11 13:55:32 Successfully listening on alternative port 10001
+[INFO] 2025/04/11 13:55:33 Failed to map port 59891
+[INFO] 2025/04/11 13:55:33 Attempting to map port 50827
+[INFO] 2025/04/11 13:55:34 Successfully listening on alternative port 10002
+[INFO] 2025/04/11 13:55:35 Failed to map port 50827
+[INFO] 2025/04/11 13:55:35 Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 13:55:35 Node: [INFO] Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 13:55:35 Successfully listening on alternative port 10000
+[INFO] 2025/04/11 13:55:36 Successfully listening on alternative port 10003
+[INFO] 2025/04/11 13:55:37 Successfully listening on alternative port 10001
+[INFO] 2025/04/11 13:55:38 Verifier activated successfully for Farm ID 1!
+[INFO] 2025/04/11 13:55:38 Assigned to 1 farms: 1 (Active)
+[INFO] 2025/04/11 13:55:38 Starting peer discovery...
+[INFO] 2025/04/11 13:55:38 Node: ✅ Verifier activated successfully for Farm ID 1!
+[INFO] 2025/04/11 13:55:38 Verifier started successfully!
+[INFO] 2025/04/11 13:55:38 Node: ✅ Assigned to 1 farms: 1 (Active)
+[INFO] 2025/04/11 13:55:38 Node: [INFO] Starting peer discovery...
+[INFO] 2025/04/11 13:55:38 Node: ✅ Verifier started successfully!
+[INFO] 2025/04/11 13:55:38 Successfully listening on alternative port 10004
+[INFO] 2025/04/11 13:55:39 Successfully listening on alternative port 10002
+[INFO] 2025/04/11 13:55:40 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/11 13:55:40 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/11 13:55:40 Node: [INFO] Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/11 13:55:40 Node: [INFO] Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/11 13:55:41 Successfully listening on alternative port 10003
+[INFO] 2025/04/11 13:55:43 Successfully listening on alternative port 10004
+[INFO] 2025/04/11 13:55:45 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/11 13:55:45 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/11 13:55:45 Node: [INFO] Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/11 13:55:45 Node: [INFO] Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/11 13:55:53 Benchmark updater will run every 1m0s
+[INFO] 2025/04/11 13:55:53 Node: ✅ Benchmark updater will run every 1m0s
+[INFO] 2025/04/11 13:55:53 Updating benchmark for farm 1: 10.00% -> 9.75%
+[INFO] 2025/04/11 13:55:53 Node: ✅ Updating benchmark for farm 1: 10.00% -> 9.75%
+[INFO] 2025/04/11 13:55:54 Benchmark update transaction submitted: 0xb6374cd91328a6dda41ef0b91955e403352db8cb8efe3ebe31391124b8c95247
+[INFO] 2025/04/11 13:55:54 Node: ✅ Benchmark update transaction submitted: 0xb6374cd91328a6dda41ef0b91955e403352db8cb8efe3ebe31391124b8c95247
+[INFO] 2025/04/11 13:56:08 Benchmark update transaction 0xb6374cd91328a6dda41ef0b91955e403352db8cb8efe3ebe31391124b8c95247 confirmed successfully
+[INFO] 2025/04/11 13:56:08 Node: ✅ Benchmark update transaction 0xb6374cd91328a6dda41ef0b91955e403352db8cb8efe3ebe31391124b8c95247 confirmed successfully
+[INFO] 2025/04/11 13:56:22 Shutting down...
+[INFO] 2025/04/11 13:56:22 Node: [INFO] Shutting down...
+[INFO] 2025/04/11 13:56:22 Node process exited normally
+[INFO] 2025/04/11 15:20:32 Starting dashboard server...
+[INFO] 2025/04/11 15:20:32 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/11 15:20:53 Approving DXP token transfer...
+[INFO] 2025/04/11 15:20:54 Approval transaction submitted: 0x1aed3a92aa3bf3f325bc6070fc593dfb890ffbabf23c000eefde576a0681335f
+[INFO] 2025/04/11 15:20:54 Waiting for approval transaction to be mined...
+[INFO] 2025/04/11 15:21:01 Approval transaction mined successfully
+[INFO] 2025/04/11 15:21:01 Registering verifier with amount 100.000000 and farm ID 6
+[INFO] 2025/04/11 15:21:02 Registration transaction submitted: 0xe5ff38b5f46b0b9969521aa876646fdc799f76739d67c2e7bdb64beb94ed31b8
+[INFO] 2025/04/11 15:21:02 Waiting for registration transaction to be mined...
+[INFO] 2025/04/11 15:21:13 Successfully registered as a verifier!
+[INFO] 2025/04/11 15:21:13 Farm ID: 6
+[INFO] 2025/04/11 15:21:13 Staked Amount: 100.000000
+[INFO] 2025/04/11 15:21:38 Initializing P2P host...
+[INFO] 2025/04/11 15:21:38 Node: [INFO] Initializing P2P host...
+[INFO] 2025/04/11 15:21:38 Peer ID: 12D3KooWLZ52vgFyDMj568zqcbdWyRJQ7PUyLyAbefCvdVuTCwJb
+[INFO] 2025/04/11 15:21:38 Node: ✅ Peer ID: 12D3KooWLZ52vgFyDMj568zqcbdWyRJQ7PUyLyAbefCvdVuTCwJb
+[INFO] 2025/04/11 15:21:38 mDNS discovery service started
+[INFO] 2025/04/11 15:21:38 Node: ✅ mDNS discovery service started
+[INFO] 2025/04/11 15:21:39 Initializing Dexponent protocol...
+[INFO] 2025/04/11 15:21:39 Node: [INFO] Initializing Dexponent protocol...
+[INFO] 2025/04/11 15:21:39 Connected to blockchain at block 8096545
+[INFO] 2025/04/11 15:21:39 Node: ✅ Connected to blockchain at block 8096545
+[INFO] 2025/04/11 15:21:40 Registered as a verifier
+[INFO] 2025/04/11 15:21:40 Node: ✅ Registered as a verifier
+[INFO] 2025/04/11 15:21:40 Attempting to map port 49616
+[INFO] 2025/04/11 15:21:40 Activating verifier for Farm ID 6...
+[INFO] 2025/04/11 15:21:40 Node: [INFO] Activating verifier for Farm ID 6...
+[INFO] 2025/04/11 15:21:41 Activation transaction submitted: 0x36579ff007e3813cdef5af2839cb515ffa357ed44ca4b6faeb7bb6348295e478
+[INFO] 2025/04/11 15:21:41 Waiting for activation transaction to be mined...
+[INFO] 2025/04/11 15:21:41 Node: ✅ Activation transaction submitted: 0x36579ff007e3813cdef5af2839cb515ffa357ed44ca4b6faeb7bb6348295e478
+[INFO] 2025/04/11 15:21:41 Node: [INFO] Waiting for activation transaction to be mined...
+[INFO] 2025/04/11 15:21:42 Failed to map port 49616
+[INFO] 2025/04/11 15:21:42 Attempting to map port 56520
+[INFO] 2025/04/11 15:21:43 Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 15:21:43 Node: [INFO] Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 15:21:43 Successfully listening on alternative port 10000
+[INFO] 2025/04/11 15:21:44 Failed to map port 56520
+[INFO] 2025/04/11 15:21:44 Attempting to map port 49619
+[INFO] 2025/04/11 15:21:45 Successfully listening on alternative port 10001
+[INFO] 2025/04/11 15:21:46 Failed to map port 49619
+[INFO] 2025/04/11 15:21:46 Attempting to map port 53198
+[INFO] 2025/04/11 15:21:47 Successfully listening on alternative port 10002
+[INFO] 2025/04/11 15:21:48 Failed to map port 53198
+[INFO] 2025/04/11 15:21:48 Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 15:21:48 Node: [INFO] Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 15:21:48 Successfully listening on alternative port 10000
+[INFO] 2025/04/11 15:21:48 Verifier activated successfully for Farm ID 6!
+[INFO] 2025/04/11 15:21:48 Assigned to 1 farms: 6 (Active)
+[INFO] 2025/04/11 15:21:48 Starting peer discovery...
+[INFO] 2025/04/11 15:21:48 Node: ✅ Verifier activated successfully for Farm ID 6!
+[INFO] 2025/04/11 15:21:48 Verifier started successfully!
+[INFO] 2025/04/11 15:21:48 Node: ✅ Assigned to 1 farms: 6 (Active)
+[INFO] 2025/04/11 15:21:48 Node: [INFO] Starting peer discovery...
+[INFO] 2025/04/11 15:21:48 Node: ✅ Verifier started successfully!
+[INFO] 2025/04/11 15:21:49 Successfully listening on alternative port 10003
+[INFO] 2025/04/11 15:21:50 Successfully listening on alternative port 10001
+[INFO] 2025/04/11 15:21:51 Successfully listening on alternative port 10004
+[INFO] 2025/04/11 15:21:52 Successfully listening on alternative port 10002
+[INFO] 2025/04/11 15:21:53 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/11 15:21:53 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/11 15:21:53 Node: [INFO] Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/11 15:21:53 Node: [INFO] Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/11 15:21:54 Successfully listening on alternative port 10003
+[INFO] 2025/04/11 15:21:56 Successfully listening on alternative port 10004
+[INFO] 2025/04/11 15:21:58 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/11 15:21:58 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/11 15:21:58 Node: [INFO] Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/11 15:21:58 Node: [INFO] Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/11 15:22:03 Benchmark updater will run every 1m0s
+[INFO] 2025/04/11 15:22:03 Node: ✅ Benchmark updater will run every 1m0s
+[INFO] 2025/04/11 15:22:04 Updating benchmark for farm 6: 10.00% -> 9.63%
+[INFO] 2025/04/11 15:22:04 Node: ✅ Updating benchmark for farm 6: 10.00% -> 9.63%
+[INFO] 2025/04/11 15:22:05 Benchmark update transaction submitted: 0xff5fc9fd6e8eb336fac094136f32d112713c63fd2c01c94c490d4a8abf52b093
+[INFO] 2025/04/11 15:22:05 Node: ✅ Benchmark update transaction submitted: 0xff5fc9fd6e8eb336fac094136f32d112713c63fd2c01c94c490d4a8abf52b093
+[INFO] 2025/04/11 15:22:19 Benchmark update transaction 0xff5fc9fd6e8eb336fac094136f32d112713c63fd2c01c94c490d4a8abf52b093 confirmed successfully
+[INFO] 2025/04/11 15:22:19 Node: ✅ Benchmark update transaction 0xff5fc9fd6e8eb336fac094136f32d112713c63fd2c01c94c490d4a8abf52b093 confirmed successfully
+[INFO] 2025/04/11 15:23:06 Updating benchmark for farm 6: 9.63% -> 9.37%
+[INFO] 2025/04/11 15:23:06 Node: ✅ Updating benchmark for farm 6: 9.63% -> 9.37%
+[INFO] 2025/04/11 15:23:07 Benchmark update transaction submitted: 0x0e4c6e3b758a50a48f93f556f98ec968ce7e96cd3596ff3eff69cee7da7a7bac
+[INFO] 2025/04/11 15:23:07 Node: ✅ Benchmark update transaction submitted: 0x0e4c6e3b758a50a48f93f556f98ec968ce7e96cd3596ff3eff69cee7da7a7bac
+[WARN] 2025/04/11 15:23:19 Failed to get receipt for transaction 0x0e4c6e3b758a50a48f93f556f98ec968ce7e96cd3596ff3eff69cee7da7a7bac: not found
+[INFO] 2025/04/11 15:23:19 Node: [WARN] Failed to get receipt for transaction 0x0e4c6e3b758a50a48f93f556f98ec968ce7e96cd3596ff3eff69cee7da7a7bac: not found
+[WARN] 2025/04/11 15:23:24 Failed to get receipt for transaction 0x0e4c6e3b758a50a48f93f556f98ec968ce7e96cd3596ff3eff69cee7da7a7bac: not found
+[INFO] 2025/04/11 15:23:24 Node: [WARN] Failed to get receipt for transaction 0x0e4c6e3b758a50a48f93f556f98ec968ce7e96cd3596ff3eff69cee7da7a7bac: not found
+[INFO] 2025/04/11 15:23:29 Benchmark update transaction 0x0e4c6e3b758a50a48f93f556f98ec968ce7e96cd3596ff3eff69cee7da7a7bac confirmed successfully
+[INFO] 2025/04/11 15:23:29 Node: ✅ Benchmark update transaction 0x0e4c6e3b758a50a48f93f556f98ec968ce7e96cd3596ff3eff69cee7da7a7bac confirmed successfully
+[INFO] 2025/04/11 15:24:09 Updating benchmark for farm 6: 9.37% -> 9.69%
+[INFO] 2025/04/11 15:24:09 Node: ✅ Updating benchmark for farm 6: 9.37% -> 9.69%
+[INFO] 2025/04/11 15:24:09 Benchmark update transaction submitted: 0x14844b138e440ee3a78903cf13fd5dbc91a9f41c1b148c0dad7550fd50b6af59
+[INFO] 2025/04/11 15:24:09 Node: ✅ Benchmark update transaction submitted: 0x14844b138e440ee3a78903cf13fd5dbc91a9f41c1b148c0dad7550fd50b6af59
+[INFO] 2025/04/11 15:24:14 Shutting down...
+[ERROR] 2025/04/11 15:28:36 Failed to get verifier metrics: failed to call getVerifierMetrics: execution reverted
+[ERROR] 2025/04/11 15:30:02 Unknown command: benchmark
+[INFO] 2025/04/11 15:31:54 Initializing P2P host...
+[INFO] 2025/04/11 15:31:54 Peer ID: 12D3KooWLk3hjFcGzGomBYhsrJWmqwyxWNKMbnuYFHTSqtWfe7pQ
+[INFO] 2025/04/11 15:31:54 mDNS discovery service started
+[INFO] 2025/04/11 15:31:55 Initializing Dexponent protocol...
+[INFO] 2025/04/11 15:31:55 Connected to blockchain at block 8096591
+[INFO] 2025/04/11 15:31:56 Registered as a verifier
+[INFO] 2025/04/11 15:31:56 Attempting to map port 50469
+[INFO] 2025/04/11 15:31:58 Failed to map port 50469
+[INFO] 2025/04/11 15:31:58 Attempting to map port 56837
+[INFO] 2025/04/11 15:31:58 Assigned to 1 farms: 1 (Active)
+[INFO] 2025/04/11 15:31:58 Starting peer discovery...
+[INFO] 2025/04/11 15:31:58 Verifier started successfully!
+[INFO] 2025/04/11 15:31:59 Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 15:31:59 Successfully listening on alternative port 10000
+[INFO] 2025/04/11 15:32:00 Failed to map port 56837
+[INFO] 2025/04/11 15:32:00 Attempting to map port 50466
+[INFO] 2025/04/11 15:32:01 Successfully listening on alternative port 10001
+[INFO] 2025/04/11 15:32:02 Failed to map port 50466
+[INFO] 2025/04/11 15:32:02 Attempting to map port 56291
+[INFO] 2025/04/11 15:32:03 Successfully listening on alternative port 10002
+[INFO] 2025/04/11 15:32:04 Failed to map port 56291
+[INFO] 2025/04/11 15:32:04 Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 15:32:04 Successfully listening on alternative port 10000
+[INFO] 2025/04/11 15:32:05 Successfully listening on alternative port 10003
+[INFO] 2025/04/11 15:32:06 Successfully listening on alternative port 10001
+[INFO] 2025/04/11 15:32:07 Successfully listening on alternative port 10004
+[INFO] 2025/04/11 15:32:08 Successfully listening on alternative port 10002
+[INFO] 2025/04/11 15:32:09 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/11 15:32:09 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/11 15:32:10 Shutting down...
+[INFO] 2025/04/11 15:33:06 Starting dashboard server...
+[INFO] 2025/04/11 15:33:06 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/11 15:37:04 Starting dashboard server...
+[INFO] 2025/04/11 15:37:04 Starting dashboard on http://localhost:8080
+[ERROR] 2025/04/11 15:37:05 Failed to check if verifier is registered: failed to call isVerifier: execution reverted
+[INFO] 2025/04/11 16:01:11 Starting dashboard server...
+[INFO] 2025/04/11 16:01:11 Starting dashboard on http://localhost:8080
+[ERROR] 2025/04/11 16:01:11 Failed to check if verifier is registered: failed to call isVerifier: execution reverted
+[ERROR] 2025/04/11 16:01:31 Failed to check verifier status: failed to call isVerifier: execution reverted
+[ERROR] 2025/04/11 16:03:05 Failed to check verifier status: failed to call isVerifier: execution reverted
+[INFO] 2025/04/11 16:05:53 Starting dashboard server...
+[INFO] 2025/04/11 16:05:53 Starting dashboard on http://localhost:8080
+[ERROR] 2025/04/11 16:05:53 Failed to check if verifier is registered: failed to call isVerifier: execution reverted
+[INFO] 2025/04/11 16:09:59 Starting dashboard server...
+[INFO] 2025/04/11 16:09:59 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/11 16:10:41 Initializing P2P host...
+[INFO] 2025/04/11 16:10:41 Node: [INFO] Initializing P2P host...
+[INFO] 2025/04/11 16:10:41 Peer ID: 12D3KooWH6wVAinDKxCc2RWNNVDJZas1bKVMYKNw3zdrgGruWs4n
+[INFO] 2025/04/11 16:10:41 Node: ✅ Peer ID: 12D3KooWH6wVAinDKxCc2RWNNVDJZas1bKVMYKNw3zdrgGruWs4n
+[INFO] 2025/04/11 16:10:41 mDNS discovery service started
+[INFO] 2025/04/11 16:10:41 Node: ✅ mDNS discovery service started
+[INFO] 2025/04/11 16:10:42 Initializing Dexponent protocol...
+[INFO] 2025/04/11 16:10:42 Node: [INFO] Initializing Dexponent protocol...
+[INFO] 2025/04/11 16:10:43 Connected to blockchain at block 8096760
+[INFO] 2025/04/11 16:10:43 Node: ✅ Connected to blockchain at block 8096760
+[INFO] 2025/04/11 16:10:43 Registered as a verifier
+[INFO] 2025/04/11 16:10:43 Node: ✅ Registered as a verifier
+[INFO] 2025/04/11 16:10:43 Attempting to map port 53151
+[INFO] 2025/04/11 16:10:45 Assigned to 1 farms: 1 (Active)
+[INFO] 2025/04/11 16:10:45 Starting peer discovery...
+[INFO] 2025/04/11 16:10:45 Verifier started successfully!
+[INFO] 2025/04/11 16:10:45 Node: ✅ Assigned to 1 farms: 1 (Active)
+[INFO] 2025/04/11 16:10:45 Node: [INFO] Starting peer discovery...
+[INFO] 2025/04/11 16:10:45 Node: ✅ Verifier started successfully!
+[INFO] 2025/04/11 16:10:45 Failed to map port 53151
+[INFO] 2025/04/11 16:10:45 Attempting to map port 49577
+[INFO] 2025/04/11 16:10:46 Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 16:10:46 Node: [INFO] Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 16:10:46 Successfully listening on alternative port 10000
+[INFO] 2025/04/11 16:10:47 Failed to map port 49577
+[INFO] 2025/04/11 16:10:47 Attempting to map port 53154
+[INFO] 2025/04/11 16:10:48 Successfully listening on alternative port 10001
+[INFO] 2025/04/11 16:10:49 Failed to map port 53154
+[INFO] 2025/04/11 16:10:49 Attempting to map port 57276
+[INFO] 2025/04/11 16:10:50 Successfully listening on alternative port 10002
+[INFO] 2025/04/11 16:10:51 Failed to map port 57276
+[INFO] 2025/04/11 16:10:51 Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 16:10:51 Node: [INFO] Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 16:10:51 Successfully listening on alternative port 10000
+[INFO] 2025/04/11 16:10:52 Successfully listening on alternative port 10003
+[INFO] 2025/04/11 16:10:53 Successfully listening on alternative port 10001
+[INFO] 2025/04/11 16:10:54 Successfully listening on alternative port 10004
+[INFO] 2025/04/11 16:10:55 Successfully listening on alternative port 10002
+[INFO] 2025/04/11 16:10:56 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/11 16:10:56 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/11 16:10:56 Node: [INFO] Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/11 16:10:56 Node: [INFO] Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/11 16:10:57 Successfully listening on alternative port 10003
+[INFO] 2025/04/11 16:10:59 Successfully listening on alternative port 10004
+[INFO] 2025/04/11 16:11:00 Benchmark updater will run every 1m0s
+[INFO] 2025/04/11 16:11:00 Node: ✅ Benchmark updater will run every 1m0s
+[INFO] 2025/04/11 16:11:01 Updating benchmark for farm 1: 10.75% -> 10.94%
+[INFO] 2025/04/11 16:11:01 Node: ✅ Updating benchmark for farm 1: 10.75% -> 10.94%
+[INFO] 2025/04/11 16:11:01 Benchmark update transaction submitted: 0x8e643ba9fa9d4cc004f53f5bbe91980d2210ae2a2066fe89e345b5777c367513
+[INFO] 2025/04/11 16:11:01 Node: ✅ Benchmark update transaction submitted: 0x8e643ba9fa9d4cc004f53f5bbe91980d2210ae2a2066fe89e345b5777c367513
+[INFO] 2025/04/11 16:11:01 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/11 16:11:01 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/11 16:11:01 Node: [INFO] Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/11 16:11:01 Node: [INFO] Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/11 16:11:15 Benchmark update transaction 0x8e643ba9fa9d4cc004f53f5bbe91980d2210ae2a2066fe89e345b5777c367513 confirmed successfully
+[INFO] 2025/04/11 16:11:15 Node: ✅ Benchmark update transaction 0x8e643ba9fa9d4cc004f53f5bbe91980d2210ae2a2066fe89e345b5777c367513 confirmed successfully
+[INFO] 2025/04/11 16:11:41 Shutting down...
+[INFO] 2025/04/11 16:11:41 Node: [INFO] Shutting down...
+[INFO] 2025/04/11 16:11:41 Node process exited normally
+[INFO] 2025/04/11 16:29:09 Starting dashboard server...
+[INFO] 2025/04/11 16:29:09 Starting dashboard on http://localhost:8080
+[ERROR] 2025/04/11 16:29:48 Failed to check verifier status: failed to call isVerifier: execution reverted
+[ERROR] 2025/04/11 16:30:14 Failed to check verifier status: failed to call isVerifier: execution reverted
+[INFO] 2025/04/11 16:30:30 Starting dashboard server...
+[INFO] 2025/04/11 16:30:30 Starting dashboard on http://localhost:8080
+[ERROR] 2025/04/11 16:30:31 Failed to check if verifier is registered: failed to call isVerifier: execution reverted
+[INFO] 2025/04/11 16:31:13 Starting dashboard server...
+[INFO] 2025/04/11 16:31:13 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/11 16:33:33 Initializing P2P host...
+[INFO] 2025/04/11 16:33:33 Node: [INFO] Initializing P2P host...
+[INFO] 2025/04/11 16:33:33 Peer ID: 12D3KooW9q4tUXCvmk7YS436JqZhXA97gSP56apUkMGFSahBv4EU
+[INFO] 2025/04/11 16:33:33 Node: ✅ Peer ID: 12D3KooW9q4tUXCvmk7YS436JqZhXA97gSP56apUkMGFSahBv4EU
+[INFO] 2025/04/11 16:33:33 mDNS discovery service started
+[INFO] 2025/04/11 16:33:33 Node: ✅ mDNS discovery service started
+[INFO] 2025/04/11 16:33:34 Initializing Dexponent protocol...
+[INFO] 2025/04/11 16:33:34 Node: [INFO] Initializing Dexponent protocol...
+[INFO] 2025/04/11 16:33:34 Connected to blockchain at block 8096868
+[INFO] 2025/04/11 16:33:34 Node: ✅ Connected to blockchain at block 8096868
+[INFO] 2025/04/11 16:33:34 Registered as a verifier
+[INFO] 2025/04/11 16:33:34 Node: ✅ Registered as a verifier
+[INFO] 2025/04/11 16:33:35 Attempting to map port 55247
+[INFO] 2025/04/11 16:33:37 Failed to map port 55247
+[INFO] 2025/04/11 16:33:37 Attempting to map port 60135
+[INFO] 2025/04/11 16:33:37 Assigned to 1 farms: 1 (Active)
+[INFO] 2025/04/11 16:33:37 Starting peer discovery...
+[INFO] 2025/04/11 16:33:37 Verifier started successfully!
+[INFO] 2025/04/11 16:33:37 Node: ✅ Assigned to 1 farms: 1 (Active)
+[INFO] 2025/04/11 16:33:37 Node: [INFO] Starting peer discovery...
+[INFO] 2025/04/11 16:33:37 Node: ✅ Verifier started successfully!
+[INFO] 2025/04/11 16:33:38 Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 16:33:38 Node: [INFO] Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 16:33:38 Successfully listening on alternative port 10000
+[INFO] 2025/04/11 16:33:39 Failed to map port 60135
+[INFO] 2025/04/11 16:33:39 Attempting to map port 55250
+[INFO] 2025/04/11 16:33:40 Successfully listening on alternative port 10001
+[INFO] 2025/04/11 16:33:41 Failed to map port 55250
+[INFO] 2025/04/11 16:33:41 Attempting to map port 52404
+[INFO] 2025/04/11 16:33:42 Successfully listening on alternative port 10002
+[INFO] 2025/04/11 16:33:43 Failed to map port 52404
+[INFO] 2025/04/11 16:33:43 Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 16:33:43 Node: [INFO] Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 16:33:43 Successfully listening on alternative port 10000
+[INFO] 2025/04/11 16:33:44 Successfully listening on alternative port 10003
+[INFO] 2025/04/11 16:33:45 Successfully listening on alternative port 10001
+[INFO] 2025/04/11 16:33:46 Successfully listening on alternative port 10004
+[INFO] 2025/04/11 16:33:47 Successfully listening on alternative port 10002
+[INFO] 2025/04/11 16:33:48 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/11 16:33:48 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/11 16:33:48 Node: [INFO] Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/11 16:33:48 Node: [INFO] Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/11 16:33:49 Successfully listening on alternative port 10003
+[INFO] 2025/04/11 16:33:51 Successfully listening on alternative port 10004
+[INFO] 2025/04/11 16:33:52 Benchmark updater will run every 1m0s
+[INFO] 2025/04/11 16:33:52 Node: ✅ Benchmark updater will run every 1m0s
+[INFO] 2025/04/11 16:33:53 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/11 16:33:53 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/11 16:33:53 Node: [INFO] Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/11 16:33:53 Node: [INFO] Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/11 16:33:53 Updating benchmark for farm 1: 10.94% -> 10.58%
+[INFO] 2025/04/11 16:33:53 Node: ✅ Updating benchmark for farm 1: 10.94% -> 10.58%
+[INFO] 2025/04/11 16:33:53 Benchmark update transaction submitted: 0xbab0fbaf621ebc413c133ba4064777142699620451e1ceb4f4678a48c019ead8
+[INFO] 2025/04/11 16:33:53 Node: ✅ Benchmark update transaction submitted: 0xbab0fbaf621ebc413c133ba4064777142699620451e1ceb4f4678a48c019ead8
+[INFO] 2025/04/11 16:34:08 Benchmark update transaction 0xbab0fbaf621ebc413c133ba4064777142699620451e1ceb4f4678a48c019ead8 confirmed successfully
+[INFO] 2025/04/11 16:34:08 Node: ✅ Benchmark update transaction 0xbab0fbaf621ebc413c133ba4064777142699620451e1ceb4f4678a48c019ead8 confirmed successfully
+[INFO] 2025/04/11 16:34:54 Updating benchmark for farm 1: 10.57% -> 10.91%
+[INFO] 2025/04/11 16:34:54 Node: ✅ Updating benchmark for farm 1: 10.57% -> 10.91%
+[INFO] 2025/04/11 16:34:55 Benchmark update transaction submitted: 0xd769236b77a44887f80d4cf1873396f77b0e1d4af8b9ce8764d9193235384ac5
+[INFO] 2025/04/11 16:34:55 Node: ✅ Benchmark update transaction submitted: 0xd769236b77a44887f80d4cf1873396f77b0e1d4af8b9ce8764d9193235384ac5
+[INFO] 2025/04/11 16:35:08 Benchmark update transaction 0xd769236b77a44887f80d4cf1873396f77b0e1d4af8b9ce8764d9193235384ac5 confirmed successfully
+[INFO] 2025/04/11 16:35:08 Node: ✅ Benchmark update transaction 0xd769236b77a44887f80d4cf1873396f77b0e1d4af8b9ce8764d9193235384ac5 confirmed successfully
+[INFO] 2025/04/11 16:35:55 Updating benchmark for farm 1: 10.90% -> 10.96%
+[INFO] 2025/04/11 16:35:55 Node: ✅ Updating benchmark for farm 1: 10.90% -> 10.96%
+[INFO] 2025/04/11 16:35:56 Benchmark update transaction submitted: 0xefa22dfbf601e1b624772d8e7310b2d183b56238b332606702d224dc50aa1c60
+[INFO] 2025/04/11 16:35:56 Node: ✅ Benchmark update transaction submitted: 0xefa22dfbf601e1b624772d8e7310b2d183b56238b332606702d224dc50aa1c60
+[INFO] 2025/04/11 16:36:08 Benchmark update transaction 0xefa22dfbf601e1b624772d8e7310b2d183b56238b332606702d224dc50aa1c60 confirmed successfully
+[INFO] 2025/04/11 16:36:08 Node: ✅ Benchmark update transaction 0xefa22dfbf601e1b624772d8e7310b2d183b56238b332606702d224dc50aa1c60 confirmed successfully
+[INFO] 2025/04/11 16:36:56 Updating benchmark for farm 1: 10.95% -> 11.01%
+[INFO] 2025/04/11 16:36:56 Node: ✅ Updating benchmark for farm 1: 10.95% -> 11.01%
+[INFO] 2025/04/11 16:36:57 Benchmark update transaction submitted: 0x689f8ca8c7fa26f8ad224b3be6309e7a22d5645f297c7414caf219f59d7069a6
+[INFO] 2025/04/11 16:36:57 Node: ✅ Benchmark update transaction submitted: 0x689f8ca8c7fa26f8ad224b3be6309e7a22d5645f297c7414caf219f59d7069a6
+[INFO] 2025/04/11 16:37:08 Benchmark update transaction 0x689f8ca8c7fa26f8ad224b3be6309e7a22d5645f297c7414caf219f59d7069a6 confirmed successfully
+[INFO] 2025/04/11 16:37:08 Node: ✅ Benchmark update transaction 0x689f8ca8c7fa26f8ad224b3be6309e7a22d5645f297c7414caf219f59d7069a6 confirmed successfully
+[INFO] 2025/04/11 16:37:57 Updating benchmark for farm 1: 11.01% -> 10.69%
+[INFO] 2025/04/11 16:37:57 Node: ✅ Updating benchmark for farm 1: 11.01% -> 10.69%
+[INFO] 2025/04/11 16:37:58 Benchmark update transaction submitted: 0x818e8b3e936c81b6bea5a5d9155dcaee2ffc2308f0158de027c35b0330e67e79
+[INFO] 2025/04/11 16:37:58 Node: ✅ Benchmark update transaction submitted: 0x818e8b3e936c81b6bea5a5d9155dcaee2ffc2308f0158de027c35b0330e67e79
+[WARN] 2025/04/11 16:38:09 Failed to get receipt for transaction 0x818e8b3e936c81b6bea5a5d9155dcaee2ffc2308f0158de027c35b0330e67e79: not found
+[INFO] 2025/04/11 16:38:09 Node: [WARN] Failed to get receipt for transaction 0x818e8b3e936c81b6bea5a5d9155dcaee2ffc2308f0158de027c35b0330e67e79: not found
+[INFO] 2025/04/11 16:38:14 Benchmark update transaction 0x818e8b3e936c81b6bea5a5d9155dcaee2ffc2308f0158de027c35b0330e67e79 confirmed successfully
+[INFO] 2025/04/11 16:38:14 Node: ✅ Benchmark update transaction 0x818e8b3e936c81b6bea5a5d9155dcaee2ffc2308f0158de027c35b0330e67e79 confirmed successfully
+[INFO] 2025/04/11 16:38:59 Updating benchmark for farm 1: 10.69% -> 10.35%
+[INFO] 2025/04/11 16:38:59 Node: ✅ Updating benchmark for farm 1: 10.69% -> 10.35%
+[INFO] 2025/04/11 16:38:59 Benchmark update transaction submitted: 0xa47adb62c2ab133d72f34f60e42a8962bf1ec9c0e7ff55b5ce133b076524bcc5
+[INFO] 2025/04/11 16:38:59 Node: ✅ Benchmark update transaction submitted: 0xa47adb62c2ab133d72f34f60e42a8962bf1ec9c0e7ff55b5ce133b076524bcc5
+[INFO] 2025/04/11 16:39:14 Benchmark update transaction 0xa47adb62c2ab133d72f34f60e42a8962bf1ec9c0e7ff55b5ce133b076524bcc5 confirmed successfully
+[INFO] 2025/04/11 16:39:14 Node: ✅ Benchmark update transaction 0xa47adb62c2ab133d72f34f60e42a8962bf1ec9c0e7ff55b5ce133b076524bcc5 confirmed successfully
+[INFO] 2025/04/11 16:40:00 Updating benchmark for farm 1: 10.35% -> 10.34%
+[INFO] 2025/04/11 16:40:00 Node: ✅ Updating benchmark for farm 1: 10.35% -> 10.34%
+[INFO] 2025/04/11 16:40:01 Benchmark update transaction submitted: 0x77ff519d19c35103dfade36b67a41150a9f6ceabb5c8076d53b357a5e3497d77
+[INFO] 2025/04/11 16:40:01 Node: ✅ Benchmark update transaction submitted: 0x77ff519d19c35103dfade36b67a41150a9f6ceabb5c8076d53b357a5e3497d77
+[INFO] 2025/04/11 16:40:14 Benchmark update transaction 0x77ff519d19c35103dfade36b67a41150a9f6ceabb5c8076d53b357a5e3497d77 confirmed successfully
+[INFO] 2025/04/11 16:40:14 Node: ✅ Benchmark update transaction 0x77ff519d19c35103dfade36b67a41150a9f6ceabb5c8076d53b357a5e3497d77 confirmed successfully
+[INFO] 2025/04/11 16:41:01 Updating benchmark for farm 1: 10.33% -> 10.74%
+[INFO] 2025/04/11 16:41:01 Node: ✅ Updating benchmark for farm 1: 10.33% -> 10.74%
+[INFO] 2025/04/11 16:41:02 Benchmark update transaction submitted: 0x650219de362b0c7b7ad50d81028d648d35cc2e8d06fb71e497eaa2410ed1bdd8
+[INFO] 2025/04/11 16:41:02 Node: ✅ Benchmark update transaction submitted: 0x650219de362b0c7b7ad50d81028d648d35cc2e8d06fb71e497eaa2410ed1bdd8
+[INFO] 2025/04/11 16:41:15 Benchmark update transaction 0x650219de362b0c7b7ad50d81028d648d35cc2e8d06fb71e497eaa2410ed1bdd8 confirmed successfully
+[INFO] 2025/04/11 16:41:15 Node: ✅ Benchmark update transaction 0x650219de362b0c7b7ad50d81028d648d35cc2e8d06fb71e497eaa2410ed1bdd8 confirmed successfully
+[INFO] 2025/04/11 16:42:03 Updating benchmark for farm 1: 10.74% -> 10.50%
+[INFO] 2025/04/11 16:42:03 Node: ✅ Updating benchmark for farm 1: 10.74% -> 10.50%
+[INFO] 2025/04/11 16:42:04 Benchmark update transaction submitted: 0x24be481918c3773af6544ace6830a64bfbd6c861eeb078e350eb6bdb9857fc37
+[INFO] 2025/04/11 16:42:04 Node: ✅ Benchmark update transaction submitted: 0x24be481918c3773af6544ace6830a64bfbd6c861eeb078e350eb6bdb9857fc37
+[INFO] 2025/04/11 16:42:15 Benchmark update transaction 0x24be481918c3773af6544ace6830a64bfbd6c861eeb078e350eb6bdb9857fc37 confirmed successfully
+[INFO] 2025/04/11 16:42:15 Node: ✅ Benchmark update transaction 0x24be481918c3773af6544ace6830a64bfbd6c861eeb078e350eb6bdb9857fc37 confirmed successfully
+[INFO] 2025/04/11 16:43:04 Updating benchmark for farm 1: 10.50% -> 10.20%
+[INFO] 2025/04/11 16:43:04 Node: ✅ Updating benchmark for farm 1: 10.50% -> 10.20%
+[INFO] 2025/04/11 16:43:05 Benchmark update transaction submitted: 0x3f0683b035f3cb37d1752fa17c2e82cd187b1e837572f5c6561e05cbf5d52ebd
+[INFO] 2025/04/11 16:43:05 Node: ✅ Benchmark update transaction submitted: 0x3f0683b035f3cb37d1752fa17c2e82cd187b1e837572f5c6561e05cbf5d52ebd
+[INFO] 2025/04/11 16:43:20 Benchmark update transaction 0x3f0683b035f3cb37d1752fa17c2e82cd187b1e837572f5c6561e05cbf5d52ebd confirmed successfully
+[INFO] 2025/04/11 16:43:20 Node: ✅ Benchmark update transaction 0x3f0683b035f3cb37d1752fa17c2e82cd187b1e837572f5c6561e05cbf5d52ebd confirmed successfully
+[INFO] 2025/04/11 16:44:05 Updating benchmark for farm 1: 10.20% -> 9.81%
+[INFO] 2025/04/11 16:44:05 Node: ✅ Updating benchmark for farm 1: 10.20% -> 9.81%
+[INFO] 2025/04/11 16:44:06 Benchmark update transaction submitted: 0xcda51d5287e5f8298c0aa36757ff0b71205eedfcfa879a71a95d9a67c3f9a79e
+[INFO] 2025/04/11 16:44:06 Node: ✅ Benchmark update transaction submitted: 0xcda51d5287e5f8298c0aa36757ff0b71205eedfcfa879a71a95d9a67c3f9a79e
+[INFO] 2025/04/11 16:44:20 Benchmark update transaction 0xcda51d5287e5f8298c0aa36757ff0b71205eedfcfa879a71a95d9a67c3f9a79e confirmed successfully
+[INFO] 2025/04/11 16:44:20 Node: ✅ Benchmark update transaction 0xcda51d5287e5f8298c0aa36757ff0b71205eedfcfa879a71a95d9a67c3f9a79e confirmed successfully
+[INFO] 2025/04/11 16:45:07 Updating benchmark for farm 1: 9.80% -> 10.04%
+[INFO] 2025/04/11 16:45:07 Node: ✅ Updating benchmark for farm 1: 9.80% -> 10.04%
+[INFO] 2025/04/11 16:45:08 Benchmark update transaction submitted: 0xc47bd6667f9c8b053fa497358388bf54b23b1151df49d779ee8156b04c466981
+[INFO] 2025/04/11 16:45:08 Node: ✅ Benchmark update transaction submitted: 0xc47bd6667f9c8b053fa497358388bf54b23b1151df49d779ee8156b04c466981
+[WARN] 2025/04/11 16:45:21 Failed to get receipt for transaction 0xc47bd6667f9c8b053fa497358388bf54b23b1151df49d779ee8156b04c466981: not found
+[INFO] 2025/04/11 16:45:21 Node: [WARN] Failed to get receipt for transaction 0xc47bd6667f9c8b053fa497358388bf54b23b1151df49d779ee8156b04c466981: not found
+[INFO] 2025/04/11 16:45:26 Benchmark update transaction 0xc47bd6667f9c8b053fa497358388bf54b23b1151df49d779ee8156b04c466981 confirmed successfully
+[INFO] 2025/04/11 16:45:26 Node: ✅ Benchmark update transaction 0xc47bd6667f9c8b053fa497358388bf54b23b1151df49d779ee8156b04c466981 confirmed successfully
+[INFO] 2025/04/11 16:45:54 Shutting down...
+[INFO] 2025/04/11 16:45:54 Node: [INFO] Shutting down...
+[INFO] 2025/04/11 16:45:54 Node process exited normally
+[INFO] 2025/04/11 16:57:31 Starting dashboard server...
+[INFO] 2025/04/11 16:57:31 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/11 17:15:00 Starting dashboard server...
+[INFO] 2025/04/11 17:15:00 Starting dashboard on http://localhost:8080
+[ERROR] 2025/04/11 17:20:47 Failed to initialize Ethereum client: failed to connect to the Ethereum network: dial unix 6e748857c30404a686a96457624bffc3e3f06346a29c7d808671687dcdc7a34b: connect: no such file or directory
+[ERROR] 2025/04/11 17:21:16 Failed to initialize Ethereum client: failed to connect to the Ethereum network: dial unix 6e748857c30404a686a96457624bffc3e3f06346a29c7d808671687dcdc7a34b: connect: no such file or directory
+[INFO] 2025/04/11 17:22:56 Starting dashboard server...
+[INFO] 2025/04/11 17:22:56 Starting dashboard on http://localhost:8080
+[ERROR] 2025/04/11 17:23:24 Failed to initialize Ethereum client: failed to connect to the Ethereum network: dial unix 6e748857c30404a686a96457624bffc3e3f06346a29c7d808671687dcdc7a34b: connect: no such file or directory
+[INFO] 2025/04/11 17:24:46 Approving DXP token transfer...
+[INFO] 2025/04/11 17:24:47 Approval transaction submitted: 0x63f7155b0137752ec9ca22f620c3b408bd58750325d5d76f73baee49ce11cdbf
+[INFO] 2025/04/11 17:24:47 Waiting for approval transaction to be mined...
+[INFO] 2025/04/11 17:25:01 Approval transaction mined successfully
+[INFO] 2025/04/11 17:25:01 Registering verifier with amount 150.000000 and farm ID 1
+[INFO] 2025/04/11 17:25:02 Registration transaction submitted: 0xfa2f2a0270095f87da5d2bd92dfbb32b923552c48a9413c56419b0036c7a7d0a
+[INFO] 2025/04/11 17:25:02 Waiting for registration transaction to be mined...
+[INFO] 2025/04/11 17:25:13 Successfully registered as a verifier!
+[INFO] 2025/04/11 17:25:13 Farm ID: 1
+[INFO] 2025/04/11 17:25:13 Staked Amount: 150.000000
+[INFO] 2025/04/11 17:25:56 Initializing P2P host...
+[INFO] 2025/04/11 17:25:56 Node: [INFO] Initializing P2P host...
+[INFO] 2025/04/11 17:25:56 Peer ID: 12D3KooWJrPeP1quzWNYyshQcrBe1Ff9qUPmH1Ux6GQFKnoxYAwg
+[INFO] 2025/04/11 17:25:56 Node: ✅ Peer ID: 12D3KooWJrPeP1quzWNYyshQcrBe1Ff9qUPmH1Ux6GQFKnoxYAwg
+[INFO] 2025/04/11 17:25:56 mDNS discovery service started
+[INFO] 2025/04/11 17:25:56 Node: ✅ mDNS discovery service started
+[INFO] 2025/04/11 17:25:57 Initializing Dexponent protocol...
+[INFO] 2025/04/11 17:25:57 Node: [INFO] Initializing Dexponent protocol...
+[INFO] 2025/04/11 17:25:58 Connected to blockchain at block 8097111
+[INFO] 2025/04/11 17:25:58 Node: ✅ Connected to blockchain at block 8097111
+[INFO] 2025/04/11 17:25:58 Registered as a verifier
+[INFO] 2025/04/11 17:25:58 Node: ✅ Registered as a verifier
+[INFO] 2025/04/11 17:25:58 Attempting to map port 59780
+[INFO] 2025/04/11 17:26:00 Assigned to 1 farms: 1 (Active)
+[INFO] 2025/04/11 17:26:00 Starting peer discovery...
+[INFO] 2025/04/11 17:26:00 Node: ✅ Assigned to 1 farms: 1 (Active)
+[INFO] 2025/04/11 17:26:00 Verifier started successfully!
+[INFO] 2025/04/11 17:26:00 Node: [INFO] Starting peer discovery...
+[INFO] 2025/04/11 17:26:00 Node: ✅ Verifier started successfully!
+[INFO] 2025/04/11 17:26:00 Failed to map port 59780
+[INFO] 2025/04/11 17:26:00 Attempting to map port 62955
+[INFO] 2025/04/11 17:26:01 Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 17:26:01 Node: [INFO] Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 17:26:01 Successfully listening on alternative port 10000
+[INFO] 2025/04/11 17:26:02 Failed to map port 62955
+[INFO] 2025/04/11 17:26:02 Attempting to map port 59783
+[INFO] 2025/04/11 17:26:03 Successfully listening on alternative port 10001
+[INFO] 2025/04/11 17:26:04 Failed to map port 59783
+[INFO] 2025/04/11 17:26:04 Attempting to map port 50893
+[INFO] 2025/04/11 17:26:05 Successfully listening on alternative port 10002
+[INFO] 2025/04/11 17:26:06 Failed to map port 50893
+[INFO] 2025/04/11 17:26:06 Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 17:26:06 Node: [INFO] Using local connectivity and relays for peer connections
+[INFO] 2025/04/11 17:26:06 Successfully listening on alternative port 10000
+[INFO] 2025/04/11 17:26:07 Successfully listening on alternative port 10003
+[INFO] 2025/04/11 17:26:08 Successfully listening on alternative port 10001
+[INFO] 2025/04/11 17:26:09 Successfully listening on alternative port 10004
+[INFO] 2025/04/11 17:26:10 Successfully listening on alternative port 10002
+[INFO] 2025/04/11 17:26:11 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/11 17:26:11 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/11 17:26:11 Node: [INFO] Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/11 17:26:11 Node: [INFO] Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/11 17:26:12 Successfully listening on alternative port 10003
+[INFO] 2025/04/11 17:26:14 Successfully listening on alternative port 10004
+[INFO] 2025/04/11 17:26:15 Benchmark updater will run every 1m0s
+[INFO] 2025/04/11 17:26:15 Node: ✅ Benchmark updater will run every 1m0s
+[INFO] 2025/04/11 17:26:16 Updating benchmark for farm 1: 10.00% -> 9.70%
+[INFO] 2025/04/11 17:26:16 Node: ✅ Updating benchmark for farm 1: 10.00% -> 9.70%
+[INFO] 2025/04/11 17:26:16 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/11 17:26:16 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/11 17:26:16 Node: [INFO] Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/11 17:26:16 Node: [INFO] Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/11 17:26:17 Benchmark update transaction submitted: 0xe789bcf68003ca30a117ccd15a991fd748cd7e34cc087a105d167acaa4fe42d2
+[INFO] 2025/04/11 17:26:17 Node: ✅ Benchmark update transaction submitted: 0xe789bcf68003ca30a117ccd15a991fd748cd7e34cc087a105d167acaa4fe42d2
+[INFO] 2025/04/11 17:26:30 Benchmark update transaction 0xe789bcf68003ca30a117ccd15a991fd748cd7e34cc087a105d167acaa4fe42d2 confirmed successfully
+[INFO] 2025/04/11 17:26:30 Node: ✅ Benchmark update transaction 0xe789bcf68003ca30a117ccd15a991fd748cd7e34cc087a105d167acaa4fe42d2 confirmed successfully
+[INFO] 2025/04/11 17:26:44 Shutting down...
+[INFO] 2025/04/11 17:26:44 Node: [INFO] Shutting down...
+[INFO] 2025/04/11 17:26:44 Node process exited normally

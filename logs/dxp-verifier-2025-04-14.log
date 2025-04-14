@@ -1,0 +1,630 @@
+[INFO] 2025/04/14 11:30:04 Starting dashboard server...
+[INFO] 2025/04/14 11:30:04 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/14 11:30:22 Approving DXP token transfer...
+[INFO] 2025/04/14 11:30:22 Approval transaction submitted: 0x6a9826f1e7bf2bfeb868d26753ecb8e23c192fe7d2dd12566b81e08ed3b358c0
+[INFO] 2025/04/14 11:30:22 Waiting for approval transaction to be mined...
+[INFO] 2025/04/14 11:30:25 Approval transaction mined successfully
+[INFO] 2025/04/14 11:30:25 Registering verifier with amount 100.000000 and farm ID 1
+[INFO] 2025/04/14 11:30:26 Registration transaction submitted: 0x5a36fe88fb7ed42fc8d69603b2a4901fe70e263c438cc2da3b71ca3ea0a91d52
+[INFO] 2025/04/14 11:30:26 Waiting for registration transaction to be mined...
+[INFO] 2025/04/14 11:30:37 Successfully registered as a verifier!
+[INFO] 2025/04/14 11:30:37 Farm ID: 1
+[INFO] 2025/04/14 11:30:37 Staked Amount: 100.000000
+[INFO] 2025/04/14 11:42:49 Starting dashboard server...
+[INFO] 2025/04/14 11:42:49 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/14 11:43:13 Withdraw request received for amount: 100
+[INFO] 2025/04/14 11:43:14 Withdrawing 100.000000 DXP from stake...
+[INFO] 2025/04/14 11:43:14 Withdrawal transaction submitted: 0x9ac2e17f0a02fc74ff904c587d424c9b0bfb9b5e2566ae3a865dd33ad13466ad
+[INFO] 2025/04/14 11:47:28 Starting dashboard server...
+[INFO] 2025/04/14 11:47:28 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/14 11:47:58 Approving DXP token transfer...
+[INFO] 2025/04/14 11:47:59 Approval transaction submitted: 0x481098fbaf4e631055e3a1e72c09e16e2c59cbceb818b7ca40e95829aa703e04
+[INFO] 2025/04/14 11:47:59 Waiting for approval transaction to be mined...
+[INFO] 2025/04/14 11:48:15 Approval transaction mined successfully
+[INFO] 2025/04/14 11:48:15 Registering verifier with amount 130.000000 and farm ID 6
+[INFO] 2025/04/14 11:48:15 Registration transaction submitted: 0x87b6df5eb58e571632cb0ce712037d6c5ae207fd2491d8f745139c6be8c7cdf8
+[INFO] 2025/04/14 11:48:15 Waiting for registration transaction to be mined...
+[INFO] 2025/04/14 11:48:25 Successfully registered as a verifier!
+[INFO] 2025/04/14 11:48:25 Farm ID: 6
+[INFO] 2025/04/14 11:48:25 Staked Amount: 130.000000
+[INFO] 2025/04/14 11:49:01 Withdraw request received for amount: 100
+[INFO] 2025/04/14 11:49:02 Withdrawing 100.000000 DXP from stake...
+[INFO] 2025/04/14 11:49:02 Withdrawal transaction submitted: 0x4aa3b51131f6fdb47433dd588450b4ec5451d3ad17ff48d3e7dbc406b1178d6e
+[INFO] 2025/04/14 11:55:18 Withdraw request received for amount: 30
+[INFO] 2025/04/14 11:55:18 Withdrawing 30.000000 DXP from stake...
+[INFO] 2025/04/14 11:55:19 Withdrawal transaction submitted: 0x64b167e84f2374f2b0b59ff0f4b3116ab4f3b90bf9214a8b2c33eed3880f12a2
+[INFO] 2025/04/14 11:57:01 Starting dashboard server...
+[INFO] 2025/04/14 11:57:01 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/14 11:57:21 Approving DXP token transfer...
+[INFO] 2025/04/14 11:57:22 Approval transaction submitted: 0xd9fbcaf2f44969db2724774a2ce654b06fab9c3256457e9fb8c4791d7211928b
+[INFO] 2025/04/14 11:57:22 Waiting for approval transaction to be mined...
+[INFO] 2025/04/14 11:57:38 Approval transaction mined successfully
+[INFO] 2025/04/14 11:57:38 Registering verifier with amount 130.000000 and farm ID 8
+[INFO] 2025/04/14 11:57:38 Registration transaction submitted: 0xc1d7ea7b63860f5441ed89a5fbe46a041b8325b82efb1e0f92b0deef612d4c69
+[INFO] 2025/04/14 11:57:38 Waiting for registration transaction to be mined...
+[INFO] 2025/04/14 11:57:50 Successfully registered as a verifier!
+[INFO] 2025/04/14 11:57:50 Farm ID: 8
+[INFO] 2025/04/14 11:57:50 Staked Amount: 130.000000
+[INFO] 2025/04/14 11:58:18 Withdraw request received for amount: 40
+[INFO] 2025/04/14 11:58:18 Withdrawing 40.000000 DXP from stake...
+[INFO] 2025/04/14 11:58:19 Withdrawal transaction submitted: 0x6d85b225e09acb1f5713f37070da65be5de11ab795e98858b1dbae8d037c05e6
+[INFO] 2025/04/14 12:04:52 Starting dashboard server...
+[INFO] 2025/04/14 12:04:52 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/14 12:05:15 Withdraw request received for amount: 90
+[INFO] 2025/04/14 12:05:15 Withdrawing 90.000000 DXP from stake...
+[INFO] 2025/04/14 12:05:16 Withdrawal transaction submitted: 0xd0f7441f946599151634b89859dc81ed3b280e0492a7e07438e6394a34392e8d
+[INFO] 2025/04/14 12:05:59 Approving DXP token transfer...
+[INFO] 2025/04/14 12:06:00 Approval transaction submitted: 0x15631ad5258e8101356e272bee12694bc158df7175ab9cc2d4b292e6d0aad164
+[INFO] 2025/04/14 12:06:00 Waiting for approval transaction to be mined...
+[INFO] 2025/04/14 12:06:14 Approval transaction mined successfully
+[INFO] 2025/04/14 12:06:14 Registering verifier with amount 120.000000 and farm ID 3
+[INFO] 2025/04/14 12:06:14 Registration transaction submitted: 0x8f2735f3e7da8625ab978ac56e8663534ee6af6250615ee504f78a39e0f1b6dd
+[INFO] 2025/04/14 12:06:14 Waiting for registration transaction to be mined...
+[INFO] 2025/04/14 12:06:26 Successfully registered as a verifier!
+[INFO] 2025/04/14 12:06:26 Farm ID: 3
+[INFO] 2025/04/14 12:06:26 Staked Amount: 120.000000
+[INFO] 2025/04/14 12:07:18 Withdraw request received for amount: 30
+[ERROR] 2025/04/14 12:07:18 Validation failed: Withdrawal would leave stake below minimum requirement of 100 DXP. Requested: 30.000000 DXP, Remaining would be: 90.000000 DXP
+[INFO] 2025/04/14 12:07:28 Withdraw request received for amount: 120
+[INFO] 2025/04/14 12:07:29 Withdrawing 120.000000 DXP from stake...
+[INFO] 2025/04/14 12:07:29 Withdrawal transaction submitted: 0x1747936682d560b6a58576c53ca405f8a05d9d5ad9fe2edb9f0293c89810f8e3
+[INFO] 2025/04/14 12:37:09 Starting dashboard server...
+[INFO] 2025/04/14 12:37:09 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/14 12:37:28 Approving DXP token transfer...
+[INFO] 2025/04/14 12:37:28 Approval transaction submitted: 0x2f1eafa3e78faefb7fca73ab273b014cfbb19cc39bbfac3d1db75c78e3f2b90d
+[INFO] 2025/04/14 12:37:28 Waiting for approval transaction to be mined...
+[INFO] 2025/04/14 12:37:38 Approval transaction mined successfully
+[INFO] 2025/04/14 12:37:38 Registering verifier with amount 120.000000 and farm ID 1
+[INFO] 2025/04/14 12:37:38 Registration transaction submitted: 0x4bb9fb95bc03e44959e8caed76318a6a1f85ac141b40b4bc849d02c1aff335cb
+[INFO] 2025/04/14 12:37:38 Waiting for registration transaction to be mined...
+[INFO] 2025/04/14 12:37:52 Successfully registered as a verifier!
+[INFO] 2025/04/14 12:37:52 Farm ID: 1
+[INFO] 2025/04/14 12:37:52 Staked Amount: 120.000000
+[INFO] 2025/04/14 12:38:23 Withdraw request received for amount: 20
+[INFO] 2025/04/14 12:38:23 Withdrawing 20.000000 DXP from stake...
+[INFO] 2025/04/14 12:38:24 Withdrawal transaction submitted: 0x07a1aac2629044322d0072ff5a27e060490694508ae63d3a2b07dbb5ba50ca95
+[INFO] 2025/04/14 12:39:13 Initializing P2P host...
+[INFO] 2025/04/14 12:39:13 Node: [INFO] Initializing P2P host...
+[INFO] 2025/04/14 12:39:13 Peer ID: 12D3KooWCJJPnoteu2idAZqfnpGKkR6VYHSsmdvYb9XJ8PUkcrqn
+[INFO] 2025/04/14 12:39:13 Node: ✅ Peer ID: 12D3KooWCJJPnoteu2idAZqfnpGKkR6VYHSsmdvYb9XJ8PUkcrqn
+[INFO] 2025/04/14 12:39:13 mDNS discovery service started
+[INFO] 2025/04/14 12:39:13 Node: ✅ mDNS discovery service started
+[INFO] 2025/04/14 12:39:14 Initializing Dexponent protocol...
+[INFO] 2025/04/14 12:39:14 Node: [INFO] Initializing Dexponent protocol...
+[INFO] 2025/04/14 12:39:14 Connected to blockchain at block 8115518
+[INFO] 2025/04/14 12:39:14 Node: ✅ Connected to blockchain at block 8115518
+[INFO] 2025/04/14 12:39:14 Registered as a verifier
+[INFO] 2025/04/14 12:39:14 Node: ✅ Registered as a verifier
+[INFO] 2025/04/14 12:39:15 Attempting to map port 60953
+[INFO] 2025/04/14 12:39:16 Assigned to 1 farms: 1 (Active)
+[INFO] 2025/04/14 12:39:16 Starting peer discovery...
+[INFO] 2025/04/14 12:39:16 Verifier started successfully!
+[INFO] 2025/04/14 12:39:16 Node: ✅ Assigned to 1 farms: 1 (Active)
+[INFO] 2025/04/14 12:39:16 Node: [INFO] Starting peer discovery...
+[INFO] 2025/04/14 12:39:16 Node: ✅ Verifier started successfully!
+[INFO] 2025/04/14 12:39:17 Failed to map port 60953
+[INFO] 2025/04/14 12:39:17 Attempting to map port 51831
+[INFO] 2025/04/14 12:39:18 Using local connectivity and relays for peer connections
+[INFO] 2025/04/14 12:39:18 Node: [INFO] Using local connectivity and relays for peer connections
+[INFO] 2025/04/14 12:39:18 Successfully listening on alternative port 10000
+[INFO] 2025/04/14 12:39:19 Failed to map port 51831
+[INFO] 2025/04/14 12:39:19 Attempting to map port 60950
+[INFO] 2025/04/14 12:39:20 Successfully listening on alternative port 10001
+[INFO] 2025/04/14 12:39:21 Failed to map port 60950
+[INFO] 2025/04/14 12:39:21 Attempting to map port 59403
+[INFO] 2025/04/14 12:39:22 Successfully listening on alternative port 10002
+[INFO] 2025/04/14 12:39:23 Failed to map port 59403
+[INFO] 2025/04/14 12:39:23 Using local connectivity and relays for peer connections
+[INFO] 2025/04/14 12:39:23 Node: [INFO] Using local connectivity and relays for peer connections
+[INFO] 2025/04/14 12:39:23 Successfully listening on alternative port 10000
+[INFO] 2025/04/14 12:39:24 Successfully listening on alternative port 10003
+[INFO] 2025/04/14 12:39:25 Successfully listening on alternative port 10001
+[INFO] 2025/04/14 12:39:26 Successfully listening on alternative port 10004
+[INFO] 2025/04/14 12:39:27 Successfully listening on alternative port 10002
+[INFO] 2025/04/14 12:39:28 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/14 12:39:28 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/14 12:39:28 Node: [INFO] Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/14 12:39:28 Node: [INFO] Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/14 12:39:29 Successfully listening on alternative port 10003
+[INFO] 2025/04/14 12:39:31 Successfully listening on alternative port 10004
+[INFO] 2025/04/14 12:39:31 Benchmark updater will run every 1m0s
+[INFO] 2025/04/14 12:39:31 Node: ✅ Benchmark updater will run every 1m0s
+[INFO] 2025/04/14 12:39:32 Updating benchmark for farm 1: 10.00% -> 10.02%
+[INFO] 2025/04/14 12:39:32 Node: ✅ Updating benchmark for farm 1: 10.00% -> 10.02%
+[INFO] 2025/04/14 12:39:32 Benchmark update transaction submitted: 0x316b37d27eecc849d44e74358502841add371def975c3466a00e11451343b4f3
+[INFO] 2025/04/14 12:39:32 Node: ✅ Benchmark update transaction submitted: 0x316b37d27eecc849d44e74358502841add371def975c3466a00e11451343b4f3
+[INFO] 2025/04/14 12:39:33 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/14 12:39:33 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/14 12:39:33 Node: [INFO] Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/14 12:39:33 Node: [INFO] Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/14 12:39:46 Benchmark update transaction 0x316b37d27eecc849d44e74358502841add371def975c3466a00e11451343b4f3 confirmed successfully
+[INFO] 2025/04/14 12:39:46 Node: ✅ Benchmark update transaction 0x316b37d27eecc849d44e74358502841add371def975c3466a00e11451343b4f3 confirmed successfully
+[INFO] 2025/04/14 12:40:13 Shutting down...
+[INFO] 2025/04/14 12:40:13 Node: [INFO] Shutting down...
+[INFO] 2025/04/14 12:40:13 Node process exited normally
+[INFO] 2025/04/14 12:40:16 Withdraw request received for amount: 100
+[INFO] 2025/04/14 12:40:17 Withdrawing 100.000000 DXP from stake...
+[INFO] 2025/04/14 12:40:17 Withdrawal transaction submitted: 0x6b27504ac5ae917c2de9608c935d14354cb93a9f6d60162048e125483c4a2c42
+[INFO] 2025/04/14 13:31:43 Starting dashboard server...
+[INFO] 2025/04/14 13:31:43 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/14 13:34:55 Approving DXP token transfer...
+[INFO] 2025/04/14 13:34:55 Approval transaction submitted: 0x08daef1b04f09bb08f7796499ff5f9ec2da86a4229437d3235a033578c408306
+[INFO] 2025/04/14 13:34:55 Waiting for approval transaction to be mined...
+[INFO] 2025/04/14 13:35:02 Approval transaction mined successfully
+[INFO] 2025/04/14 13:35:02 Registering verifier with amount 200.000000 and farm ID 1
+[INFO] 2025/04/14 13:35:03 Registration transaction submitted: 0xc69d0d0a76839154aea2cf4ff95c116bf086944596b26572f2f3c9e582145525
+[INFO] 2025/04/14 13:35:03 Waiting for registration transaction to be mined...
+[INFO] 2025/04/14 13:35:12 Successfully registered as a verifier!
+[INFO] 2025/04/14 13:35:12 Farm ID: 1
+[INFO] 2025/04/14 13:35:12 Staked Amount: 200.000000
+[INFO] 2025/04/14 13:35:53 Withdraw request received for amount: 100
+[INFO] 2025/04/14 13:35:53 Withdrawing 100.000000 DXP from stake...
+[INFO] 2025/04/14 13:35:54 Withdrawal transaction submitted: 0x8926856969cd4be7116290fc156089057af71d784d109da35d79348f3e3d602f
+[INFO] 2025/04/14 13:40:39 Withdraw request received for amount: 100
+[INFO] 2025/04/14 13:40:39 Withdrawing 100.000000 DXP from stake...
+[INFO] 2025/04/14 13:40:40 Withdrawal transaction submitted: 0x74690aabcef60b925c1b53e6df66e1e76e1d21898f295c990df06ad66217a3b5
+[INFO] 2025/04/14 14:44:29 Starting dashboard server...
+[INFO] 2025/04/14 14:44:29 Starting dashboard on http://localhost:8080
+[ERROR] 2025/04/14 14:44:30 Failed to get token balance: failed to call balanceOf: 429 Too Many Requests: {"code":-32005,"message":"Too Many Requests","data":{"see":"https://infura.io/dashboard"}}
+[ERROR] 2025/04/14 14:44:31 Failed to get token balance: failed to call balanceOf: 429 Too Many Requests: {"code":-32005,"message":"Too Many Requests","data":{"see":"https://infura.io/dashboard"}}
+[ERROR] 2025/04/14 14:44:33 Failed to check if verifier is registered: failed to call isVerifier: 429 Too Many Requests: {"code":-32005,"message":"Too Many Requests","data":{"see":"https://infura.io/dashboard"}}
+[ERROR] 2025/04/14 14:44:34 Failed to get token balance: failed to call balanceOf: 429 Too Many Requests: {"code":-32005,"message":"Too Many Requests","data":{"see":"https://infura.io/dashboard"}}
+[ERROR] 2025/04/14 14:44:34 Failed to check if verifier is registered: failed to call isVerifier: 429 Too Many Requests: {"code":-32005,"message":"Too Many Requests","data":{"see":"https://infura.io/dashboard"}}
+[ERROR] 2025/04/14 14:44:34 Failed to get token balance: failed to call balanceOf: 429 Too Many Requests: {"code":-32005,"message":"Too Many Requests","data":{"see":"https://infura.io/dashboard"}}
+[ERROR] 2025/04/14 14:44:34 Failed to check if verifier is registered: failed to call isVerifier: 429 Too Many Requests: {"code":-32005,"message":"Too Many Requests","data":{"see":"https://infura.io/dashboard"}}
+[INFO] 2025/04/14 14:44:52 Approving DXP token transfer...
+[ERROR] 2025/04/14 14:44:52 Failed to approve DXP token transfer: failed to create and sign transaction: failed to get nonce: 429 Too Many Requests: {"code":-32005,"message":"Too Many Requests","data":{"see":"https://infura.io/dashboard"}}
+[ERROR] 2025/04/14 14:46:04 Failed to initialize Ethereum client: failed to get chain ID: 429 Too Many Requests: {"code":-32005,"message":"Too Many Requests","data":{"see":"https://infura.io/dashboard"}}
+[INFO] 2025/04/14 14:47:01 Starting dashboard server...
+[INFO] 2025/04/14 14:47:01 Starting dashboard on http://localhost:8080
+[ERROR] 2025/04/14 14:47:02 Failed to get token balance: failed to call balanceOf: 429 Too Many Requests: {"code":-32005,"message":"Too Many Requests","data":{"see":"https://infura.io/dashboard"}}
+[ERROR] 2025/04/14 14:47:03 Failed to check if verifier is registered: failed to call isVerifier: 429 Too Many Requests: {"code":-32005,"message":"Too Many Requests","data":{"see":"https://infura.io/dashboard"}}
+[ERROR] 2025/04/14 14:47:03 Failed to get token balance: failed to call balanceOf: 429 Too Many Requests: {"code":-32005,"message":"Too Many Requests","data":{"see":"https://infura.io/dashboard"}}
+[ERROR] 2025/04/14 14:47:04 Failed to get token balance: failed to call balanceOf: 429 Too Many Requests: {"code":-32005,"message":"Too Many Requests","data":{"see":"https://infura.io/dashboard"}}
+[ERROR] 2025/04/14 14:47:04 Failed to check if verifier is registered: failed to call isVerifier: 429 Too Many Requests: {"code":-32005,"message":"Too Many Requests","data":{"see":"https://infura.io/dashboard"}}
+[ERROR] 2025/04/14 14:47:04 Failed to get token balance: failed to call balanceOf: 429 Too Many Requests: {"code":-32005,"message":"Too Many Requests","data":{"see":"https://infura.io/dashboard"}}
+[ERROR] 2025/04/14 14:47:05 Failed to check if verifier is registered: failed to call isVerifier: 429 Too Many Requests: {"code":-32005,"message":"Too Many Requests","data":{"see":"https://infura.io/dashboard"}}
+[ERROR] 2025/04/14 14:47:06 Failed to get token balance: failed to call balanceOf: 429 Too Many Requests: {"code":-32005,"message":"Too Many Requests","data":{"see":"https://infura.io/dashboard"}}
+[ERROR] 2025/04/14 14:47:09 Failed to check if verifier is registered: failed to call isVerifier: 429 Too Many Requests: {"code":-32005,"message":"Too Many Requests","data":{"see":"https://infura.io/dashboard"}}
+[ERROR] 2025/04/14 14:47:09 Failed to get token balance: failed to call balanceOf: 429 Too Many Requests: {"code":-32005,"message":"Too Many Requests","data":{"see":"https://infura.io/dashboard"}}
+[ERROR] 2025/04/14 14:47:11 Failed to get token balance: failed to call balanceOf: 429 Too Many Requests: {"code":-32005,"message":"Too Many Requests","data":{"see":"https://infura.io/dashboard"}}
+[ERROR] 2025/04/14 14:47:11 Failed to check if verifier is registered: failed to call isVerifier: 429 Too Many Requests: {"code":-32005,"message":"Too Many Requests","data":{"see":"https://infura.io/dashboard"}}
+[ERROR] 2025/04/14 14:47:11 Failed to get token balance: failed to call balanceOf: 429 Too Many Requests: {"code":-32005,"message":"Too Many Requests","data":{"see":"https://infura.io/dashboard"}}
+[ERROR] 2025/04/14 14:47:16 Failed to check if verifier is registered: failed to call isVerifier: 429 Too Many Requests: {"code":-32005,"message":"Too Many Requests","data":{"see":"https://infura.io/dashboard"}}
+[ERROR] 2025/04/14 14:47:17 Failed to get token balance: failed to call balanceOf: 429 Too Many Requests: {"code":-32005,"message":"Too Many Requests","data":{"see":"https://infura.io/dashboard"}}
+[ERROR] 2025/04/14 14:47:47 Failed to check if verifier is registered: failed to call isVerifier: 429 Too Many Requests: {"code":-32005,"message":"Too Many Requests","data":{"see":"https://infura.io/dashboard"}}
+[ERROR] 2025/04/14 14:47:47 Failed to get token balance: failed to call balanceOf: 429 Too Many Requests: {"code":-32005,"message":"Too Many Requests","data":{"see":"https://infura.io/dashboard"}}
+[INFO] 2025/04/14 14:52:46 Starting dashboard server...
+[INFO] 2025/04/14 14:52:46 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/14 14:53:07 Approving DXP token transfer...
+[INFO] 2025/04/14 14:53:09 Approval transaction submitted: 0x108fc1ef4d6790899edeb4dcc26f7d548e4fa086d562c844cb47ef89b5a6b599
+[INFO] 2025/04/14 14:53:09 Waiting for approval transaction to be mined...
+[INFO] 2025/04/14 14:53:13 Approval transaction mined successfully
+[INFO] 2025/04/14 14:53:13 Registering verifier with amount 1000.000000 and farm ID 2
+[INFO] 2025/04/14 14:53:14 Registration transaction submitted: 0xec9041a65cb6983b4ff742d0f76ae473e45375d67d069d8505a3b5ff16a11a8a
+[INFO] 2025/04/14 14:53:14 Waiting for registration transaction to be mined...
+[INFO] 2025/04/14 14:53:36 Successfully registered as a verifier!
+[INFO] 2025/04/14 14:53:36 Farm ID: 2
+[INFO] 2025/04/14 14:53:36 Staked Amount: 1000.000000
+[INFO] 2025/04/14 14:55:57 Initializing P2P host...
+[INFO] 2025/04/14 14:55:57 Node: [INFO] Initializing P2P host...
+[INFO] 2025/04/14 14:55:57 Peer ID: 12D3KooWFnMqHL5uEzx7HTYhZsD4XUeks6cDD4aiz6BqqdkDNw5M
+[INFO] 2025/04/14 14:55:57 Node: ✅ Peer ID: 12D3KooWFnMqHL5uEzx7HTYhZsD4XUeks6cDD4aiz6BqqdkDNw5M
+[INFO] 2025/04/14 14:55:57 mDNS discovery service started
+[INFO] 2025/04/14 14:55:57 Node: ✅ mDNS discovery service started
+[INFO] 2025/04/14 14:55:58 Initializing Dexponent protocol...
+[INFO] 2025/04/14 14:55:58 Node: [INFO] Initializing Dexponent protocol...
+[INFO] 2025/04/14 14:55:58 Connected to blockchain at block 8116120
+[INFO] 2025/04/14 14:55:58 Node: ✅ Connected to blockchain at block 8116120
+[INFO] 2025/04/14 14:55:58 Registered as a verifier
+[INFO] 2025/04/14 14:55:58 Node: ✅ Registered as a verifier
+[INFO] 2025/04/14 14:55:59 Attempting to map port 56103
+[INFO] 2025/04/14 14:56:00 Assigned to 1 farms: 2 (Active)
+[INFO] 2025/04/14 14:56:00 Starting peer discovery...
+[INFO] 2025/04/14 14:56:00 Verifier started successfully!
+[INFO] 2025/04/14 14:56:00 Node: ✅ Assigned to 1 farms: 2 (Active)
+[INFO] 2025/04/14 14:56:00 Node: [INFO] Starting peer discovery...
+[INFO] 2025/04/14 14:56:00 Node: ✅ Verifier started successfully!
+[INFO] 2025/04/14 14:56:01 Failed to map port 56103
+[INFO] 2025/04/14 14:56:01 Attempting to map port 61838
+[INFO] 2025/04/14 14:56:02 Using local connectivity and relays for peer connections
+[INFO] 2025/04/14 14:56:02 Node: [INFO] Using local connectivity and relays for peer connections
+[INFO] 2025/04/14 14:56:02 Successfully listening on alternative port 10000
+[INFO] 2025/04/14 14:56:03 Failed to map port 61838
+[INFO] 2025/04/14 14:56:03 Attempting to map port 56106
+[INFO] 2025/04/14 14:56:04 Successfully listening on alternative port 10001
+[INFO] 2025/04/14 14:56:05 Failed to map port 56106
+[INFO] 2025/04/14 14:56:05 Attempting to map port 54132
+[INFO] 2025/04/14 14:56:06 Successfully listening on alternative port 10002
+[INFO] 2025/04/14 14:56:07 Failed to map port 54132
+[INFO] 2025/04/14 14:56:07 Using local connectivity and relays for peer connections
+[INFO] 2025/04/14 14:56:07 Node: [INFO] Using local connectivity and relays for peer connections
+[INFO] 2025/04/14 14:56:07 Successfully listening on alternative port 10000
+[INFO] 2025/04/14 14:56:08 Successfully listening on alternative port 10003
+[INFO] 2025/04/14 14:56:09 Successfully listening on alternative port 10001
+[INFO] 2025/04/14 14:56:10 Successfully listening on alternative port 10004
+[INFO] 2025/04/14 14:56:11 Successfully listening on alternative port 10002
+[INFO] 2025/04/14 14:56:12 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/14 14:56:12 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/14 14:56:12 Node: [INFO] Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/14 14:56:12 Node: [INFO] Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/14 14:56:13 Successfully listening on alternative port 10003
+[INFO] 2025/04/14 14:56:15 Successfully listening on alternative port 10004
+[INFO] 2025/04/14 14:56:15 Benchmark updater will run every 1m0s
+[INFO] 2025/04/14 14:56:15 Node: ✅ Benchmark updater will run every 1m0s
+[INFO] 2025/04/14 14:56:16 Updating benchmark for farm 2: 9.78% -> 9.81%
+[INFO] 2025/04/14 14:56:16 Node: ✅ Updating benchmark for farm 2: 9.78% -> 9.81%
+[INFO] 2025/04/14 14:56:16 Benchmark update transaction submitted: 0xb6d964aee32b83cbc42add21342dc34c3f986bd30141d89c84d96fe63d03c48a
+[INFO] 2025/04/14 14:56:16 Node: ✅ Benchmark update transaction submitted: 0xb6d964aee32b83cbc42add21342dc34c3f986bd30141d89c84d96fe63d03c48a
+[INFO] 2025/04/14 14:56:17 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/14 14:56:17 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/14 14:56:17 Node: [INFO] Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/14 14:56:17 Node: [INFO] Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/14 14:56:30 Benchmark update transaction 0xb6d964aee32b83cbc42add21342dc34c3f986bd30141d89c84d96fe63d03c48a confirmed successfully
+[INFO] 2025/04/14 14:56:30 Node: ✅ Benchmark update transaction 0xb6d964aee32b83cbc42add21342dc34c3f986bd30141d89c84d96fe63d03c48a confirmed successfully
+[INFO] 2025/04/14 14:57:17 Updating benchmark for farm 2: 9.81% -> 9.46%
+[INFO] 2025/04/14 14:57:17 Node: ✅ Updating benchmark for farm 2: 9.81% -> 9.46%
+[INFO] 2025/04/14 14:57:17 Benchmark update transaction submitted: 0x65237f42da513c6905c019d7c4aed9cf85acb802e95e33295bf32cc10de8da16
+[INFO] 2025/04/14 14:57:17 Node: ✅ Benchmark update transaction submitted: 0x65237f42da513c6905c019d7c4aed9cf85acb802e95e33295bf32cc10de8da16
+[INFO] 2025/04/14 14:57:31 Benchmark update transaction 0x65237f42da513c6905c019d7c4aed9cf85acb802e95e33295bf32cc10de8da16 confirmed successfully
+[INFO] 2025/04/14 14:57:31 Node: ✅ Benchmark update transaction 0x65237f42da513c6905c019d7c4aed9cf85acb802e95e33295bf32cc10de8da16 confirmed successfully
+[INFO] 2025/04/14 14:58:15 Initializing P2P host...
+[INFO] 2025/04/14 14:58:15 Peer ID: 12D3KooWPi6Cu53X36YpxFgcEFvLc7spByF4Cj6Ztv7KZ2UxFFRY
+[INFO] 2025/04/14 14:58:15 mDNS discovery service started
+[INFO] 2025/04/14 14:58:15 Node: mDNS: discovered new peer: 12D3KooWPi6Cu53X36YpxFgcEFvLc7spByF4Cj6Ztv7KZ2UxFFRY
+[INFO] 2025/04/14 14:58:15 Node: mDNS: successfully connected to peer 12D3KooWPi6Cu53X36YpxFgcEFvLc7spByF4Cj6Ztv7KZ2UxFFRY
+[INFO] 2025/04/14 14:58:16 Initializing Dexponent protocol...
+[INFO] 2025/04/14 14:58:16 Connected to blockchain at block 8116132
+[INFO] 2025/04/14 14:58:16 Registered as a verifier
+[INFO] 2025/04/14 14:58:17 Attempting to map port 56863
+[INFO] 2025/04/14 14:58:18 Updating benchmark for farm 2: 9.45% -> 9.64%
+[INFO] 2025/04/14 14:58:18 Node: ✅ Updating benchmark for farm 2: 9.45% -> 9.64%
+[INFO] 2025/04/14 14:58:19 Benchmark update transaction submitted: 0xdcbcf3312b8e1d147b30a5fc8e6db1316da5774162d795d17cdebad2f97f0040
+[INFO] 2025/04/14 14:58:19 Assigned to 1 farms: 2 (Active)
+[INFO] 2025/04/14 14:58:19 Starting peer discovery...
+[INFO] 2025/04/14 14:58:19 Verifier started successfully!
+[INFO] 2025/04/14 14:58:19 Node: ✅ Benchmark update transaction submitted: 0xdcbcf3312b8e1d147b30a5fc8e6db1316da5774162d795d17cdebad2f97f0040
+[INFO] 2025/04/14 14:58:19 Failed to map port 56863
+[INFO] 2025/04/14 14:58:19 Attempting to map port 62780
+[INFO] 2025/04/14 14:58:20 Using local connectivity and relays for peer connections
+[INFO] 2025/04/14 14:58:20 Successfully listening on alternative port 10000
+[INFO] 2025/04/14 14:58:20 Node: ✅ Successfully established Dexponent protocol connection with 12D3KooWPi6Cu53X36YpxFgcEFvLc7spByF4Cj6Ztv7KZ2UxFFRY
+[INFO] 2025/04/14 14:58:21 Failed to map port 62780
+[INFO] 2025/04/14 14:58:21 Attempting to map port 56866
+[INFO] 2025/04/14 14:58:22 Successfully listening on alternative port 10001
+[INFO] 2025/04/14 14:58:23 Failed to map port 56866
+[INFO] 2025/04/14 14:58:23 Attempting to map port 52996
+[INFO] 2025/04/14 14:58:24 Connected to 1 Dexponent peers:
+[INFO] 2025/04/14 14:58:24   Dexponent Peer: 12D3KooWFnMqHL5uEzx7HTYhZsD4XUeks6cDD4aiz6BqqdkDNw5M
+[INFO] 2025/04/14 14:58:24 Successfully listening on alternative port 10002
+[INFO] 2025/04/14 14:58:25 Failed to map port 52996
+[INFO] 2025/04/14 14:58:25 Using local connectivity and relays for peer connections
+[INFO] 2025/04/14 14:58:25 Successfully listening on alternative port 10000
+[INFO] 2025/04/14 14:58:25 Connected to 1 Dexponent peers:
+[INFO] 2025/04/14 14:58:25   Dexponent Peer: 12D3KooWPi6Cu53X36YpxFgcEFvLc7spByF4Cj6Ztv7KZ2UxFFRY
+[INFO] 2025/04/14 14:58:25 Node: [INFO] Connected to 1 Dexponent peers:
+[INFO] 2025/04/14 14:58:25 Node: [INFO]   Dexponent Peer: 12D3KooWPi6Cu53X36YpxFgcEFvLc7spByF4Cj6Ztv7KZ2UxFFRY
+[INFO] 2025/04/14 14:58:26 Successfully listening on alternative port 10003
+[INFO] 2025/04/14 14:58:27 Successfully listening on alternative port 10001
+[INFO] 2025/04/14 14:58:28 Successfully listening on alternative port 10004
+[INFO] 2025/04/14 14:58:29 Successfully listening on alternative port 10002
+[INFO] 2025/04/14 14:58:30 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/14 14:58:30 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/14 14:58:31 Successfully listening on alternative port 10003
+[WARN] 2025/04/14 14:58:31 Failed to get receipt for transaction 0xdcbcf3312b8e1d147b30a5fc8e6db1316da5774162d795d17cdebad2f97f0040: not found
+[INFO] 2025/04/14 14:58:31 Node: [WARN] Failed to get receipt for transaction 0xdcbcf3312b8e1d147b30a5fc8e6db1316da5774162d795d17cdebad2f97f0040: not found
+[INFO] 2025/04/14 14:58:32 Shutting down...
+[INFO] 2025/04/14 14:58:36 Benchmark update transaction 0xdcbcf3312b8e1d147b30a5fc8e6db1316da5774162d795d17cdebad2f97f0040 confirmed successfully
+[INFO] 2025/04/14 14:58:36 Node: ✅ Benchmark update transaction 0xdcbcf3312b8e1d147b30a5fc8e6db1316da5774162d795d17cdebad2f97f0040 confirmed successfully
+[INFO] 2025/04/14 14:59:19 Updating benchmark for farm 2: 9.63% -> 9.58%
+[INFO] 2025/04/14 14:59:19 Node: ✅ Updating benchmark for farm 2: 9.63% -> 9.58%
+[INFO] 2025/04/14 14:59:20 Benchmark update transaction submitted: 0x84ee7df77e693119cfac1bcb70f80c44db1b756c653b86fb0767ce29a1956f7f
+[INFO] 2025/04/14 14:59:20 Node: ✅ Benchmark update transaction submitted: 0x84ee7df77e693119cfac1bcb70f80c44db1b756c653b86fb0767ce29a1956f7f
+[INFO] 2025/04/14 14:59:31 Benchmark update transaction 0x84ee7df77e693119cfac1bcb70f80c44db1b756c653b86fb0767ce29a1956f7f confirmed successfully
+[INFO] 2025/04/14 14:59:31 Node: ✅ Benchmark update transaction 0x84ee7df77e693119cfac1bcb70f80c44db1b756c653b86fb0767ce29a1956f7f confirmed successfully
+[INFO] 2025/04/14 14:59:35 Connected to 0 Dexponent peers:
+[INFO] 2025/04/14 14:59:35 Node: [INFO] Connected to 0 Dexponent peers:
+[INFO] 2025/04/14 15:00:01 Shutting down...
+[INFO] 2025/04/14 15:00:01 Node: [INFO] Shutting down...
+[INFO] 2025/04/14 15:00:01 Node process exited normally
+[INFO] 2025/04/14 16:08:26 Starting dashboard server...
+[INFO] 2025/04/14 16:08:26 Starting dashboard on http://localhost:8080
+[ERROR] 2025/04/14 16:08:26 Failed to start dashboard server: listen tcp :8080: bind: address already in use
+[INFO] 2025/04/14 16:09:00 Starting dashboard server...
+[INFO] 2025/04/14 16:09:00 Starting dashboard on http://:8081
+[ERROR] 2025/04/14 16:09:23 Failed to call Gemini API: invalid response format or no candidates
+[INFO] 2025/04/14 16:12:37 Starting dashboard server...
+[INFO] 2025/04/14 16:12:37 Starting dashboard on http://:8081
+[ERROR] 2025/04/14 16:12:37 Failed to start dashboard server: listen tcp :8081: bind: address already in use
+[INFO] 2025/04/14 16:13:04 Starting dashboard server...
+[INFO] 2025/04/14 16:13:04 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/14 16:17:58 Starting dashboard server...
+[INFO] 2025/04/14 16:17:58 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/14 16:18:58 Starting dashboard server...
+[INFO] 2025/04/14 16:18:58 Starting dashboard on http://:8081
+[ERROR] 2025/04/14 16:18:58 Failed to start dashboard server: listen tcp :8081: bind: address already in use
+[INFO] 2025/04/14 16:19:15 Starting dashboard server...
+[INFO] 2025/04/14 16:19:15 Starting dashboard on http://:8081
+[ERROR] 2025/04/14 16:19:15 Failed to start dashboard server: listen tcp :8081: bind: address already in use
+[INFO] 2025/04/14 16:20:12 Starting dashboard server...
+[INFO] 2025/04/14 16:20:12 Starting dashboard on http://:8082
+[INFO] 2025/04/14 16:20:30 Gemini API request: {
+  "contents": [
+    {
+      "parts": [
+        {
+          "text": "You are an AI assistant for the Dexponent Protocol. Your role is to provide helpful, accurate information about Dexponent. The Dexponent Protocol introduces a novel framework in decentralized finance (DeFi) aimed at resolving inefficiencies in traditional finance (TradFi) and current DeFi models. It empowers liquidity providers (LPs) with tools for secure, yield-generating strategies through the Sharpe Consensus, which uses AI-driven benchmarking. The protocol enables diverse investment strategies called 'Farms' like Staking, Lending Pools, AMM Liquidity Pools, CDOs, and Index Funds. Key stakeholders include Farm Owners, LPs, Yield Yodas (who execute strategies), and Verifiers (who validate performance). The $DXP token underpins the ecosystem with a total supply of 21 million tokens."
+        }
+      ],
+      "role": "user"
+    },
+    {
+      "parts": [
+        {
+          "text": "I understand. I'll help answer questions about the Dexponent Protocol."
+        }
+      ],
+      "role": "model"
+    },
+    {
+      "parts": [
+        {
+          "text": "hi"
+        }
+      ],
+      "role": "user"
+    }
+  ]
+}
+[INFO] 2025/04/14 16:20:31 Gemini API response status: 200
+[INFO] 2025/04/14 16:20:31 Gemini API response body: {
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "Hi there! How can I help you learn about Dexponent today? Do you have any specific questions about the protocol, its features, or the $DXP token?\n"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "avgLogprobs": -0.25817282540457587
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 178,
+    "candidatesTokenCount": 35,
+    "totalTokenCount": 213,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 178
+      }
+    ],
+    "candidatesTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 35
+      }
+    ]
+  },
+  "modelVersion": "gemini-2.0-flash"
+}
+
+[INFO] 2025/04/14 16:20:46 Gemini API request: {
+  "contents": [
+    {
+      "parts": [
+        {
+          "text": "You are an AI assistant for the Dexponent Protocol. Your role is to provide helpful, accurate information about Dexponent. The Dexponent Protocol introduces a novel framework in decentralized finance (DeFi) aimed at resolving inefficiencies in traditional finance (TradFi) and current DeFi models. It empowers liquidity providers (LPs) with tools for secure, yield-generating strategies through the Sharpe Consensus, which uses AI-driven benchmarking. The protocol enables diverse investment strategies called 'Farms' like Staking, Lending Pools, AMM Liquidity Pools, CDOs, and Index Funds. Key stakeholders include Farm Owners, LPs, Yield Yodas (who execute strategies), and Verifiers (who validate performance). The $DXP token underpins the ecosystem with a total supply of 21 million tokens."
+        }
+      ],
+      "role": "user"
+    },
+    {
+      "parts": [
+        {
+          "text": "I understand. I'll help answer questions about the Dexponent Protocol."
+        }
+      ],
+      "role": "model"
+    },
+    {
+      "parts": [
+        {
+          "text": "yeah whats the tokenomics?"
+        }
+      ],
+      "role": "user"
+    }
+  ]
+}
+[INFO] 2025/04/14 16:20:49 Gemini API response status: 200
+[INFO] 2025/04/14 16:20:49 Gemini API response body: {
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "The $DXP token is the core utility token of the Dexponent Protocol, and its tokenomics are designed to support the ecosystem and incentivize participation. Here's a breakdown:\n\n*   **Total Supply:** 21,000,000 $DXP tokens\n*   **Purpose:** Utility token used for:\n    *   Governance\n    *   Staking\n    *   Incentivizing LPs\n    *   Rewarding Yield Yodas\n    *   Compensating Verifiers\n*   **Allocation:** The specific allocation details (e.g., allocation for team, early investors, community, etc.) are not yet available in the provided context. *However*, the utility of the token suggests that a portion would likely be allocated to community incentives, Yield Yoda rewards, and Verifier compensations.\n\n**Key Considerations:**\n\n*   **Deflationary/Inflationary Mechanisms:** The documentation would need to be consulted to determine if there are any deflationary mechanisms (token burns, etc.) or inflationary mechanisms (new token minting).\n*   **Vesting Schedules:** If there were an allocation to the team or early investors, there will be a vesting schedule to ensure long-term alignment.\n\n**In summary,** $DXP plays a central role in the Dexponent Protocol by facilitating governance, incentivizing participation, and supporting the various functions within the ecosystem.\n"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "avgLogprobs": -0.55461597442626953
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 183,
+    "candidatesTokenCount": 288,
+    "totalTokenCount": 471,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 183
+      }
+    ],
+    "candidatesTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 288
+      }
+    ]
+  },
+  "modelVersion": "gemini-2.0-flash"
+}
+
+[INFO] 2025/04/14 16:21:39 Gemini API request: {
+  "contents": [
+    {
+      "parts": [
+        {
+          "text": "You are an AI assistant for the Dexponent Protocol. Your role is to provide helpful, accurate information about Dexponent. The Dexponent Protocol introduces a novel framework in decentralized finance (DeFi) aimed at resolving inefficiencies in traditional finance (TradFi) and current DeFi models. It empowers liquidity providers (LPs) with tools for secure, yield-generating strategies through the Sharpe Consensus, which uses AI-driven benchmarking. The protocol enables diverse investment strategies called 'Farms' like Staking, Lending Pools, AMM Liquidity Pools, CDOs, and Index Funds. Key stakeholders include Farm Owners, LPs, Yield Yodas (who execute strategies), and Verifiers (who validate performance). The $DXP token underpins the ecosystem with a total supply of 21 million tokens."
+        }
+      ],
+      "role": "user"
+    },
+    {
+      "parts": [
+        {
+          "text": "I understand. I'll help answer questions about the Dexponent Protocol."
+        }
+      ],
+      "role": "model"
+    },
+    {
+      "parts": [
+        {
+          "text": "What does farms mean in dexponent?"
+        }
+      ],
+      "role": "user"
+    }
+  ]
+}
+[INFO] 2025/04/14 16:21:41 Gemini API response status: 200
+[INFO] 2025/04/14 16:21:41 Gemini API response body: {
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "In the Dexponent Protocol, \"Farms\" represent diverse investment strategies where Liquidity Providers (LPs) can deploy their capital to generate yield. Think of them as specialized investment vehicles within the Dexponent ecosystem.\n\nThese Farms can take various forms, including:\n\n*   **Staking:** Participating in staking mechanisms to earn rewards.\n*   **Lending Pools:** Supplying assets to lending markets to earn interest.\n*   **AMM Liquidity Pools:** Providing liquidity to Automated Market Makers (AMMs) and earning trading fees.\n*   **CDOs (Collateralized Debt Obligations):** Investing in structured credit products for potentially higher returns.\n*   **Index Funds:** Tracking the performance of a specific basket of assets.\n\nEach Farm is designed with specific risk/reward profiles and operational parameters. LPs choose Farms that align with their investment goals and risk tolerance.\n"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "avgLogprobs": -0.32439133290494426
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 185,
+    "candidatesTokenCount": 178,
+    "totalTokenCount": 363,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 185
+      }
+    ],
+    "candidatesTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 178
+      }
+    ]
+  },
+  "modelVersion": "gemini-2.0-flash"
+}
+
+[ERROR] 2025/04/14 16:42:16 Unknown command: go
+[INFO] 2025/04/14 16:42:53 Starting dashboard server...
+[INFO] 2025/04/14 16:42:53 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/14 16:52:07 Starting dashboard server...
+[INFO] 2025/04/14 16:52:07 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/14 16:52:35 Withdraw request received for amount: 200
+[INFO] 2025/04/14 16:52:36 Withdrawing 200.000000 DXP from stake...
+[INFO] 2025/04/14 16:52:37 Withdrawal transaction submitted: 0x76d755d1fd134ef4bfdd93f2f05ac2080cbe0de1c65858d5670d1561c74c8396
+[INFO] 2025/04/14 16:56:29 Withdraw request received for amount: 800
+[INFO] 2025/04/14 16:56:30 Withdrawing 800.000000 DXP from stake...
+[INFO] 2025/04/14 16:56:31 Withdrawal transaction submitted: 0x428770b2c42c8da5ff51a28feba8f296496d1be99a9a4532980e2e41ac951c50
+[INFO] 2025/04/14 17:14:43 Starting dashboard server...
+[INFO] 2025/04/14 17:14:43 Starting dashboard on http://localhost:8080
+[INFO] 2025/04/14 17:41:22 Approving DXP token transfer...
+[INFO] 2025/04/14 17:41:23 Approval transaction submitted: 0xe3339b6da72864fa47d703a88da0ecd163b1cb47ce2c938ca2400cad82fcc591
+[INFO] 2025/04/14 17:41:23 Waiting for approval transaction to be mined...
+[INFO] 2025/04/14 17:41:26 Approval transaction mined successfully
+[INFO] 2025/04/14 17:41:26 Registering verifier with amount 3000.000000 and farm ID 2
+[INFO] 2025/04/14 17:41:27 Registration transaction submitted: 0x33351f29007fb2c47e5f56a6101c15d6613222996287948ae4f6a096cbf20ced
+[INFO] 2025/04/14 17:41:27 Waiting for registration transaction to be mined...
+[INFO] 2025/04/14 17:41:36 Successfully registered as a verifier!
+[INFO] 2025/04/14 17:41:36 Farm ID: 2
+[INFO] 2025/04/14 17:41:36 Staked Amount: 3000.000000
+[INFO] 2025/04/14 18:31:10 Initializing P2P host...
+[INFO] 2025/04/14 18:31:10 Node: [INFO] Initializing P2P host...
+[INFO] 2025/04/14 18:31:10 Peer ID: 12D3KooWLuKhWA11SKCgzxQNHH8e2nDMAREjwLzYxRPPzGk5fu1D
+[INFO] 2025/04/14 18:31:10 Node: ✅ Peer ID: 12D3KooWLuKhWA11SKCgzxQNHH8e2nDMAREjwLzYxRPPzGk5fu1D
+[INFO] 2025/04/14 18:31:10 mDNS discovery service started
+[INFO] 2025/04/14 18:31:10 Node: ✅ mDNS discovery service started
+[INFO] 2025/04/14 18:31:12 Initializing Dexponent protocol...
+[INFO] 2025/04/14 18:31:12 Node: [INFO] Initializing Dexponent protocol...
+[INFO] 2025/04/14 18:31:12 Connected to blockchain at block 8117067
+[INFO] 2025/04/14 18:31:12 Node: ✅ Connected to blockchain at block 8117067
+[INFO] 2025/04/14 18:31:12 Registered as a verifier
+[INFO] 2025/04/14 18:31:12 Node: ✅ Registered as a verifier
+[INFO] 2025/04/14 18:31:12 Attempting to map port 55906
+[INFO] 2025/04/14 18:31:14 Assigned to 1 farms: 2 (Active)
+[INFO] 2025/04/14 18:31:14 Starting peer discovery...
+[INFO] 2025/04/14 18:31:14 Node: ✅ Assigned to 1 farms: 2 (Active)
+[INFO] 2025/04/14 18:31:14 Verifier started successfully!
+[INFO] 2025/04/14 18:31:14 Node: [INFO] Starting peer discovery...
+[INFO] 2025/04/14 18:31:14 Node: ✅ Verifier started successfully!
+[INFO] 2025/04/14 18:31:14 Failed to map port 55906
+[INFO] 2025/04/14 18:31:14 Attempting to map port 54755
+[INFO] 2025/04/14 18:31:15 Using local connectivity and relays for peer connections
+[INFO] 2025/04/14 18:31:15 Node: [INFO] Using local connectivity and relays for peer connections
+[INFO] 2025/04/14 18:31:15 Successfully listening on alternative port 10000
+[INFO] 2025/04/14 18:31:16 Failed to map port 54755
+[INFO] 2025/04/14 18:31:16 Attempting to map port 55909
+[INFO] 2025/04/14 18:31:17 Successfully listening on alternative port 10001
+[INFO] 2025/04/14 18:31:18 Failed to map port 55909
+[INFO] 2025/04/14 18:31:18 Attempting to map port 49851
+[INFO] 2025/04/14 18:31:19 Successfully listening on alternative port 10002
+[INFO] 2025/04/14 18:31:20 Failed to map port 49851
+[INFO] 2025/04/14 18:31:20 Using local connectivity and relays for peer connections
+[INFO] 2025/04/14 18:31:20 Node: [INFO] Using local connectivity and relays for peer connections
+[INFO] 2025/04/14 18:31:20 Successfully listening on alternative port 10000
+[INFO] 2025/04/14 18:31:21 Successfully listening on alternative port 10003
+[INFO] 2025/04/14 18:31:22 Successfully listening on alternative port 10001
+[INFO] 2025/04/14 18:31:23 Successfully listening on alternative port 10004
+[INFO] 2025/04/14 18:31:24 Successfully listening on alternative port 10002
+[INFO] 2025/04/14 18:31:25 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/14 18:31:25 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/14 18:31:25 Node: [INFO] Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/14 18:31:25 Node: [INFO] Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/14 18:31:26 Successfully listening on alternative port 10003
+[INFO] 2025/04/14 18:31:28 Successfully listening on alternative port 10004
+[INFO] 2025/04/14 18:31:29 Benchmark updater will run every 1m0s
+[INFO] 2025/04/14 18:31:29 Node: ✅ Benchmark updater will run every 1m0s
+[INFO] 2025/04/14 18:31:30 Updating benchmark for farm 2: 9.57% -> 9.65%
+[INFO] 2025/04/14 18:31:30 Node: ✅ Updating benchmark for farm 2: 9.57% -> 9.65%
+[INFO] 2025/04/14 18:31:30 Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/14 18:31:30 Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/14 18:31:30 Node: [INFO] Could not establish direct external connectivity after trying multiple ports
+[INFO] 2025/04/14 18:31:30 Node: [INFO] Will rely on relays and DHT for peer connectivity
+[INFO] 2025/04/14 18:31:31 Benchmark update transaction submitted: 0x2cd574b70e2387dd3c8ca42c42c5348d39bed750f8d65681c71ed6c7b824886f
+[INFO] 2025/04/14 18:31:31 Node: ✅ Benchmark update transaction submitted: 0x2cd574b70e2387dd3c8ca42c42c5348d39bed750f8d65681c71ed6c7b824886f
+[INFO] 2025/04/14 18:31:45 Benchmark update transaction 0x2cd574b70e2387dd3c8ca42c42c5348d39bed750f8d65681c71ed6c7b824886f confirmed successfully
+[INFO] 2025/04/14 18:31:45 Node: ✅ Benchmark update transaction 0x2cd574b70e2387dd3c8ca42c42c5348d39bed750f8d65681c71ed6c7b824886f confirmed successfully
+[INFO] 2025/04/14 18:32:31 Updating benchmark for farm 2: 9.65% -> 9.86%
+[INFO] 2025/04/14 18:32:31 Node: ✅ Updating benchmark for farm 2: 9.65% -> 9.86%
+[INFO] 2025/04/14 18:32:32 Benchmark update transaction submitted: 0x342fca326991bac7702e00104f4204670e3bd934ff784a37748952777b469391
+[INFO] 2025/04/14 18:32:32 Node: ✅ Benchmark update transaction submitted: 0x342fca326991bac7702e00104f4204670e3bd934ff784a37748952777b469391
+[INFO] 2025/04/14 18:32:45 Benchmark update transaction 0x342fca326991bac7702e00104f4204670e3bd934ff784a37748952777b469391 confirmed successfully
+[INFO] 2025/04/14 18:32:45 Node: ✅ Benchmark update transaction 0x342fca326991bac7702e00104f4204670e3bd934ff784a37748952777b469391 confirmed successfully
+[INFO] 2025/04/14 18:32:57 Shutting down...
+[INFO] 2025/04/14 18:32:57 Node: [INFO] Shutting down...
+[INFO] 2025/04/14 18:32:57 Node process exited normally

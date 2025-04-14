@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DXP Verifier Dashboard</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #1a1e2e;
+            overflow: hidden;
+        }
+        
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .loading-content {
+            text-align: center;
+            color: #4a8af4;
+        }
+        
+        .ascii-animation {
+            font-family: monospace;
+            font-size: 12px;
+            line-height: 1.2;
+            white-space: pre;
+            margin-bottom: 20px;
+            color: #4a8af4;
+            text-shadow: 0 0 10px rgba(74, 138, 244, 0.7);
+        }
+        
+        .loading-text {
+            font-size: 18px;
+            margin-top: 20px;
+            color: #ffffff;
+            animation: pulse 1.5s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-screen">
+        <div class="loading-content">
+            <pre id="ascii-animation" class="ascii-animation"></pre>
+            <div class="loading-text">Initializing Verifier Dashboard...</div>
+        </div>
+    </div>
+
+    <script>
+        // ASCII art for DEXPONENT
+        const dexponentAscii = [
+            "██████╗ ███████╗██╗  ██╗██████╗  ██████╗ ███╗   ██╗███████╗███╗   ██╗████████╗",
+            "██╔══██╗██╔════╝╚██╗██╔╝██╔══██╗██╔═══██╗████╗  ██║██╔════╝████╗  ██║╚══██╔══╝",
+            "██║  ██║█████╗   ╚███╔╝ ██████╔╝██║   ██║██╔██╗ ██║█████╗  ██╔██╗ ██║   ██║   ",
+            "██║  ██║██╔══╝   ██╔██╗ ██╔═══╝ ██║   ██║██║╚██╗██║██╔══╝  ██║╚██╗██║   ██║   ",
+            "██████╔╝███████╗██╔╝ ██╗██║     ╚██████╔╝██║ ╚████║███████╗██║ ╚████║   ██║   ",
+            "╚═════╝ ╚══════╝╚═╝  ╚═╝╚═╝      ╚═════╝ ╚═╝  ╚═══╝╚══════╝╚═╝  ╚═══╝   ╚═╝   "
+        ];
+
+        // Hacker-style phrases to display during loading
+        const hackerPhrases = [
+            "Initializing secure connection...",
+            "Verifying blockchain integrity...",
+            "Establishing P2P network...",
+            "Synchronizing with DXP protocol...",
+            "Loading dashboard..."
+        ];
+
+        // Function to animate ASCII art
+        function animateAscii() {
+            const asciiEl = document.getElementById('ascii-animation');
+            if (!asciiEl) return;
+            
+            // Clear any existing content
+            asciiEl.innerHTML = '';
+            
+            // First animation: Typing effect for the ASCII art
+            let lineIndex = 0;
+            let charIndex = 0;
+            
+            function typeAsciiArt() {
+                if (lineIndex < dexponentAscii.length) {
+                    if (charIndex === 0) {
+                        // Create a new line
+                        const line = document.createElement('div');
+                        line.className = 'ascii-line';
+                        asciiEl.appendChild(line);
+                    }
+                    
+                    const currentLine = asciiEl.querySelectorAll('.ascii-line')[lineIndex];
+                    
+                    if (charIndex < dexponentAscii[lineIndex].length) {
+                        // Add next character
+                        currentLine.textContent += dexponentAscii[lineIndex][charIndex];
+                        charIndex++;
+                        setTimeout(typeAsciiArt, 5); // Type each character quickly
+                    } else {
+                        // Move to next line
+                        lineIndex++;
+                        charIndex = 0;
+                        setTimeout(typeAsciiArt, 50); // Small pause between lines
+                    }
+                } else {
+                    // Start the glitch effect after typing is complete
+                    setTimeout(glitchEffect, 500);
+                }
+            }
+            
+            // Second animation: Glitch effect
+            function glitchEffect() {
+                const lines = asciiEl.querySelectorAll('.ascii-line');
+                let glitchCount = 0;
+                const maxGlitches = 10;
+                
+                const glitchInterval = setInterval(() => {
+                    if (glitchCount >= maxGlitches) {
+                        clearInterval(glitchInterval);
+                        
+                        // Reset to original ASCII art
+                        lines.forEach((line, index) => {
+                            line.textContent = dexponentAscii[index];
+                        });
+                        
+                        // Start matrix rain effect
+                        setTimeout(() => {
+                            // Pulse effect on the ASCII art
+                            asciiEl.classList.add('pulse');
+                            
+                            // Start hacker phrases
+                            animateHackerPhrases();
+                        }, 500);
+                        
+                        return;
+                    }
+                    
+                    // Apply glitch to random line
+                    const randomLineIndex = Math.floor(Math.random() * lines.length);
+                    const originalText = dexponentAscii[randomLineIndex];
+                    const line = lines[randomLineIndex];
+                    
+                    // Create glitched text by replacing random characters
+                    let glitchedText = '';
+                    for (let i = 0; i < originalText.length; i++) {
+                        if (Math.random() < 0.1) { // 10% chance to glitch each character
+                            const glitchChars = '!@#$%^&*()_+-=[]{}|;:,.<>?/\\';
+                            glitchedText += glitchChars[Math.floor(Math.random() * glitchChars.length)];
+                        } else {
+                            glitchedText += originalText[i];
+                        }
+                    }
+                    
+                    line.textContent = glitchedText;
+                    
+                    // Reset line after short delay
+                    setTimeout(() => {
+                        line.textContent = originalText;
+                    }, 100);
+                    
+                    glitchCount++;
+                }, 200);
+            }
+            
+            // Start the typing animation
+            typeAsciiArt();
+        }
+
+        // Function to animate hacker phrases
+        function animateHackerPhrases() {
+            const loadingText = document.querySelector('.loading-text');
+            if (!loadingText) return;
+            
+            let phraseIndex = 0;
+            
+            function showNextPhrase() {
+                if (phraseIndex < hackerPhrases.length) {
+                    // Fade out current text
+                    loadingText.style.opacity = '0';
+                    
+                    // Change text and fade in after a short delay
+                    setTimeout(() => {
+                        loadingText.textContent = hackerPhrases[phraseIndex];
+                        loadingText.style.opacity = '1';
+                        phraseIndex++;
+                        
+                        // Show next phrase after a delay
+                        setTimeout(showNextPhrase, 400);
+                    }, 200);
+                } else {
+                    // All phrases shown, redirect to dashboard
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 500);
+                }
+            }
+            
+            // Start showing phrases
+            showNextPhrase();
+        }
+
+        // Start the animation when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            animateAscii();
+        });
+    </script>
+</body>
+</html>
