@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"math/big"
-	"math/rand"
+
 	"os"
 	"os/exec"
 	"os/signal"
@@ -15,7 +15,7 @@ import (
 	"github.com/dexponent/dxp-verifier/pkg/eth"
 	"github.com/dexponent/dxp-verifier/pkg/logger"
 	"github.com/dexponent/dxp-verifier/pkg/p2p"
-	"github.com/ethereum/go-ethereum/common"
+
 	"github.com/joho/godotenv"
 	"github.com/libp2p/go-libp2p/core/peer"
 )
@@ -53,7 +53,7 @@ func main() {
 
 	// Parse command
 	cmd := os.Args[1]
-	
+
 	// Create logs directory
 	logsDir := "logs"
 	if _, err := os.Stat(logsDir); os.IsNotExist(err) {
@@ -61,7 +61,7 @@ func main() {
 			fmt.Printf("Warning: Failed to create logs directory: %v\n", err)
 		}
 	}
-	
+
 	// Initialize logger
 	if err := logger.Init(logsDir, true); err != nil {
 		fmt.Printf("Warning: Failed to initialize logger: %v\n", err)
@@ -110,7 +110,7 @@ func main() {
 				fmt.Printf("Failed to get executable path: %v\n", err)
 				os.Exit(1)
 			}
-			
+
 			// Create command with the same arguments but without detached flag
 			args := []string{"start"}
 			for _, arg := range os.Args[2:] {
@@ -118,41 +118,41 @@ func main() {
 					args = append(args, arg)
 				}
 			}
-			
+
 			// Create a new process
 			cmd := exec.Command(executable, args...)
 			cmd.Stdout = nil
 			cmd.Stderr = nil
-			
+
 			// Start the process
 			err = cmd.Start()
 			if err != nil {
 				fmt.Printf("Failed to start detached process: %v\n", err)
 				os.Exit(1)
 			}
-			
+
 			// Write PID to file
 			pidFile := "dxp-verifier.pid"
 			err = os.WriteFile(pidFile, []byte(fmt.Sprintf("%d", cmd.Process.Pid)), 0644)
 			if err != nil {
 				fmt.Printf("Warning: Failed to write PID file: %v\n", err)
 			}
-			
+
 			fmt.Printf("Verifier started in detached mode with PID %d\n", cmd.Process.Pid)
 			os.Exit(0)
 		}
-		
+
 		logger.Info("Initializing P2P host...")
 		host, err := p2p.NewHost()
 		if err != nil {
 			logger.Error("Failed to initialize P2P host: %v", err)
 			os.Exit(1)
 		}
-		
+
 		// Log peer ID
 		peerID := host.ID().String()
 		logger.Success("Peer ID: %s", peerID)
-		
+
 		// Initialize mDNS discovery service
 		_, err = p2p.NewMDNS(host)
 		if err != nil {
@@ -188,7 +188,7 @@ func main() {
 				logger.Warn("Failed to check verifier status: %v", err)
 			} else if isRegistered {
 				logger.Success("Registered as a verifier")
-				
+
 				// Get assigned farms
 				farms, err := ethClient.GetAssignedFarms()
 				if err != nil {
@@ -200,7 +200,7 @@ func main() {
 							farmInfo += ", "
 						}
 						farmInfo += fmt.Sprintf("%d", farmID)
-						
+
 						// Check if active for this farm
 						isActive, err := ethClient.IsVerifierActiveForFarm(farmID)
 						if err == nil && isActive {
@@ -208,9 +208,8 @@ func main() {
 						}
 					}
 					logger.Success(farmInfo)
-					
-					// Start benchmark updater for active farms
-					go runBenchmarkUpdater(ethClient, farms, 60*time.Second)
+
+					// Benchmark calculation is now handled by the leader in the consensus process
 				} else {
 					logger.Info("Not assigned to any farms")
 				}
@@ -221,10 +220,10 @@ func main() {
 
 		// Start peer discovery
 		logger.Info("Starting peer discovery...")
-		
+
 		// Start consensus process in background
 		go runConsensusProcess(protocol)
-		
+
 		logger.Success("Verifier started successfully!")
 
 		// Start periodic handshake attempts with new peers
@@ -379,7 +378,7 @@ func main() {
 		fmt.Printf("Wallet: %s\n", ethClient.GetWalletAddress())
 		fmt.Printf("Registered: %t\n", isRegistered)
 		fmt.Printf("Stake: %s DXP\n", ethClient.FormatTokenAmount(stake))
-		
+
 		// Print assigned farms
 		fmt.Println("\n=== Assigned Farms ===")
 		if len(farms) == 0 {
@@ -394,18 +393,18 @@ func main() {
 				fmt.Printf("Farm ID: %d (Status: %s)\n", farmID, status)
 			}
 		}
-		
+
 		// Print verifier metrics
 		fmt.Println("\n=== Verifier Metrics ===")
 		fmt.Printf("Verifications Performed: %d\n", metrics.VerificationsPerformed)
 		fmt.Printf("Total Uptime: %s\n", formatDuration(metrics.TotalUptime))
 		fmt.Printf("Last Active: %s\n", formatTime(metrics.LastActiveTimestamp))
-		
+
 		// Print rewards
 		fmt.Println("\n=== Rewards ===")
 		fmt.Printf("Pending Rewards: %s DXP\n", ethClient.FormatTokenAmount(pendingRewards))
 		fmt.Printf("Last Claimed: %s\n", formatTime(metrics.LastRewardsClaim))
-		
+
 		// Calculate estimated daily rewards based on current metrics
 		// This is a client-side calculation to show potential earnings
 		dailyVerifications := float64(metrics.VerificationsPerformed)
@@ -416,66 +415,66 @@ func main() {
 				dailyVerifications = float64(metrics.VerificationsPerformed) / daysActive
 			}
 		}
-		
+
 		// Show estimated daily earnings (simple calculation)
 		fmt.Printf("Estimated Daily Verifications: %.2f\n", dailyVerifications)
 
 	case "claim-rewards":
 		// Parse claim-rewards command flags
 		claimCmd.Parse(os.Args[2:])
-		
+
 		// Initialize Ethereum client
 		ethClient, err := eth.NewClient(rpcURL, privateKeyHex, contractAddress, tokenAddress)
 		if err != nil {
 			logger.Error("Failed to initialize Ethereum client: %v", err)
 			os.Exit(1)
 		}
-		
+
 		// Check if registered as verifier
 		isRegistered, err := ethClient.IsRegisteredVerifier()
 		if err != nil {
 			logger.Error("Failed to check verifier status: %v", err)
 			os.Exit(1)
 		}
-		
+
 		if !isRegistered {
 			fmt.Println("Not registered as a verifier")
 			os.Exit(0)
 		}
-		
+
 		// Calculate pending rewards
 		pendingRewards, err := ethClient.CalculatePendingRewards()
 		if err != nil {
 			logger.Error("Failed to calculate pending rewards: %v", err)
 			os.Exit(1)
 		}
-		
+
 		// Check if there are rewards to claim
 		if pendingRewards.Cmp(big.NewInt(0)) <= 0 {
 			logger.Info("No rewards to claim")
 			os.Exit(0)
 		}
-		
+
 		logger.Info("Claiming %s DXP rewards...", ethClient.FormatTokenAmount(pendingRewards))
-		
+
 		// Claim rewards
 		tx, err := ethClient.ClaimRewards()
 		if err != nil {
 			logger.Error("Failed to claim rewards: %v", err)
 			os.Exit(1)
 		}
-		
+
 		txHash := tx.Hash().Hex()
 		logger.Success("Claim transaction submitted: %s", txHash)
 		logger.Info("Waiting for transaction to be mined...")
-		
+
 		// Wait for the transaction to be mined
 		_, err = ethClient.WaitForTransaction(txHash)
 		if err != nil {
 			logger.Error("Failed to wait for transaction: %v", err)
 			os.Exit(1)
 		}
-		
+
 		logger.Success("Successfully claimed rewards!")
 
 	case "withdraw":
@@ -585,7 +584,7 @@ func main() {
 
 		logger.Info("Sending data to %d Dexponent peers...", len(peers))
 		for _, peerID := range peers {
-			// Note: This is a placeholder. The actual implementation of SendData 
+			// Note: This is a placeholder. The actual implementation of SendData
 			// needs to be added to the DexponentProtocol
 			logger.Info("Would send data to %s: key=%s, value=%s", peerID.String(), key, value)
 			// Uncomment when SendData is implemented:
@@ -646,7 +645,7 @@ func main() {
 			logger.Error("Failed to initialize Ethereum client: %v", err)
 			os.Exit(1)
 		}
-		
+
 		// Start the dashboard server
 		logger.Info("Starting dashboard server...")
 		err = dashboard.StartDashboard(ethClient)
@@ -770,131 +769,14 @@ func runConsensusProcess(protocol *p2p.DexponentProtocol) {
 	}
 }
 
-// runBenchmarkUpdater periodically updates benchmarks for farms that the verifier is active for
-func runBenchmarkUpdater(ethClient *eth.Client, farms []int64, interval time.Duration) {
-	// Wait for initial setup
-	time.Sleep(15 * time.Second)
-	
-	// Log that the benchmark updater is running
-	intervalStr := fmt.Sprintf("Benchmark updater will run every %s", interval.String())
-	logger.Success(intervalStr)
-	
-	// Track pending transactions
-	pendingTxs := make(map[common.Hash]time.Time)
-	
-	// Start a goroutine to check for transaction confirmations
-	go func() {
-		for {
-			// Check each pending transaction
-			for txHash, submitTime := range pendingTxs {
-				// Skip if transaction is less than 10 seconds old
-				if time.Since(submitTime) < 10*time.Second {
-					continue
-				}
-				
-				// Check if transaction is confirmed
-				receipt, err := ethClient.GetTransactionReceipt(txHash)
-				if err != nil {
-					logger.Warn("Failed to get receipt for transaction %s: %v", txHash.Hex(), err)
-					continue
-				}
-				
-				// If transaction is confirmed, remove it from pending list
-				if receipt != nil {
-					if receipt.Status == 1 {
-						logger.Success("Benchmark update transaction %s confirmed successfully", txHash.Hex())
-					} else {
-						logger.Error("Benchmark update transaction %s failed", txHash.Hex())
-					}
-					delete(pendingTxs, txHash)
-				}
-			}
-			
-			time.Sleep(5 * time.Second)
-		}
-	}()
-	
-	// Run benchmark updater loop
-	for {
-		// Update benchmark for each farm
-		for _, farmID := range farms {
-			// Check if verifier is still active for this farm
-			isActive, err := ethClient.IsVerifierActiveForFarm(farmID)
-			if err != nil {
-				logger.Error("Failed to check if verifier is active for farm %d: %v", farmID, err)
-				continue
-			}
-			
-			if !isActive {
-				logger.Warn("Verifier is no longer active for farm %d, skipping benchmark update", farmID)
-				continue
-			}
-			
-			// Get current benchmark
-			farmData, err := ethClient.GetFarmData(farmID)
-			if err != nil {
-				logger.Error("Failed to get farm data for farm %d: %v", farmID, err)
-				continue
-			}
-			
-			currentBenchmark := farmData.Benchmark
-			
-			// Calculate new benchmark with small random variation (+/- 1-4%)
-			// Convert from basis points to percentage for easier calculation
-			currentPct := float64(currentBenchmark) / 100.0
-			
-			// If current benchmark is 0, start with 10%
-			if currentBenchmark == 0 {
-				currentPct = 10.0
-			}
-			
-			// Random variation between -4% and +4% of the current value
-			variation := (rand.Float64()*8.0 - 4.0) / 100.0
-			newPct := currentPct * (1.0 + variation)
-			
-			// Ensure it stays within reasonable bounds (5-15%)
-			if newPct < 5.0 {
-				newPct = 5.0
-			} else if newPct > 15.0 {
-				newPct = 15.0
-			}
-			
-			// Convert back to basis points
-			newBenchmark := uint64(newPct * 100.0)
-			
-			// Only update if the benchmark has changed
-			if uint64(currentBenchmark) != newBenchmark {
-				logger.Success("Updating benchmark for farm %d: %.2f%% -> %.2f%%", 
-					farmID, float64(currentBenchmark)/100.0, newPct)
-				
-				// Submit new benchmark
-				tx, err := ethClient.SetFarmBenchmark(farmID, big.NewInt(int64(newBenchmark)))
-				if err != nil {
-					logger.Error("Failed to update benchmark for farm %d: %v", farmID, err)
-					continue
-				}
-				
-				txHash := tx.Hash()
-				logger.Success("Benchmark update transaction submitted: %s", txHash.Hex())
-				
-				// Add to pending transactions map
-				pendingTxs[txHash] = time.Now()
-			}
-		}
-		
-		// Wait for next interval
-		time.Sleep(interval)
-	}
-}
-
 // formatDuration formats a duration in seconds as a human-readable string
 func formatDuration(seconds uint64) string {
 	duration := time.Duration(seconds) * time.Second
-	
+
 	days := int(duration.Hours() / 24)
 	hours := int(duration.Hours()) % 24
 	minutes := int(duration.Minutes()) % 60
-	
+
 	if days > 0 {
 		return fmt.Sprintf("%dd %dh %dm", days, hours, minutes)
 	} else if hours > 0 {
@@ -909,7 +791,7 @@ func formatTime(timestamp uint64) string {
 	if timestamp == 0 {
 		return "Never"
 	}
-	
+
 	t := time.Unix(int64(timestamp), 0)
 	return t.Format("2006-01-02 15:04:05")
 }

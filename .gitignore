@@ -1,0 +1,28 @@
+# Environment variables
+.env
+
+# Logs
+logs/
+
+# Binary files
+dxp-verifier
+bin/
+
+# macOS files
+.DS_Store
+
+# PID files
+*.pid
+
+# Go build files
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out

@@ -41,10 +41,11 @@ const (
 	MessageTypeData MessageType = "data"
 
 	// Consensus message types
-	MessageTypeLeaderElection MessageType = "leader_election"
-	MessageTypeConsensusStart MessageType = "consensus_start"
-	MessageTypeScoreSubmission MessageType = "score_submission"
-	MessageTypeConsensusResult MessageType = "consensus_result"
+	MessageTypeLeaderElection     MessageType = "leader_election"
+	MessageTypeConsensusStart     MessageType = "consensus_start"
+	MessageTypeScoreSubmission    MessageType = "score_submission"
+	MessageTypeConsensusBenchmark MessageType = "consensus_benchmark"
+	MessageTypeConsensusResult    MessageType = "consensus_result"
 )
 
 // Message represents a message exchanged between Dexponent verifiers
@@ -125,6 +126,17 @@ type ScoreSubmissionPayload struct {
 	SubmitterID string `json:"submitter_id"`
 }
 
+type BenchmarkSubmissionPayload struct {
+	// RoundNumber is the consensus round this score is for
+	RoundNumber int64 `json:"round_number"`
+
+	// BenchmarkScore is the calculated benchmark score
+	BenchmarkScore float64 `json:"benchmark_score"`
+
+	// SubmitterID is the ID of the peer that calculated this score
+	SubmitterID string `json:"submitter_id"`
+}
+
 // ConsensusResultPayload is the payload for a consensus result message
 type ConsensusResultPayload struct {
 	// RoundNumber is the consensus round this result is for
@@ -132,6 +144,9 @@ type ConsensusResultPayload struct {
 
 	// FinalScore is the consensus farm score
 	FinalScore float64 `json:"final_score"`
+
+	// FinalBenchmark is the consensus benchmark score
+	FinalBenchmark float64 `json:"final_benchmark"`
 
 	// Participants is the list of peers that participated in this round
 	Participants []string `json:"participants"`
@@ -145,25 +160,27 @@ type DexponentProtocol struct {
 	host         host.Host
 	dexPeers     map[peer.ID]bool
 	dexPeersLock sync.RWMutex
-	
+
 	// Consensus related fields
-	currentRound      int64
-	isLeader         bool
-	currentLeader    peer.ID
-	roundActive      bool
-	roundStartTime   time.Time
-	roundEndTime     time.Time
-	cooldownEndTime  time.Time
-	stateLock        sync.RWMutex  // Lock for consensus state synchronization
-	
+	currentRound    int64
+	isLeader        bool
+	currentLeader   peer.ID
+	roundActive     bool
+	roundStartTime  time.Time
+	roundEndTime    time.Time
+	cooldownEndTime time.Time
+	stateLock       sync.RWMutex // Lock for consensus state synchronization
+
 	// Farm returns and scores
-	farmReturns      []float64
-	scores           map[peer.ID]float64
-	scoresLock       sync.RWMutex
-	consensusResult  float64
-	
+	farmReturns        []float64
+	scores             map[peer.ID]float64
+	farmBenchmarks     map[peer.ID]float64
+	scoresLock         sync.RWMutex
+	consensusResult    float64
+	consensusBenchmark float64
+
 	// Ethereum client for blockchain interactions
-	ethClient        interface{
+	ethClient interface {
 		SubmitConsensusResult(farmId int64, score float64, participants []string) (string, error)
 		WaitForTransaction(txHash string) (*types.Receipt, error)
 	}
@@ -172,12 +189,13 @@ type DexponentProtocol struct {
 // NewDexponentProtocol creates a new Dexponent protocol handler
 func NewDexponentProtocol(h host.Host) *DexponentProtocol {
 	p := &DexponentProtocol{
-		host:         h,
-		dexPeers:     make(map[peer.ID]bool),
-		currentRound: 0,
-		isLeader:     false,
-		roundActive:  false,
-		scores:       make(map[peer.ID]float64),
+		host:           h,
+		dexPeers:       make(map[peer.ID]bool),
+		currentRound:   0,
+		isLeader:       false,
+		roundActive:    false,
+		scores:         make(map[peer.ID]float64),
+		farmBenchmarks: make(map[peer.ID]float64),
 	}
 
 	// Set the stream handler for the Dexponent protocol
@@ -235,6 +253,8 @@ func (p *DexponentProtocol) handleStream(stream network.Stream) {
 		p.handleScoreSubmission(stream, msg)
 	case MessageTypeConsensusResult:
 		p.handleConsensusResult(stream, msg)
+	case MessageTypeConsensusBenchmark:
+		p.handleConsensusBenchmark(stream, msg)
 	default:
 		fmt.Printf("Unknown message type: %s\n", msg.Type)
 		stream.Reset()
@@ -255,28 +275,27 @@ func (p *DexponentProtocol) handleHandshake(stream network.Stream, msg Message) 
 			Version: payload["version"].(string),
 			NodeID:  payload["node_id"].(string),
 		}
-		
+
 		// Extract consensus state information if available
 		if currentRound, ok := payload["current_round"]; ok {
 			if roundNum, ok := currentRound.(float64); ok {
 				handshake.CurrentRound = int64(roundNum)
 			}
 		}
-		
+
 		if isInCooldown, ok := payload["is_in_cooldown"]; ok {
 			if cooldown, ok := isInCooldown.(bool); ok {
 				handshake.IsInCooldown = cooldown
 			}
 		}
-		
+
 		if cooldownEndTime, ok := payload["cooldown_end_time"]; ok {
 			if endTime, ok := cooldownEndTime.(float64); ok {
 				handshake.CooldownEndTime = int64(endTime)
 			}
 		}
-		
+
 	case HandshakePayload:
-		// Direct struct from our own code
 		handshake = payload
 	default:
 		fmt.Printf("Invalid handshake payload format: %T\n", msg.Payload)
@@ -290,10 +309,10 @@ func (p *DexponentProtocol) handleHandshake(stream network.Stream, msg Message) 
 
 	// Synchronize consensus state if the peer has a higher round number
 	p.stateLock.Lock()
-	
+
 	// Check if this is a reconnecting peer that might be a leader
 	peersCount := len(p.GetDexponentPeers()) + 1 // +1 for ourselves
-	
+
 	// If we have enough peers for consensus but consensus seems stalled
 	if peersCount >= 3 && time.Since(p.roundStartTime) > 60*time.Second && !p.roundActive {
 		// Check if this peer would be the leader for the current round
@@ -302,23 +321,23 @@ func (p *DexponentProtocol) handleHandshake(stream network.Stream, msg Message) 
 		sort.Slice(allPeers, func(i, j int) bool {
 			return allPeers[i].String() < allPeers[j].String()
 		})
-		
+
 		leaderIndex := p.currentRound % int64(len(allPeers))
 		potentialLeader := allPeers[leaderIndex]
-		
+
 		// If the reconnecting peer should be the leader, force a cooldown reset
 		if potentialLeader == remotePeer {
-			fmt.Printf("🔄 Detected reconnected leader %s for round %d. Resetting cooldown...\n", 
+			fmt.Printf("🔄 Detected reconnected leader %s for round %d. Resetting cooldown...\n",
 				remotePeer.String(), p.currentRound)
-			
+
 			// Reset cooldown to allow consensus to restart
 			p.cooldownEndTime = time.Now()
 		}
 	}
-	
+
 	// Update round number if peer has a higher one
 	if handshake.CurrentRound > p.currentRound {
-		fmt.Printf("📢 Synchronizing with peer %s: updating round from %d to %d\n", 
+		fmt.Printf("📢 Synchronizing with peer %s: updating round from %d to %d\n",
 			remotePeer.String(), p.currentRound, handshake.CurrentRound)
 		p.currentRound = handshake.CurrentRound
 	}
@@ -432,7 +451,7 @@ func (p *DexponentProtocol) handleData(stream network.Stream, msg Message) {
 	}
 
 	// Log the received data
-	fmt.Printf("📦 Received data from %s - Key: %s, Value: %s\n", 
+	fmt.Printf("📦 Received data from %s - Key: %s, Value: %s\n",
 		remotePeer.String(), data.Key, data.Value)
 
 	// Close the stream
@@ -690,7 +709,7 @@ func (p *DexponentProtocol) BroadcastMessage(msgType MessageType, payload interf
 }
 
 // SetEthClient sets the Ethereum client for blockchain interactions
-func (p *DexponentProtocol) SetEthClient(client interface{
+func (p *DexponentProtocol) SetEthClient(client interface {
 	SubmitConsensusResult(farmId int64, score float64, participants []string) (string, error)
 	WaitForTransaction(txHash string) (*types.Receipt, error)
 }) {
@@ -717,4 +736,66 @@ func (p *DexponentProtocol) IsDexponentPeer(peerID peer.ID) bool {
 
 	_, ok := p.dexPeers[peerID]
 	return ok
+}
+
+// handleConsensusBenchmark processes a consensus benchmark message
+func (p *DexponentProtocol) handleConsensusBenchmark(stream network.Stream, msg Message) {
+	// Get the remote peer ID
+	remotePeer := stream.Conn().RemotePeer()
+	
+	// Parse the payload
+	payload, ok := msg.Payload.(map[string]interface{})
+	if !ok {
+		fmt.Printf("Error: Invalid benchmark payload format from %s\n", remotePeer.String())
+		stream.Reset()
+		return
+	}
+	
+	// Extract round number
+	roundNumberFloat, ok := payload["round_number"].(float64)
+	if !ok {
+		fmt.Printf("Error: Missing round_number in benchmark payload\n")
+		stream.Reset()
+		return
+	}
+	roundNumber := int64(roundNumberFloat)
+	
+	// Extract benchmark score
+	benchmarkScore, ok := payload["benchmark_score"].(float64)
+	if !ok {
+		fmt.Printf("Error: Missing benchmark_score in payload\n")
+		stream.Reset()
+		return
+	}
+	
+	// Extract submitter ID
+	submitterID, ok := payload["submitter_id"].(string)
+	if !ok {
+		fmt.Printf("Error: Missing submitter_id in benchmark payload\n")
+		stream.Reset()
+		return
+	}
+	
+	// Verify this is for the current round
+	p.stateLock.RLock()
+	currentRound := p.currentRound
+	p.stateLock.RUnlock()
+	
+	if roundNumber != currentRound {
+		// Silently ignore benchmarks for wrong rounds
+		stream.Reset()
+		return
+	}
+	
+	// Log the received benchmark
+	fmt.Printf("📈 Received benchmark score %.4f from %s for round %d\n", 
+		benchmarkScore, submitterID, roundNumber)
+	
+	// Close the stream with improved error handling
+	if err := stream.Close(); err != nil {
+		// Ignore "canceled" errors as they're expected during high message volume
+		if !strings.Contains(err.Error(), "canceled") {
+			fmt.Printf("Error closing stream: %v\n", err)
+		}
+	}
 }

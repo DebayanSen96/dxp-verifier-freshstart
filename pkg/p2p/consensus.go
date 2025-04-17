@@ -25,6 +25,27 @@ func generateFarmReturns(length int) []float64 {
 	return returns
 }
 
+// calculateBenchmarkScore calculates a benchmark score
+// This follows the logic from the original runBenchmarkUpdater function
+func calculateBenchmarkScore() float64 {
+	// Start with a base benchmark of 10%
+	currentPct := 10.0
+
+	// Random variation between -4% and +4% of the current value
+	variation := (rand.Float64()*8.0 - 4.0) / 100.0
+	newPct := currentPct * (1.0 + variation)
+
+	// Ensure it stays within reasonable bounds (5-15%)
+	if newPct < 5.0 {
+		newPct = 5.0
+	} else if newPct > 15.0 {
+		newPct = 15.0
+	}
+
+	// Round to 2 decimal places for consistency
+	return math.Round(newPct*100) / 100
+}
+
 // calculateFarmScore calculates a farm score based on returns
 func calculateFarmScore(returns []float64) float64 {
 	if len(returns) == 0 {
@@ -67,38 +88,38 @@ func calculateFarmScore(returns []float64) float64 {
 	}
 
 	// Calculate final score
-	farmScore := (normalizedYield * volumeWeight) * sortinoRatio * consistencyFactor
+	score := (normalizedYield * volumeWeight) * sortinoRatio * consistencyFactor
 
 	// Round to 4 decimal places
-	return math.Round(farmScore*10000) / 10000
+	return math.Round(score*10000) / 10000
 }
 
 // selectLeader deterministically selects a leader from the list of peers
 func (p *DexponentProtocol) selectLeader() (peer.ID, bool) {
 	peers := p.GetDexponentPeers()
-	
+
 	// Add our own ID to the list
-	allPeers := append([]peer.ID{}, peers...)  // Create a copy of peers
+	allPeers := append([]peer.ID{}, peers...) // Create a copy of peers
 	allPeers = append(allPeers, p.host.ID())
-	
+
 	// Need at least 3 peers for consensus
 	if len(allPeers) < 3 {
 		return "", false
 	}
-	
+
 	// Sort peer IDs lexicographically to ensure everyone gets the same order
 	sort.Slice(allPeers, func(i, j int) bool {
 		return allPeers[i].String() < allPeers[j].String()
 	})
-	
+
 	// Use next round number to rotate leadership
 	// We use currentRound + 1 because this function is called before incrementing the round
 	leaderIndex := (p.currentRound + 1) % int64(len(allPeers))
 	leader := allPeers[leaderIndex]
-	
+
 	// Check if we are the leader
 	isLeader := leader == p.host.ID()
-	
+
 	return leader, isLeader
 }
 
@@ -106,12 +127,12 @@ func (p *DexponentProtocol) selectLeader() (peer.ID, bool) {
 func (p *DexponentProtocol) StartConsensusProcess() {
 	// Use stateLock to safely check and update consensus state
 	p.stateLock.RLock()
-	
+
 	// Check for stalled rounds - if a round has been active for more than 30 seconds, it's likely stalled
 	if p.roundActive && time.Since(p.roundStartTime) > 30*time.Second {
 		fmt.Printf("⚠️ Detected stalled consensus round %d. Forcing reset...\n", p.currentRound)
 		p.stateLock.RUnlock()
-		
+
 		// Force reset the round state
 		p.stateLock.Lock()
 		p.roundActive = false
@@ -120,13 +141,13 @@ func (p *DexponentProtocol) StartConsensusProcess() {
 		p.stateLock.Unlock()
 		return
 	}
-	
+
 	// Check if we're already in an active round
 	if p.roundActive {
 		p.stateLock.RUnlock()
 		return
 	}
-	
+
 	// Check cooldown period with a small tolerance for clock differences
 	if time.Now().Before(p.cooldownEndTime.Add(-1 * time.Second)) {
 		// We're still in cooldown, don't start a new round yet
@@ -134,40 +155,40 @@ func (p *DexponentProtocol) StartConsensusProcess() {
 		return
 	}
 	p.stateLock.RUnlock()
-	
+
 	// Select a leader for the next round
 	leader, isLeader := p.selectLeader()
-	
+
 	// Update our state with write lock
 	p.stateLock.Lock()
 	p.isLeader = isLeader
 	p.currentLeader = leader
-	
+
 	// If we're not the leader, don't start a consensus round
 	if !isLeader {
 		p.stateLock.Unlock()
 		return
 	}
-	
+
 	// We are the leader for this round, increment the round number
 	p.currentRound++
-	
+
 	// Generate farm returns
 	p.farmReturns = generateFarmReturns(20)
 	p.stateLock.Unlock()
-	
+
 	// Broadcast leader election message
 	leaderElectionPayload := LeaderElectionPayload{
 		LeaderID:    p.host.ID().String(),
 		RoundNumber: p.currentRound,
 	}
-	
+
 	// Broadcast to all peers
 	p.BroadcastMessage(MessageTypeLeaderElection, leaderElectionPayload)
-	
+
 	// Wait a moment for the leader election message to propagate
 	time.Sleep(2 * time.Second)
-	
+
 	// Start the consensus round
 	p.startConsensusRound()
 }
@@ -178,7 +199,7 @@ func (p *DexponentProtocol) startConsensusRound() {
 	// the start message before beginning score calculations
 	startTime := time.Now().Add(2 * time.Second)
 	endTime := startTime.Add(15 * time.Second)
-	
+
 	// Update protocol state
 	p.roundActive = true
 	p.roundStartTime = startTime
@@ -188,7 +209,7 @@ func (p *DexponentProtocol) startConsensusRound() {
 	// Add our own score
 	p.scores[p.host.ID()] = calculateFarmScore(p.farmReturns)
 	p.scoresLock.Unlock()
-	
+
 	// Create consensus start payload
 	consensusStartPayload := ConsensusStartPayload{
 		RoundNumber: p.currentRound,
@@ -196,11 +217,11 @@ func (p *DexponentProtocol) startConsensusRound() {
 		StartTime:   startTime.Unix(),
 		EndTime:     endTime.Unix(),
 	}
-	
+
 	// Broadcast consensus start message
 	fmt.Printf("🚀 Starting consensus round %d as leader. Round will end in 15 seconds.\n", p.currentRound)
 	p.BroadcastMessage(MessageTypeConsensusStart, consensusStartPayload)
-	
+
 	// Schedule the end of the round
 	time.AfterFunc(15*time.Second, func() {
 		p.finalizeConsensusRound()
@@ -217,18 +238,19 @@ func (p *DexponentProtocol) finalizeConsensusRound() {
 		return
 	}
 	p.stateLock.RUnlock()
-	
+
 	// Update round state with write lock
 	p.stateLock.Lock()
 	p.roundActive = false
 	// Add more buffer to the cooldown time to ensure all nodes have time to process results
-	p.cooldownEndTime = time.Now().Add(15 * time.Second)
-	
+	p.cooldownEndTime = time.Now().Add(45 * time.Second)
+
 	// Collect all scores
 	p.scoresLock.RLock()
 	scores := p.scores
+	benchmarks := p.farmBenchmarks
 	p.scoresLock.RUnlock()
-	
+
 	// Check if we have enough scores for consensus (at least 2/3 of peers)
 	peers := p.GetDexponentPeers()
 	allPeers := append(peers, p.host.ID())
@@ -237,50 +259,78 @@ func (p *DexponentProtocol) finalizeConsensusRound() {
 		fmt.Printf("⚠️ Not enough scores for consensus. Got %d, need %d\n", len(scores), requiredScores)
 		return
 	}
-	
+
 	// Calculate consensus score (median of all scores)
 	var scoreValues []float64
 	for _, score := range scores {
 		scoreValues = append(scoreValues, score)
 	}
 	sort.Float64s(scoreValues)
-	
-	var consensusScore float64
-	if len(scoreValues) % 2 == 0 {
-		// Even number of scores, take average of middle two
-		middle := len(scoreValues) / 2
-		consensusScore = (scoreValues[middle-1] + scoreValues[middle]) / 2
-	} else {
-		// Odd number of scores, take middle one
-		middle := len(scoreValues) / 2
-		consensusScore = scoreValues[middle]
+
+	// Filter out zero benchmarks before calculating median
+	var benchmarkValues []float64
+	for _, benchmark := range benchmarks {
+		if benchmark > 0 {
+			benchmarkValues = append(benchmarkValues, benchmark)
+		}
 	}
-	
+	sort.Float64s(benchmarkValues)
+
+	var consensusScore float64
+	var consensusBenchmark float64 // Default to 0.0 if no valid benchmarks
+
+	// Calculate median score based on scoreValues count
+	if len(scoreValues) > 0 { // Ensure scoreValues is not empty
+		if len(scoreValues)%2 == 0 {
+			middle := len(scoreValues) / 2
+			consensusScore = (scoreValues[middle-1] + scoreValues[middle]) / 2
+		} else {
+			middle := len(scoreValues) / 2
+			consensusScore = scoreValues[middle]
+		}
+	}
+
+	// Calculate median benchmark based on non-zero benchmarkValues count
+	if len(benchmarkValues) > 0 { // Ensure benchmarkValues is not empty after filtering
+		if len(benchmarkValues)%2 == 0 {
+			// Even number of valid benchmarks, take average of middle two
+			middle := len(benchmarkValues) / 2
+			consensusBenchmark = (benchmarkValues[middle-1] + benchmarkValues[middle]) / 2
+		} else {
+			// Odd number of valid benchmarks, take middle one
+			middle := len(benchmarkValues) / 2
+			consensusBenchmark = benchmarkValues[middle]
+		}
+	}
+
 	// Round to 4 decimal places
 	consensusScore = math.Round(consensusScore*10000) / 10000
+	consensusBenchmark = math.Round(consensusBenchmark*10000) / 10000
 	p.consensusResult = consensusScore
-	
+	p.consensusBenchmark = consensusBenchmark
+
 	// Create list of participants
 	participants := make([]string, 0, len(scores))
 	for peerID := range scores {
 		participants = append(participants, peerID.String())
 	}
-	
+
 	// Create consensus result payload
 	resultPayload := ConsensusResultPayload{
 		RoundNumber:    p.currentRound,
 		FinalScore:     consensusScore,
+		FinalBenchmark: consensusBenchmark,
 		Participants:   participants,
 		NextRoundStart: p.cooldownEndTime.Unix(),
 	}
-	
+
 	// Broadcast consensus result
-	fmt.Printf("✅ Consensus round %d complete. Final score: %.4f with %d participants\n", 
-		p.currentRound, consensusScore, len(participants))
-	fmt.Printf("⏱️ Next consensus round will start after %s\n", 
+	fmt.Printf("✅ Consensus round %d complete. Final farm score: %.4f & benchmark: %.4f with %d participants\n",
+		p.currentRound, consensusScore, consensusBenchmark, len(participants))
+	fmt.Printf("⏱️ Next consensus round will start after %s\n",
 		time.Unix(int64(p.cooldownEndTime.Unix()), 0).Format(time.RFC3339))
 	p.BroadcastMessage(MessageTypeConsensusResult, resultPayload)
-	
+
 	// Release the stateLock that was acquired at the beginning of this function
 	p.stateLock.Unlock()
 }
@@ -289,7 +339,7 @@ func (p *DexponentProtocol) finalizeConsensusRound() {
 func (p *DexponentProtocol) handleLeaderElection(stream network.Stream, msg Message) {
 	// Get the remote peer ID
 	remotePeer := stream.Conn().RemotePeer()
-	
+
 	// Parse the payload
 	payload, ok := msg.Payload.(map[string]interface{})
 	if !ok {
@@ -297,7 +347,7 @@ func (p *DexponentProtocol) handleLeaderElection(stream network.Stream, msg Mess
 		stream.Reset()
 		return
 	}
-	
+
 	// Extract round number and leader ID
 	roundNumberFloat, ok := payload["round_number"].(float64)
 	if !ok {
@@ -306,20 +356,20 @@ func (p *DexponentProtocol) handleLeaderElection(stream network.Stream, msg Mess
 		return
 	}
 	roundNumber := int64(roundNumberFloat)
-	
+
 	leaderID, ok := payload["leader_id"].(string)
 	if !ok {
 		fmt.Printf("Error: Missing leader_id in payload from %s\n", remotePeer.String())
 		stream.Reset()
 		return
 	}
-	
+
 	// Update our state
 	p.stateLock.Lock()
 	if roundNumber > p.currentRound {
 		p.currentRound = roundNumber
 	}
-	
+
 	// Convert leader ID string to peer.ID
 	leaderPeerID, err := peer.Decode(leaderID)
 	if err != nil {
@@ -328,14 +378,14 @@ func (p *DexponentProtocol) handleLeaderElection(stream network.Stream, msg Mess
 		stream.Reset()
 		return
 	}
-	
+
 	p.currentLeader = leaderPeerID
 	p.isLeader = p.host.ID() == leaderPeerID
 	p.stateLock.Unlock()
-	
-	fmt.Printf("📢 Received leader election for round %d from %s. Leader: %s\n", 
+
+	fmt.Printf("📢 Received leader election for round %d from %s. Leader: %s\n",
 		roundNumber, remotePeer.String()[:12], leaderID)
-	
+
 	// Close the stream with improved error handling
 	if err := stream.Close(); err != nil {
 		// Ignore "canceled" errors as they're expected during high message volume
@@ -349,14 +399,14 @@ func (p *DexponentProtocol) handleLeaderElection(stream network.Stream, msg Mess
 func (p *DexponentProtocol) handleConsensusStart(stream network.Stream, msg Message) {
 	// Get the remote peer ID
 	remotePeer := stream.Conn().RemotePeer()
-	
+
 	// Verify this is from the current leader
 	if remotePeer != p.currentLeader {
 		// Silently ignore messages from non-leaders
 		stream.Reset()
 		return
 	}
-	
+
 	// Parse the payload
 	payload, ok := msg.Payload.(map[string]interface{})
 	if !ok {
@@ -364,7 +414,7 @@ func (p *DexponentProtocol) handleConsensusStart(stream network.Stream, msg Mess
 		stream.Reset()
 		return
 	}
-	
+
 	// Extract round number and farm returns
 	roundNumberFloat, ok := payload["round_number"].(float64)
 	if !ok {
@@ -373,14 +423,14 @@ func (p *DexponentProtocol) handleConsensusStart(stream network.Stream, msg Mess
 		return
 	}
 	roundNumber := int64(roundNumberFloat)
-	
+
 	farmReturnsInterface, ok := payload["farm_returns"].([]interface{})
 	if !ok {
 		fmt.Printf("Error: Missing farm_returns in payload\n")
 		stream.Reset()
 		return
 	}
-	
+
 	farmReturns := make([]float64, len(farmReturnsInterface))
 	for i, v := range farmReturnsInterface {
 		farmReturns[i], ok = v.(float64)
@@ -390,7 +440,7 @@ func (p *DexponentProtocol) handleConsensusStart(stream network.Stream, msg Mess
 			return
 		}
 	}
-	
+
 	// Extract start and end times
 	startTimeFloat, ok := payload["start_time"].(float64)
 	if !ok {
@@ -398,44 +448,51 @@ func (p *DexponentProtocol) handleConsensusStart(stream network.Stream, msg Mess
 		stream.Reset()
 		return
 	}
-	
+
 	endTimeFloat, ok := payload["end_time"].(float64)
 	if !ok {
 		fmt.Printf("Error: Missing end_time in payload\n")
 		stream.Reset()
 		return
 	}
-	
+
 	// Update our state
 	p.stateLock.Lock()
 	p.roundActive = true
 	p.roundStartTime = time.Unix(int64(startTimeFloat), 0)
 	p.roundEndTime = time.Unix(int64(endTimeFloat), 0)
 	p.farmReturns = farmReturns
-	
+
 	// Clear any previous scores
 	p.scoresLock.Lock()
 	p.scores = make(map[peer.ID]float64)
 	p.scoresLock.Unlock()
-	
+
 	p.stateLock.Unlock()
-	
+
 	fmt.Printf("🔄 Received consensus start for round %d. Calculating farm score...\n", roundNumber)
-	
+
 	// Calculate our farm score
 	farmScore := calculateFarmScore(farmReturns)
-	
+
+	// Calculate benchmark score only if we're the leader
+	// This ensures only the leader calculates benchmarks
+	var farmBenchmark float64
+
+	farmBenchmark = calculateBenchmarkScore()
+
 	// Create the score submission payload
 	scorePayload := map[string]interface{}{
-		"round_number": roundNumber,
-		"farm_score":   farmScore,
-		"submitter_id": p.host.ID().String(),
+		"round_number":   roundNumber,
+		"farm_score":     farmScore,
+		"farm_benchmark": farmBenchmark,
+		"submitter_id":   p.host.ID().String(),
 	}
-	
+
 	// Send our score to the leader
-	fmt.Printf("📊 Submitting farm score %.4f to leader for round %d\n", farmScore, roundNumber)
+	fmt.Printf("📊 Submitting farm score %.4f and benchmark %.4f to leader for round %d\n", farmScore, farmBenchmark, roundNumber)
 	p.SendMessageToPeer(p.currentLeader, MessageTypeScoreSubmission, scorePayload)
-	
+
 	// Close the stream with improved error handling
 	if err := stream.Close(); err != nil {
 		// Ignore "canceled" errors as they're expected during high message volume
@@ -452,10 +509,10 @@ func (p *DexponentProtocol) handleScoreSubmission(stream network.Stream, msg Mes
 		stream.Reset()
 		return
 	}
-	
+
 	// Get the remote peer ID
 	remotePeer := stream.Conn().RemotePeer()
-	
+
 	// Parse the payload
 	payload, ok := msg.Payload.(map[string]interface{})
 	if !ok {
@@ -463,7 +520,7 @@ func (p *DexponentProtocol) handleScoreSubmission(stream network.Stream, msg Mes
 		stream.Reset()
 		return
 	}
-	
+
 	// Extract round number and score
 	roundNumberFloat, ok := payload["round_number"].(float64)
 	if !ok {
@@ -472,30 +529,37 @@ func (p *DexponentProtocol) handleScoreSubmission(stream network.Stream, msg Mes
 		return
 	}
 	roundNumber := int64(roundNumberFloat)
-	
+
 	// Verify this is for the current round
 	if roundNumber != p.currentRound {
 		// Silently ignore scores for wrong rounds
 		stream.Reset()
 		return
 	}
-	
+
 	farmScoreFloat, ok := payload["farm_score"].(float64)
 	if !ok {
 		fmt.Printf("Error: Missing farm_score in payload\n")
 		stream.Reset()
 		return
 	}
-	
+	farmBenchmarkFloat, ok := payload["farm_benchmark"].(float64)
+	if !ok {
+		fmt.Printf("Error: Missing farm_benchmark in payload\n")
+		stream.Reset()
+		return
+	}
+
 	// Add the score to our collection
 	p.scoresLock.Lock()
 	p.scores[remotePeer] = farmScoreFloat
+	p.farmBenchmarks[remotePeer] = farmBenchmarkFloat
 	scoreCount := len(p.scores)
 	p.scoresLock.Unlock()
-	
-	fmt.Printf("📥 Received farm score %.4f from %s for round %d (%d/%d scores)\n", 
-		farmScoreFloat, remotePeer.String(), roundNumber, scoreCount, len(p.GetDexponentPeers())+1)
-	
+
+	fmt.Printf("📥 Received farm score %.4f & benchmark %.4f from %s for round %d (%d/%d scores)\n",
+		farmScoreFloat, farmBenchmarkFloat, remotePeer.String(), roundNumber, scoreCount, len(p.GetDexponentPeers())+1)
+
 	// Close the stream with improved error handling
 	if err := stream.Close(); err != nil {
 		// Ignore "canceled" errors as they're expected during high message volume
@@ -509,14 +573,14 @@ func (p *DexponentProtocol) handleScoreSubmission(stream network.Stream, msg Mes
 func (p *DexponentProtocol) handleConsensusResult(stream network.Stream, msg Message) {
 	// Get the remote peer ID
 	remotePeer := stream.Conn().RemotePeer()
-	
+
 	// Verify this is from the current leader
 	if remotePeer != p.currentLeader {
 		// Silently ignore messages from non-leaders
 		stream.Reset()
 		return
 	}
-	
+
 	// Parse the payload
 	payload, ok := msg.Payload.(map[string]interface{})
 	if !ok {
@@ -524,7 +588,7 @@ func (p *DexponentProtocol) handleConsensusResult(stream network.Stream, msg Mes
 		stream.Reset()
 		return
 	}
-	
+
 	// Extract round number and final score
 	roundNumberFloat, ok := payload["round_number"].(float64)
 	if !ok {
@@ -533,14 +597,21 @@ func (p *DexponentProtocol) handleConsensusResult(stream network.Stream, msg Mes
 		return
 	}
 	roundNumber := int64(roundNumberFloat)
-	
+
 	finalScoreFloat, ok := payload["final_score"].(float64)
 	if !ok {
 		fmt.Printf("Error: Missing final_score in payload\n")
 		stream.Reset()
 		return
 	}
-	
+
+	// Extract final benchmark score
+	finalBenchmarkFloat, ok := payload["final_benchmark"].(float64)
+	if !ok {
+		fmt.Printf("Warning: Missing final_benchmark in consensus result payload\n")
+		finalBenchmarkFloat = 0
+	}
+
 	// Extract participants
 	participantsInterface, ok := payload["participants"].([]interface{})
 	if !ok {
@@ -548,7 +619,7 @@ func (p *DexponentProtocol) handleConsensusResult(stream network.Stream, msg Mes
 		stream.Reset()
 		return
 	}
-	
+
 	participants := make([]string, len(participantsInterface))
 	for i, v := range participantsInterface {
 		participants[i], ok = v.(string)
@@ -558,7 +629,7 @@ func (p *DexponentProtocol) handleConsensusResult(stream network.Stream, msg Mes
 			return
 		}
 	}
-	
+
 	// Extract next round start time
 	nextRoundStartFloat, ok := payload["next_round_start"].(float64)
 	if !ok {
@@ -566,17 +637,18 @@ func (p *DexponentProtocol) handleConsensusResult(stream network.Stream, msg Mes
 		stream.Reset()
 		return
 	}
-	
+
 	// Update our state
 	p.roundActive = false
 	p.consensusResult = finalScoreFloat
+	p.consensusBenchmark = finalBenchmarkFloat
 	p.cooldownEndTime = time.Unix(int64(nextRoundStartFloat), 0)
-	
-	fmt.Printf("✅ Consensus round %d result received. Final score: %.4f with %d participants\n", 
-		roundNumber, finalScoreFloat, len(participants))
-	fmt.Printf("⏱️ Next consensus round will start after %s\n", 
+
+	fmt.Printf("✅ Consensus round %d result received. Final score: %.4f, Benchmark: %.4f with %d participants\n",
+		roundNumber, finalScoreFloat, finalBenchmarkFloat, len(participants))
+	fmt.Printf("⏱️ Next consensus round will start after %s\n",
 		time.Unix(int64(nextRoundStartFloat), 0).Format(time.RFC3339))
-	
+
 	// Close the stream with improved error handling
 	if err := stream.Close(); err != nil {
 		// Ignore "canceled" errors as they're expected during high message volume
