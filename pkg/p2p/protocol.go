@@ -104,6 +104,9 @@ type ConsensusStartPayload struct {
 	// RoundNumber is the current consensus round number
 	RoundNumber int64 `json:"round_number"`
 
+	// FarmBenchmarks is the array of farm benchmarks to calculate scores for
+	FarmBenchmarks map[peer.ID]float64 `json:"farm_benchmarks"`
+
 	// FarmReturns is the array of farm returns to calculate scores for
 	FarmReturns []float64 `json:"farm_returns"`
 
@@ -121,6 +124,9 @@ type ScoreSubmissionPayload struct {
 
 	// FarmScore is the calculated farm score
 	FarmScore float64 `json:"farm_score"`
+
+	// FarmBenchmark is the calculated farm benchmark
+	FarmBenchmark float64 `json:"farm_benchmark"`
 
 	// SubmitterID is the ID of the peer that calculated this score
 	SubmitterID string `json:"submitter_id"`
@@ -178,6 +184,8 @@ type DexponentProtocol struct {
 	scoresLock         sync.RWMutex
 	consensusResult    float64
 	consensusBenchmark float64
+	benchmarks         map[peer.ID]float64
+	benchmarksLock     sync.RWMutex
 
 	// Ethereum client for blockchain interactions
 	ethClient interface {
@@ -196,6 +204,7 @@ func NewDexponentProtocol(h host.Host) *DexponentProtocol {
 		roundActive:    false,
 		scores:         make(map[peer.ID]float64),
 		farmBenchmarks: make(map[peer.ID]float64),
+		benchmarks:     make(map[peer.ID]float64),
 	}
 
 	// Set the stream handler for the Dexponent protocol
