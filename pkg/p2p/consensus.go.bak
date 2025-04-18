@@ -128,54 +128,73 @@ func (p *DexponentProtocol) StartConsensusProcess() {
 	// Use stateLock to safely check and update consensus state
 	p.stateLock.RLock()
 
-	// Check for stalled rounds - if a round has been active for more than 30 seconds, it's likely stalled
-	if p.roundActive && time.Since(p.roundStartTime) > 30*time.Second {
+	// Check for stalled rounds - if a round has been active for more than 60 seconds, it's likely stalled
+	if p.roundActive && time.Since(p.roundStartTime) > 60*time.Second {
 		fmt.Printf("⚠️ Detected stalled consensus round %d. Forcing reset...\n", p.currentRound)
 		p.stateLock.RUnlock()
 
 		// Force reset the round state
 		p.stateLock.Lock()
 		p.roundActive = false
-		// Set a short cooldown to allow the system to stabilize
-		p.cooldownEndTime = time.Now().Add(5 * time.Second)
+		p.cooldownEndTime = time.Now()
+		// Clear any pending scores
+		p.scoresLock.Lock()
+		p.scores = make(map[peer.ID]float64)
+		p.farmBenchmarks = make(map[peer.ID]float64)
+		p.scoresLock.Unlock()
 		p.stateLock.Unlock()
+		
+		fmt.Printf("🔄 Consensus state reset. Ready for new rounds.\n")
 		return
 	}
 
-	// Check if we're already in an active round
-	if p.roundActive {
+	// Check if we're in a cooldown period
+	if time.Now().Before(p.cooldownEndTime) {
+		remaining := p.cooldownEndTime.Sub(time.Now()).Seconds()
+		p.stateLock.RUnlock()
+		// Only log if more than 5 seconds remaining to avoid spam
+		if remaining > 5 {
+			fmt.Printf("⏳ In cooldown period. %.0f seconds remaining until next round.\n", remaining)
+		}
+		return
+	}
+
+	// Get connected peers
+	peers := p.GetDexponentPeers()
+
+	// Need at least 3 peers for consensus (including ourselves)
+	if len(peers) < 2 {
+		fmt.Printf("⚠️ Not enough peers for consensus. Need at least 3 total (including this node).\n")
 		p.stateLock.RUnlock()
 		return
 	}
 
-	// Check cooldown period with a small tolerance for clock differences
-	if time.Now().Before(p.cooldownEndTime.Add(-1 * time.Second)) {
-		// We're still in cooldown, don't start a new round yet
-		p.stateLock.RUnlock()
-		return
-	}
-	p.stateLock.RUnlock()
-
-	// Select a leader for the next round
+	// Select a leader for this round
 	leader, isLeader := p.selectLeader()
 
-	// Update our state with write lock
-	p.stateLock.Lock()
-	p.isLeader = isLeader
+	// Update our leader state
 	p.currentLeader = leader
+	p.isLeader = isLeader
 
-	// If we're not the leader, don't start a consensus round
+	// If we're not the leader, wait for the leader to start the round
 	if !isLeader {
-		p.stateLock.Unlock()
+		p.stateLock.RUnlock()
 		return
 	}
 
 	// We are the leader for this round, increment the round number
 	p.currentRound++
-
+	
 	// Generate farm returns
 	p.farmReturns = generateFarmReturns(20)
-	p.stateLock.Unlock()
+	
+	// Initialize acknowledgment tracking for this round
+	p.leaderAcksLock.Lock()
+	p.leaderAcks = make(map[peer.ID]bool)
+	p.leaderAcksLock.Unlock()
+	
+	// Keep the lock until after sending the leader election message
+	// to ensure state consistency
 
 	// Broadcast leader election message
 	leaderElectionPayload := LeaderElectionPayload{
@@ -183,11 +202,31 @@ func (p *DexponentProtocol) StartConsensusProcess() {
 		RoundNumber: p.currentRound,
 	}
 
-	// Broadcast to all peers
-	p.BroadcastMessage(MessageTypeLeaderElection, leaderElectionPayload)
+	// Now it's safe to release the lock
+	p.stateLock.Unlock()
 
-	// Wait a moment for the leader election message to propagate
-	time.Sleep(2 * time.Second)
+	// Broadcast to all peers with retry logic
+	fmt.Printf("📢 Broadcasting leader election for round %d\n", p.currentRound)
+	successCount := 0
+	for _, peerID := range peers {
+		// Try up to 3 times for each peer
+		for attempt := 0; attempt < 3; attempt++ {
+			err := p.SendMessageToPeer(peerID, MessageTypeLeaderElection, leaderElectionPayload)
+			if err == nil {
+				successCount++
+				break
+			}
+			
+			if attempt < 2 { // Don't sleep after the last attempt
+				time.Sleep(500 * time.Millisecond)
+			}
+		}
+	}
+	
+	fmt.Printf("📊 Leader election message sent successfully to %d/%d peers\n", successCount, len(peers))
+
+	// Wait longer for the leader election message to propagate
+	time.Sleep(5 * time.Second)
 
 	// Start the consensus round
 	p.startConsensusRound()
@@ -391,62 +430,6 @@ func (p *DexponentProtocol) handleLeaderElection(stream network.Stream, msg Mess
 		// Ignore "canceled" errors as they're expected during high message volume
 		if !strings.Contains(err.Error(), "canceled") {
 			fmt.Printf("Error closing stream: %v\n", err)
-		}
-	}
-}
-
-// handleConsensusStart processes a consensus start message
-
-func (p *DexponentProtocol) handleConsensusStart(stream network.Stream, msg Message) {
-	// Get the remote peer ID
-	remotePeer := stream.Conn().RemotePeer()
-
-	// Verify this is from the current leader with proper locking
-	p.stateLock.RLock()
-	currentLeader := p.currentLeader
-	currentRound := p.currentRound
-	p.stateLock.RUnlock()
-
-	if remotePeer != currentLeader {
-		fmt.Printf("⚠️ Ignoring consensus start message from non-leader %s (current leader: %s)\n",
-			remotePeer.String()[:12], currentLeader.String()[:12])
-		stream.Reset()
-		return
-	}
-
-	// Parse the payload
-	payload, ok := msg.Payload.(map[string]interface{})
-	if !ok {
-		fmt.Printf("❌ Error: Invalid consensus start payload format\n")
-		stream.Reset()
-		return
-	}
-
-	// Extract round number and farm returns
-	roundNumberFloat, ok := payload["round_number"].(float64)
-	if !ok {
-		fmt.Printf("❌ Error: Missing round_number in payload\n")
-		stream.Reset()
-		return
-	}
-	roundNumber := int64(roundNumberFloat)
-
-	// Check if this is for a future round (we might have missed a leader election)
-	if roundNumber > currentRound {
-		fmt.Printf("⚠️ Received consensus start for future round %d (current round: %d). Updating state.\n",
-			roundNumber, currentRound)
-		// Update our round number to match
-		p.stateLock.Lock()
-		p.currentRound = roundNumber
-		p.stateLock.Unlock()
-	} else if roundNumber < currentRound {
-		fmt.Printf("⚠️ Ignoring consensus start for outdated round %d (current round: %d)\n",
-			roundNumber, currentRound)
-		stream.Reset()
-		return
-	}
-
-	// Extract farm returns
 	farmReturnsInterface, ok := payload["farm_returns"].([]interface{})
 	if !ok {
 		fmt.Printf("❌ Error: Missing farm_returns in payload\n")
@@ -456,10 +439,10 @@ func (p *DexponentProtocol) handleConsensusStart(stream network.Stream, msg Mess
 
 	// Convert farm returns to float64 slice
 	farmReturns := make([]float64, len(farmReturnsInterface))
-	for i, v := range farmReturnsInterface {
-		returnFloat, ok := v.(float64)
+	for i, returnValue := range farmReturnsInterface {
+		returnFloat, ok := returnValue.(float64)
 		if !ok {
-			fmt.Printf("❌ Error: Invalid farm return value at index %d\n", i)
+			fmt.Printf("❌ Error: Invalid farm return value in payload\n")
 			stream.Reset()
 			return
 		}
@@ -481,19 +464,35 @@ func (p *DexponentProtocol) handleConsensusStart(stream network.Stream, msg Mess
 		return
 	}
 
-	// Update our state - use separate lock sections to minimize lock contention
+	// First acknowledge the message before processing
+	// This helps the leader know we received the message
+	ackPayload := map[string]interface{}{
+		"round_number": roundNumber,
+		"ack_type":     "consensus_start",
+		"peer_id":      p.host.ID().String(),
+	}
+	
+	// Send acknowledgment to the leader
+	err := p.SendMessageToPeer(currentLeader, MessageTypeAcknowledgment, ackPayload)
+	if err != nil {
+		fmt.Printf("⚠️ Failed to send consensus start acknowledgment: %v\n", err)
+		// Continue processing even if ack fails
+	}
+
+	// Update our state
 	p.stateLock.Lock()
 	p.roundActive = true
 	p.roundStartTime = time.Unix(int64(startTimeFloat), 0)
 	p.roundEndTime = time.Unix(int64(endTimeFloat), 0)
 	p.farmReturns = farmReturns
-	p.stateLock.Unlock()
 
-	// Clear any previous scores - separate lock section
+	// Clear any previous scores
 	p.scoresLock.Lock()
 	p.scores = make(map[peer.ID]float64)
 	p.farmBenchmarks = make(map[peer.ID]float64) // Also clear benchmarks
 	p.scoresLock.Unlock()
+
+	p.stateLock.Unlock()
 
 	fmt.Printf("🔄 Received consensus start for round %d. Calculating farm score & benchmark...\n", roundNumber)
 
@@ -510,45 +509,19 @@ func (p *DexponentProtocol) handleConsensusStart(stream network.Stream, msg Mess
 	}
 
 	// Send our score to the leader with retry logic
-	fmt.Printf("📊 Submitting farm score %.4f and benchmark %.4f to leader for round %d\n",
+	fmt.Printf("📊 Submitting farm score %.4f and benchmark %.4f to leader for round %d\n", 
 		farmScore, farmBenchmark, roundNumber)
-
+	
 	// Try up to 3 times to send the score
 	for attempt := 0; attempt < 3; attempt++ {
-		// Get the current leader again in case it changed
-		p.stateLock.RLock()
-		currentLeader = p.currentLeader
-		p.stateLock.RUnlock()
-
 		err := p.SendMessageToPeer(currentLeader, MessageTypeScoreSubmission, scorePayload)
 		if err == nil {
 			break
 		}
-
+		
 		fmt.Printf("⚠️ Attempt %d to send score failed: %v. Retrying...\n", attempt+1, err)
 		if attempt < 2 { // Don't sleep after the last attempt
 			time.Sleep(1 * time.Second)
-		}
-	}
-
-	// Close the stream with improved error handling
-	if err := stream.Close(); err != nil {
-		// Ignore "canceled" errors as they're expected during high message volume
-		if !strings.Contains(err.Error(), "canceled") {
-			fmt.Printf("Error closing stream: %v\n", err)
-		}
-	}
-}
-
-// handleScoreSubmission processes a score submission message
-func (p *DexponentProtocol) handleScoreSubmission(stream network.Stream, msg Message) {
-	// Only the leader should process score submissions
-	if !p.isLeader || !p.roundActive {
-		stream.Reset()
-		return
-	}
-
-	// Get the remote peer ID
 	remotePeer := stream.Conn().RemotePeer()
 
 	// Parse the payload
