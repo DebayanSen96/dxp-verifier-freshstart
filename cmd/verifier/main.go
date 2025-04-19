@@ -209,6 +209,9 @@ func main() {
 					}
 					logger.Success(farmInfo)
 
+					// Set the Ethereum client in the protocol to enable farm-specific consensus
+					protocol.SetEthClient(ethClient)
+
 					// Benchmark calculation is now handled by the leader in the consensus process
 				} else {
 					logger.Info("Not assigned to any farms")
@@ -762,8 +765,8 @@ func runConsensusProcess(protocol *p2p.DexponentProtocol) {
 			// Check if we have enough peers for consensus (at least 3)
 			peers := protocol.GetDexponentPeers()
 			if len(peers) >= 2 { // At least 2 other peers (3 total including us)
-				// Try to start consensus process
-				protocol.StartConsensusProcess()
+				// Only run farm-specific consensus processes
+				protocol.StartFarmConsensusProcesses()
 			}
 		}
 	}

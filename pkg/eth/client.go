@@ -727,6 +727,23 @@ func (c *Client) GetTransactionReceipt(txHash common.Hash) (*types.Receipt, erro
 	return c.ethClient.TransactionReceipt(ctx, txHash)
 }
 
+// SubmitConsensusResult submits consensus results for a farm to the blockchain
+func (c *Client) SubmitConsensusResult(farmId int64, score float64, participants []string) (string, error) {
+	// Convert score to uint256
+	scoreInt := new(big.Int)
+	scoreFloat := big.NewFloat(score)
+	scoreFloat.Mul(scoreFloat, big.NewFloat(100)).Int(scoreInt) // Convert to percentage * 100
+
+	// For now, we'll use the SubmitFarmScore method which is simpler
+	tx, err := c.SubmitFarmScore(farmId, scoreInt)
+	if err != nil {
+		return "", fmt.Errorf("failed to submit consensus result: %v", err)
+	}
+
+	// Return the transaction hash
+	return tx.Hash().Hex(), nil
+}
+
 // GetTransactionStatus checks if a transaction has been mined
 func (c *Client) GetTransactionStatus(txHash string) (map[string]interface{}, error) {
 	// Parse the transaction hash

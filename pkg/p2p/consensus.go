@@ -141,6 +141,15 @@ func (p *DexponentProtocol) selectLeader() (peer.ID, bool) {
 
 // StartConsensusProcess initiates the consensus process if enough peers are connected
 func (p *DexponentProtocol) StartConsensusProcess() {
+	// Check if we have an ethClient to get farm assignments
+	if p.ethClient != nil {
+		// Get assigned farms
+		farms, err := p.ethClient.GetAssignedFarms()
+		if err == nil && len(farms) > 0 {
+			// We have farm assignments, use farm-specific consensus instead
+			return
+		}
+	}
 	// Use stateLock to safely check and update consensus state
 	p.stateLock.RLock()
 
@@ -239,10 +248,12 @@ func (p *DexponentProtocol) startConsensusRound() {
 		FarmReturns: p.farmReturns,
 		StartTime:   startTime.Unix(),
 		EndTime:     endTime.Unix(),
+		// For global consensus, we use farm ID 0
+		FarmID:      0,
 	}
 
 	// Broadcast consensus start message
-	fmt.Printf("🚀 Starting consensus round %d as leader. Round will end in %v.\n", p.currentRound, roundDuration)
+	fmt.Printf("🚀 Starting consensus round %d as leader for global farm (ID: 0). Round will end in %v.\n", p.currentRound, roundDuration)
 	p.BroadcastMessage(MessageTypeConsensusStart, consensusStartPayload)
 
 	// Schedule the end of the round
@@ -404,17 +415,42 @@ func (p *DexponentProtocol) handleConsensusStart(stream network.Stream, msg Mess
 	// Get the remote peer ID
 	remotePeer := stream.Conn().RemotePeer()
 
-	// Verify this is from the current leader
-	if remotePeer != p.currentLeader {
-		// Silently ignore messages from non-leaders
+	// Parse the payload first to check for farm ID
+	payload, ok := msg.Payload.(map[string]interface{})
+	if !ok {
+		fmt.Printf("Error: Invalid consensus start payload format\n")
 		stream.Reset()
 		return
 	}
 
-	// Parse the payload
-	payload, ok := msg.Payload.(map[string]interface{})
-	if !ok {
-		fmt.Printf("Error: Invalid consensus start payload format\n")
+	// Check if this is a farm-specific consensus start message
+	if farmIDFloat, hasFarmID := payload["farm_id"].(float64); hasFarmID {
+		// This is a farm-specific consensus start message
+		farmID := int64(farmIDFloat)
+		
+		// Skip farm 0 (global consensus) messages if we have farm assignments
+		if farmID == 0 && p.ethClient != nil {
+			farms, err := p.ethClient.GetAssignedFarms()
+			if err == nil && len(farms) > 0 {
+				// We have farm assignments, ignore global consensus
+				fmt.Printf("Ignoring global consensus (farm 0) - we have farm assignments\n")
+				stream.Reset()
+				return
+			}
+		}
+
+		if farmID > 0 {
+			// This is a farm-specific consensus start, redirect to handleFarmConsensusStart
+			fmt.Printf("Received farm-specific consensus start for farm %d, redirecting...\n", farmID)
+			p.handleFarmConsensusStart(stream, msg)
+			return
+		}
+	}
+
+	// This is a global consensus start message (farm ID 0 or not specified)
+	// Verify this is from the current leader
+	if remotePeer != p.currentLeader {
+		// Silently ignore messages from non-leaders
 		stream.Reset()
 		return
 	}
@@ -477,13 +513,14 @@ func (p *DexponentProtocol) handleConsensusStart(stream network.Stream, msg Mess
 	// Create score submission payload
 	scorePayload := ScoreSubmissionPayload{
 		RoundNumber:   roundNumber,
+		FarmID:        0, // Set farm ID to 0 for global consensus
 		FarmScore:     farmScore,
 		FarmBenchmark: farmBenchmark, // Include benchmark
 		SubmitterID:   p.host.ID().String(),
 	}
 
 	// Send our score to the leader
-	fmt.Printf("📊 Submitting farm score %.4f and benchmark %.4f to leader for round %d\n", farmScore, farmBenchmark, roundNumber)
+	fmt.Printf("📊 Submitting farm score %.4f and benchmark %.4f to leader for global farm (ID: 0) round %d\n", farmScore, farmBenchmark, roundNumber)
 	p.SendMessageToPeer(p.currentLeader, MessageTypeScoreSubmission, scorePayload)
 
 	// Close the stream
@@ -497,9 +534,27 @@ func (p *DexponentProtocol) handleConsensusStart(stream network.Stream, msg Mess
 
 // handleScoreSubmission processes a score submission message
 func (p *DexponentProtocol) handleScoreSubmission(stream network.Stream, msg Message) {
-	// Check if we are the leader
+	// Parse the payload first to check for farm ID
+	payload, ok := msg.Payload.(map[string]interface{})
+	if !ok {
+		fmt.Printf("Error: Invalid payload type in score submission\n")
+		stream.Reset()
+		return
+	}
+
+	// Check if this is a farm-specific score submission
+	if farmIDFloat, hasFarmID := payload["farm_id"].(float64); hasFarmID {
+		// This is a farm-specific score submission, redirect to handleFarmScoreSubmission
+		farmID := int64(farmIDFloat)
+		fmt.Printf("Received farm-specific score submission for farm %d, redirecting...\n", farmID)
+		p.handleFarmScoreSubmission(stream, msg)
+		return
+	}
+
+	// This is a regular score submission, check if we are the global leader
 	if !p.isLeader {
 		// Silently ignore score submissions if we're not the leader
+		fmt.Printf("Ignoring score submission - not the global leader\n")
 		stream.Reset()
 		return
 	}
@@ -507,13 +562,7 @@ func (p *DexponentProtocol) handleScoreSubmission(stream network.Stream, msg Mes
 	// Get the remote peer ID
 	remotePeer := stream.Conn().RemotePeer()
 
-	// Parse the payload
-	payload, ok := msg.Payload.(map[string]interface{})
-	if !ok {
-		fmt.Printf("Error: Invalid score submission payload format\n")
-		stream.Reset()
-		return
-	}
+	// We already parsed the payload above
 
 	// Extract round number and score
 	roundNumberFloat, ok := payload["round_number"].(float64)
@@ -555,7 +604,7 @@ func (p *DexponentProtocol) handleScoreSubmission(stream network.Stream, msg Mes
 	p.benchmarks[remotePeer] = farmBenchmarkFloat // Store benchmark
 	p.benchmarksLock.Unlock()
 
-	fmt.Printf("📥 Received farm score %.4f & farm benchmark %.4f from %s for round %d (%d/%d submissions)\n",
+	fmt.Printf("📥 Received farm score %.4f & farm benchmark %.4f from %s for global farm (ID: 0) round %d (%d/%d submissions)\n",
 		farmScoreFloat, farmBenchmarkFloat, remotePeer.String(), roundNumber, scoreCount, len(p.GetDexponentPeers())+1)
 
 	// Close the stream
@@ -650,6 +699,616 @@ func (p *DexponentProtocol) handleConsensusResult(stream network.Stream, msg Mes
 		// Ignore "canceled" errors
 		if !strings.Contains(err.Error(), "canceled") {
 			fmt.Printf("Error closing stream after receiving result: %v\n", err)
+		}
+	}
+}
+
+// StartFarmConsensusProcesses initiates the consensus process for each farm
+func (p *DexponentProtocol) StartFarmConsensusProcesses() {
+	// Check if we have an ethClient to get farm assignments
+	if p.ethClient == nil {
+		return
+	}
+
+	// Get assigned farms
+	farms, err := p.ethClient.GetAssignedFarms()
+	if err != nil {
+		fmt.Printf("Error getting assigned farms: %v\n", err)
+		return
+	}
+
+	// Process each farm in parallel
+	for _, farmID := range farms {
+		// Check if we're active for this farm
+		isActive, err := p.ethClient.IsVerifierActiveForFarm(farmID)
+		if err != nil || !isActive {
+			continue
+		}
+
+		// Process this farm's consensus
+		go p.processFarmConsensus(farmID)
+	}
+}
+
+// processFarmConsensus handles the consensus process for a specific farm
+func (p *DexponentProtocol) processFarmConsensus(farmID int64) {
+	// Lock the farm consensus map
+	p.farmConsensusLock.Lock()
+
+	// Get the farm state, create it if it doesn't exist
+	farmState, exists := p.farmConsensus[farmID]
+	if !exists {
+		farmState = &FarmConsensusState{
+			FarmID:          farmID,
+			CurrentRound:    0,
+			IsLeader:        false,
+			RoundActive:     false,
+			Scores:          make(map[peer.ID]float64),
+			Benchmarks:      make(map[peer.ID]float64),
+			Participants:    make(map[peer.ID]bool),
+			CooldownEndTime: time.Time{},
+		}
+		p.farmConsensus[farmID] = farmState
+	}
+
+	// Check if a round is already active
+	if farmState.RoundActive {
+		// Check if the round has ended
+		if time.Now().After(farmState.RoundEndTime) {
+			// Finalize the round
+			p.farmConsensusLock.Unlock()
+			p.finalizeFarmConsensusRound(farmID)
+			return
+		}
+
+		// Round is still active
+		p.farmConsensusLock.Unlock()
+		return
+	}
+
+	// Check cooldown period
+	if !farmState.CooldownEndTime.IsZero() && time.Now().Before(farmState.CooldownEndTime) {
+		// Still in cooldown
+		fmt.Printf("Farm %d consensus in cooldown until %s (in %s)\n",
+			farmID,
+			farmState.CooldownEndTime.Format("15:04:05"),
+			farmState.CooldownEndTime.Sub(time.Now()).Round(time.Second))
+		p.farmConsensusLock.Unlock()
+		return
+	}
+
+	// We're not in a round and not in cooldown, check if we can start a new round
+	peers := p.GetDexponentPeers()
+	if len(peers) < 2 { // Need at least 3 peers including ourselves
+		p.farmConsensusLock.Unlock()
+		return
+	}
+
+	// Determine if we should be the leader
+	p.farmConsensusLock.Unlock()
+	p.startFarmConsensusRound(farmID)
+}
+
+// startFarmConsensusRound starts a new farm-specific consensus round
+func (p *DexponentProtocol) startFarmConsensusRound(farmID int64) {
+	// Lock the farm consensus map
+	p.farmConsensusLock.Lock()
+	farmState, exists := p.farmConsensus[farmID]
+	if !exists {
+		p.farmConsensusLock.Unlock()
+		return
+	}
+
+	// Select a leader deterministically based on the current round
+	leaderID, ok := p.selectFarmLeader(farmID)
+	if !ok {
+		p.farmConsensusLock.Unlock()
+		return
+	}
+
+	// Update the farm state
+	farmState.CurrentRound++
+	farmState.CurrentLeader = leaderID
+	farmState.IsLeader = (leaderID == p.host.ID())
+	farmState.RoundActive = true
+	farmState.RoundStartTime = time.Now()
+	farmState.RoundEndTime = time.Now().Add(30 * time.Second)
+	farmState.Scores = make(map[peer.ID]float64)
+	farmState.Benchmarks = make(map[peer.ID]float64)
+	farmState.Participants = make(map[peer.ID]bool)
+
+	// Generate farm returns
+	farmState.FarmReturns = generateFarmReturns(20)
+
+	// Log the start of the round
+	fmt.Printf("🚀 Starting farm %d consensus round %d as %s\n",
+		farmID, farmState.CurrentRound,
+		map[bool]string{true: "leader", false: "participant"}[farmState.IsLeader])
+
+	// If we're the leader, broadcast the start message
+	if farmState.IsLeader {
+		// Calculate our own score first
+		farmState.Scores[p.host.ID()] = calculateFarmScore(farmState.FarmReturns)
+		farmState.Benchmarks[p.host.ID()] = calculateBenchmarkScore()
+		farmState.Participants[p.host.ID()] = true
+
+		// Create the consensus start payload
+		startPayload := ConsensusStartPayload{
+			RoundNumber: farmState.CurrentRound,
+			FarmID:      farmID,
+			FarmReturns: farmState.FarmReturns,
+			StartTime:   farmState.RoundStartTime.Unix(),
+			EndTime:     farmState.RoundEndTime.Unix(),
+		}
+
+		// Broadcast the start message
+		p.BroadcastMessage(MessageTypeConsensusStart, startPayload)
+
+		// Schedule finalization
+		go func() {
+			time.Sleep(time.Until(farmState.RoundEndTime))
+			p.finalizeFarmConsensusRound(farmID)
+		}()
+	}
+
+	p.farmConsensusLock.Unlock()
+}
+
+// finalizeFarmConsensusRound finalizes a farm-specific consensus round
+func (p *DexponentProtocol) finalizeFarmConsensusRound(farmID int64) {
+	// Lock the farm consensus map
+	p.farmConsensusLock.Lock()
+
+	// Get the farm state
+	farmState, exists := p.farmConsensus[farmID]
+	if !exists || !farmState.RoundActive {
+		p.farmConsensusLock.Unlock()
+		return
+	}
+
+	// Only the leader can finalize the round
+	if !farmState.IsLeader {
+		p.farmConsensusLock.Unlock()
+		return
+	}
+
+	// Calculate the median score
+	scoreValues := make([]float64, 0, len(farmState.Scores))
+	for _, score := range farmState.Scores {
+		scoreValues = append(scoreValues, score)
+	}
+
+	// Calculate the median benchmark
+	benchmarkValues := make([]float64, 0, len(farmState.Benchmarks))
+	for _, benchmark := range farmState.Benchmarks {
+		benchmarkValues = append(benchmarkValues, benchmark)
+	}
+
+	// Calculate the final score and benchmark
+	finalFarmScore := calculateMedian(scoreValues)
+	finalBenchmark := calculateMedian(benchmarkValues)
+
+	// Get the list of participants
+	participants := make([]string, 0, len(farmState.Participants))
+	for peerID := range farmState.Participants {
+		participants = append(participants, peerID.String())
+	}
+
+	// Set the cooldown end time (45 seconds from now)
+	farmState.RoundActive = false
+	farmState.CooldownEndTime = time.Now().Add(45 * time.Second)
+
+	// Create the result payload
+	resultPayload := ConsensusResultPayload{
+		RoundNumber:    farmState.CurrentRound,
+		FarmID:         farmID,
+		FinalScore:     finalFarmScore,
+		FinalBenchmark: finalBenchmark,
+		Participants:   participants,
+		NextRoundStart: farmState.CooldownEndTime.Unix(),
+	}
+
+	// Broadcast the result
+	p.BroadcastMessage(MessageTypeConsensusResult, resultPayload)
+
+	// Log the result
+	fmt.Printf("✅ Finalized farm %d consensus round %d with %d participants. Score: %.4f, Benchmark: %.4f\n",
+		farmID, farmState.CurrentRound, len(participants), finalFarmScore, finalBenchmark)
+
+	// Submit the result to the blockchain
+	if p.ethClient != nil {
+		go func() {
+			txHash, err := p.ethClient.SubmitConsensusResult(farmID, finalFarmScore, participants)
+			if err != nil {
+				fmt.Printf("Error submitting consensus result: %v\n", err)
+				return
+			}
+
+			fmt.Printf("🔗 Submitted farm %d consensus result to blockchain: %s\n", farmID, txHash)
+
+			// Wait for the transaction to be mined
+			_, err = p.ethClient.WaitForTransaction(txHash)
+			if err != nil {
+				fmt.Printf("Error waiting for transaction: %v\n", err)
+				return
+			}
+
+			fmt.Printf("✅ Farm %d consensus result confirmed on blockchain\n", farmID)
+		}()
+	}
+
+	p.farmConsensusLock.Unlock()
+}
+
+// selectFarmLeader selects a leader for a farm-specific consensus round
+func (p *DexponentProtocol) selectFarmLeader(farmID int64) (peer.ID, bool) {
+	// Get all peers including ourselves
+	peers := p.GetDexponentPeers()
+	peers = append(peers, p.host.ID())
+
+	// Sort the peers by ID for deterministic selection
+	sort.Slice(peers, func(i, j int) bool {
+		return peers[i].String() < peers[j].String()
+	})
+
+	// Get the farm state
+	farmState, exists := p.farmConsensus[farmID]
+	if !exists {
+		return "", false
+	}
+
+	// Select the leader based on the current round
+	leaderIndex := int(farmState.CurrentRound) % len(peers)
+	return peers[leaderIndex], true
+}
+
+// handleFarmConsensusStart processes a farm-specific consensus start message
+func (p *DexponentProtocol) handleFarmConsensusStart(stream network.Stream, msg Message) {
+	// Get the remote peer ID (the leader)
+	remotePeer := stream.Conn().RemotePeer()
+
+	// Extract the payload
+	payload, ok := msg.Payload.(map[string]interface{})
+	if !ok {
+		fmt.Printf("Error: Invalid payload type\n")
+		stream.Reset()
+		return
+	}
+
+	// Extract round number
+	roundNumberFloat, ok := payload["round_number"].(float64)
+	if !ok {
+		fmt.Printf("Error: Missing round_number in payload\n")
+		stream.Reset()
+		return
+	}
+	roundNumber := int64(roundNumberFloat)
+
+	// Extract farm ID
+	farmIDFloat, ok := payload["farm_id"].(float64)
+	if !ok {
+		fmt.Printf("Error: Missing farm_id in payload\n")
+		stream.Reset()
+		return
+	}
+	farmID := int64(farmIDFloat)
+
+	// Check if we're assigned to this farm
+	if p.ethClient != nil {
+		isActive, err := p.ethClient.IsVerifierActiveForFarm(farmID)
+		if err != nil || !isActive {
+			// We're not active for this farm, ignore the message
+			stream.Reset()
+			return
+		}
+	}
+
+	// Extract farm returns
+	farmReturnsInterface, ok := payload["farm_returns"].([]interface{})
+	if !ok {
+		fmt.Printf("Error: Missing farm_returns in payload\n")
+		stream.Reset()
+		return
+	}
+
+	// Convert farm returns to float64 slice
+	farmReturns := make([]float64, len(farmReturnsInterface))
+	for i, v := range farmReturnsInterface {
+		farmReturnVal, ok := v.(float64)
+		if !ok {
+			fmt.Printf("Error: Invalid farm return value at index %d\n", i)
+			stream.Reset()
+			return
+		}
+		farmReturns[i] = farmReturnVal
+	}
+
+	// Extract start and end times
+	startTimeFloat, ok := payload["start_time"].(float64)
+	if !ok {
+		fmt.Printf("Error: Missing start_time in payload\n")
+		stream.Reset()
+		return
+	}
+	startTime := time.Unix(int64(startTimeFloat), 0)
+
+	endTimeFloat, ok := payload["end_time"].(float64)
+	if !ok {
+		fmt.Printf("Error: Missing end_time in payload\n")
+		stream.Reset()
+		return
+	}
+	endTime := time.Unix(int64(endTimeFloat), 0)
+
+	// Update our farm consensus state
+	p.farmConsensusLock.Lock()
+
+	// Get or create the farm state
+	farmState, exists := p.farmConsensus[farmID]
+	if !exists {
+		farmState = &FarmConsensusState{
+			FarmID:         farmID,
+			CurrentRound:   roundNumber,
+			CurrentLeader:  remotePeer,
+			IsLeader:       false,
+			RoundActive:    true,
+			RoundStartTime: startTime,
+			RoundEndTime:   endTime,
+			Scores:         make(map[peer.ID]float64),
+			Benchmarks:     make(map[peer.ID]float64),
+			Participants:   make(map[peer.ID]bool),
+			FarmReturns:    farmReturns,
+		}
+		p.farmConsensus[farmID] = farmState
+	} else {
+		// Update existing farm state
+		farmState.CurrentRound = roundNumber
+		farmState.CurrentLeader = remotePeer
+		farmState.IsLeader = false
+		farmState.RoundActive = true
+		farmState.RoundStartTime = startTime
+		farmState.RoundEndTime = endTime
+		farmState.FarmReturns = farmReturns
+		farmState.Scores = make(map[peer.ID]float64)
+		farmState.Benchmarks = make(map[peer.ID]float64)
+		farmState.Participants = make(map[peer.ID]bool)
+	}
+
+	p.farmConsensusLock.Unlock()
+
+	// Log receipt of consensus start
+	fmt.Printf("🔄 Received consensus start for farm %d round %d. Calculating farm score & benchmark...\n", farmID, roundNumber)
+
+	// Calculate our farm score and benchmark
+	farmScore := calculateFarmScore(farmReturns)
+	farmBenchmark := calculateBenchmarkScore()
+
+	// Create our score submission payload
+	scoreSubmissionPayload := ScoreSubmissionPayload{
+		RoundNumber:   roundNumber,
+		FarmID:        farmID,
+		FarmScore:     farmScore,
+		FarmBenchmark: farmBenchmark,
+		SubmitterID:   p.host.ID().String(),
+	}
+
+	// Send our score to the leader
+	fmt.Printf("📊 Submitting farm score %.4f and benchmark %.4f to leader for round %d\n",
+		farmScore, farmBenchmark, roundNumber)
+	p.SendMessageToPeer(remotePeer, MessageTypeScoreSubmission, scoreSubmissionPayload)
+
+	// Close the stream
+	if err := stream.Close(); err != nil {
+		// Ignore "canceled" errors as they're expected during rapid stream open/close
+		if !strings.Contains(err.Error(), "canceled") {
+			fmt.Printf("Error closing stream after farm consensus start: %v\n", err)
+		}
+	}
+}
+
+// handleFarmScoreSubmission processes a farm-specific score submission
+func (p *DexponentProtocol) handleFarmScoreSubmission(stream network.Stream, msg Message) {
+	// Get the remote peer ID
+	remotePeer := stream.Conn().RemotePeer()
+
+	// Extract the payload
+	payload, ok := msg.Payload.(map[string]interface{})
+	if !ok {
+		fmt.Printf("Error: Invalid payload type\n")
+		stream.Reset()
+		return
+	}
+
+	// Extract round number
+	roundNumberFloat, ok := payload["round_number"].(float64)
+	if !ok {
+		fmt.Printf("Error: Missing round_number in payload\n")
+		stream.Reset()
+		return
+	}
+	roundNumber := int64(roundNumberFloat)
+
+	// Extract farm ID
+	farmIDFloat, ok := payload["farm_id"].(float64)
+	if !ok {
+		fmt.Printf("Error: Missing farm_id in payload\n")
+		stream.Reset()
+		return
+	}
+	farmID := int64(farmIDFloat)
+
+	// Extract farm score
+	farmScoreFloat, ok := payload["farm_score"].(float64)
+	if !ok {
+		fmt.Printf("Error: Missing farm_score in payload\n")
+		stream.Reset()
+		return
+	}
+
+	// Extract farm benchmark
+	farmBenchmarkFloat, ok := payload["farm_benchmark"].(float64)
+	if !ok {
+		fmt.Printf("Error: Missing farm_benchmark in payload\n")
+		stream.Reset()
+		return
+	}
+
+	// Extract submitter ID
+	submitterIDStr, ok := payload["submitter_id"].(string)
+	if !ok {
+		fmt.Printf("Error: Missing submitter_id in payload\n")
+		stream.Reset()
+		return
+	}
+
+	// Verify submitter ID matches remote peer
+	submitterID, err := peer.Decode(submitterIDStr)
+	if err != nil || submitterID != remotePeer {
+		fmt.Printf("Error: Submitter ID mismatch or invalid\n")
+		stream.Reset()
+		return
+	}
+
+	// Update our farm consensus state
+	p.farmConsensusLock.Lock()
+
+	// Get the farm state
+	farmState, exists := p.farmConsensus[farmID]
+	if !exists || !farmState.RoundActive || farmState.CurrentRound != roundNumber {
+		// Invalid farm state
+		p.farmConsensusLock.Unlock()
+		stream.Reset()
+		return
+	}
+
+	// Only the leader should receive score submissions
+	if !farmState.IsLeader {
+		p.farmConsensusLock.Unlock()
+		stream.Reset()
+		return
+	}
+
+	// Store the score and benchmark
+	farmState.Scores[remotePeer] = farmScoreFloat
+	farmState.Benchmarks[remotePeer] = farmBenchmarkFloat
+	farmState.Participants[remotePeer] = true
+
+	// Log the submission
+	fmt.Printf("📥 Received farm score %.4f & farm benchmark %.4f from %s for round %d (%d/%d submissions)\n",
+		farmScoreFloat, farmBenchmarkFloat, remotePeer.String(), roundNumber,
+		len(farmState.Scores), len(p.GetDexponentPeers())+1)
+
+	p.farmConsensusLock.Unlock()
+
+	// Close the stream
+	if err := stream.Close(); err != nil {
+		// Ignore "canceled" errors as they're expected during rapid stream open/close
+		if !strings.Contains(err.Error(), "canceled") {
+			fmt.Printf("Error closing stream after receiving farm score: %v\n", err)
+		}
+	}
+}
+
+// handleFarmConsensusResult processes a farm-specific consensus result message
+func (p *DexponentProtocol) handleFarmConsensusResult(stream network.Stream, msg Message) {
+	// Get the remote peer ID
+	remotePeer := stream.Conn().RemotePeer()
+
+	// Extract the payload
+	payload, ok := msg.Payload.(map[string]interface{})
+	if !ok {
+		fmt.Printf("Error: Invalid payload type\n")
+		stream.Reset()
+		return
+	}
+
+	// Extract round number
+	roundNumberFloat, ok := payload["round_number"].(float64)
+	if !ok {
+		fmt.Printf("Error: Missing round_number in payload\n")
+		stream.Reset()
+		return
+	}
+	roundNumber := int64(roundNumberFloat)
+
+	// Extract farm ID
+	farmIDFloat, ok := payload["farm_id"].(float64)
+	if !ok {
+		fmt.Printf("Error: Missing farm_id in payload\n")
+		stream.Reset()
+		return
+	}
+	farmID := int64(farmIDFloat)
+
+	// Extract final score
+	finalScoreFloat, ok := payload["final_score"].(float64)
+	if !ok {
+		fmt.Printf("Error: Missing final_score in payload\n")
+		stream.Reset()
+		return
+	}
+
+	// Extract final benchmark
+	finalBenchmarkFloat, ok := payload["final_benchmark"].(float64)
+	if !ok {
+		fmt.Printf("Error: Missing final_benchmark in payload\n")
+		stream.Reset()
+		return
+	}
+
+	// Extract next round start time
+	nextRoundStartFloat, ok := payload["next_round_start"].(float64)
+	if !ok {
+		fmt.Printf("Error: Missing next_round_start in payload\n")
+		stream.Reset()
+		return
+	}
+
+	// Update our farm consensus state
+	p.farmConsensusLock.Lock()
+
+	// Get the farm state
+	farmState, exists := p.farmConsensus[farmID]
+	if !exists {
+		// Create a new farm state
+		farmState = &FarmConsensusState{
+			FarmID:       farmID,
+			CurrentRound: roundNumber,
+			RoundActive:  false,
+			Scores:       make(map[peer.ID]float64),
+			Benchmarks:   make(map[peer.ID]float64),
+			Participants: make(map[peer.ID]bool),
+		}
+		p.farmConsensus[farmID] = farmState
+	}
+
+	// Update the farm state
+	farmState.CurrentRound = roundNumber
+	farmState.RoundActive = false
+	farmState.CurrentLeader = remotePeer
+	farmState.CooldownEndTime = time.Unix(int64(nextRoundStartFloat), 0)
+
+	// Clear scores and benchmarks for the next round
+	farmState.Scores = make(map[peer.ID]float64)
+	farmState.Benchmarks = make(map[peer.ID]float64)
+	farmState.Participants = make(map[peer.ID]bool)
+
+	// Log the result
+	nextRoundStart := time.Unix(int64(nextRoundStartFloat), 0)
+	fmt.Printf("📋 Received farm %d consensus result for round %d: Score %.4f, Benchmark %.4f\n",
+		farmID, roundNumber, finalScoreFloat, finalBenchmarkFloat)
+	fmt.Printf("⏱️ Next farm %d consensus round will start at %s (in %s)\n",
+		farmID,
+		nextRoundStart.Format("15:04:05"),
+		nextRoundStart.Sub(time.Now()).Round(time.Second))
+
+	p.farmConsensusLock.Unlock()
+
+	// Close the stream
+	if err := stream.Close(); err != nil {
+		// Ignore "canceled" errors as they're expected during rapid stream open/close
+		if !strings.Contains(err.Error(), "canceled") {
+			fmt.Printf("Error closing stream after receiving farm result: %v\n", err)
 		}
 	}
 }

@@ -104,37 +104,46 @@ type ConsensusStartPayload struct {
 	// RoundNumber is the current consensus round number
 	RoundNumber int64 `json:"round_number"`
 
+	// FarmID is the ID of the farm this consensus round is for
+	FarmID int64 `json:"farm_id"`
+
 	// FarmBenchmarks is the array of farm benchmarks to calculate scores for
 	FarmBenchmarks map[peer.ID]float64 `json:"farm_benchmarks"`
 
-	// FarmReturns is the array of farm returns to calculate scores for
+	// FarmReturns is the array of farm returns to calculate scores from
 	FarmReturns []float64 `json:"farm_returns"`
 
-	// StartTime is when the consensus round started
+	// StartTime is the Unix timestamp when the round starts
 	StartTime int64 `json:"start_time"`
 
-	// EndTime is when the consensus round will end
+	// EndTime is the Unix timestamp when the round ends
 	EndTime int64 `json:"end_time"`
 }
 
 // ScoreSubmissionPayload is the payload for a score submission message
 type ScoreSubmissionPayload struct {
-	// RoundNumber is the consensus round this score is for
+	// RoundNumber is the current consensus round number
 	RoundNumber int64 `json:"round_number"`
+
+	// FarmID is the ID of the farm this score is for
+	FarmID int64 `json:"farm_id"`
 
 	// FarmScore is the calculated farm score
 	FarmScore float64 `json:"farm_score"`
 
-	// FarmBenchmark is the calculated farm benchmark
+	// FarmBenchmark is the calculated benchmark score
 	FarmBenchmark float64 `json:"farm_benchmark"`
 
-	// SubmitterID is the ID of the peer that calculated this score
+	// SubmitterID is the ID of the peer submitting the score
 	SubmitterID string `json:"submitter_id"`
 }
 
 type BenchmarkSubmissionPayload struct {
 	// RoundNumber is the consensus round this score is for
 	RoundNumber int64 `json:"round_number"`
+
+	// FarmID is the ID of the farm this score is for
+	FarmID int64 `json:"farm_id"`
 
 	// BenchmarkScore is the calculated benchmark score
 	BenchmarkScore float64 `json:"benchmark_score"`
@@ -145,20 +154,39 @@ type BenchmarkSubmissionPayload struct {
 
 // ConsensusResultPayload is the payload for a consensus result message
 type ConsensusResultPayload struct {
-	// RoundNumber is the consensus round this result is for
+	// RoundNumber is the current consensus round number
 	RoundNumber int64 `json:"round_number"`
 
-	// FinalScore is the consensus farm score
+	// FarmID is the ID of the farm this result is for
+	FarmID int64 `json:"farm_id"`
+
+	// FinalScore is the final consensus score
 	FinalScore float64 `json:"final_score"`
 
-	// FinalBenchmark is the consensus benchmark score
+	// FinalBenchmark is the final consensus benchmark
 	FinalBenchmark float64 `json:"final_benchmark"`
 
 	// Participants is the list of peers that participated in this round
 	Participants []string `json:"participants"`
 
-	// NextRoundStart is when the next consensus round will start
+	// NextRoundStart is the Unix timestamp when the next round will start
 	NextRoundStart int64 `json:"next_round_start"`
+}
+
+// FarmConsensusState tracks consensus state for a specific farm
+type FarmConsensusState struct {
+	FarmID         int64
+	CurrentRound   int64
+	IsLeader       bool
+	CurrentLeader  peer.ID
+	RoundActive    bool
+	RoundStartTime time.Time
+	RoundEndTime   time.Time
+	Scores         map[peer.ID]float64
+	Benchmarks     map[peer.ID]float64
+	FarmReturns    []float64
+	Participants   map[peer.ID]bool
+	CooldownEndTime time.Time
 }
 
 // DexponentProtocol manages the Dexponent protocol
@@ -177,6 +205,10 @@ type DexponentProtocol struct {
 	cooldownEndTime time.Time
 	stateLock       sync.RWMutex // Lock for consensus state synchronization
 
+	// Farm-specific consensus state
+	farmConsensus     map[int64]*FarmConsensusState
+	farmConsensusLock sync.RWMutex
+
 	// Farm returns and scores
 	farmReturns        []float64
 	scores             map[peer.ID]float64
@@ -191,6 +223,8 @@ type DexponentProtocol struct {
 	ethClient interface {
 		SubmitConsensusResult(farmId int64, score float64, participants []string) (string, error)
 		WaitForTransaction(txHash string) (*types.Receipt, error)
+		GetAssignedFarms() ([]int64, error)
+		IsVerifierActiveForFarm(farmID int64) (bool, error)
 	}
 }
 
@@ -205,6 +239,7 @@ func NewDexponentProtocol(h host.Host) *DexponentProtocol {
 		scores:         make(map[peer.ID]float64),
 		farmBenchmarks: make(map[peer.ID]float64),
 		benchmarks:     make(map[peer.ID]float64),
+		farmConsensus: make(map[int64]*FarmConsensusState),
 	}
 
 	// Set the stream handler for the Dexponent protocol
@@ -257,10 +292,43 @@ func (p *DexponentProtocol) handleStream(stream network.Stream) {
 	case MessageTypeLeaderElection:
 		p.handleLeaderElection(stream, msg)
 	case MessageTypeConsensusStart:
+		// Check if this is a farm-specific consensus start message
+		payload, ok := msg.Payload.(map[string]interface{})
+		if ok {
+			// Check if the payload contains a farm_id field
+			if _, hasFarmID := payload["farm_id"].(float64); hasFarmID {
+				// This is a farm-specific consensus start message
+				p.handleFarmConsensusStart(stream, msg)
+				return
+			}
+		}
+		// This is a regular consensus start message
 		p.handleConsensusStart(stream, msg)
 	case MessageTypeScoreSubmission:
+		// Check if this is a farm-specific score submission
+		payload, ok := msg.Payload.(map[string]interface{})
+		if ok {
+			// Check if the payload contains a farm_id field
+			if _, hasFarmID := payload["farm_id"].(float64); hasFarmID {
+				// This is a farm-specific score submission
+				p.handleFarmScoreSubmission(stream, msg)
+				return
+			}
+		}
+		// This is a regular score submission
 		p.handleScoreSubmission(stream, msg)
 	case MessageTypeConsensusResult:
+		// Check if this is a farm-specific consensus result
+		payload, ok := msg.Payload.(map[string]interface{})
+		if ok {
+			// Check if the payload contains a farm_id field
+			if _, hasFarmID := payload["farm_id"].(float64); hasFarmID {
+				// This is a farm-specific consensus result
+				p.handleFarmConsensusResult(stream, msg)
+				return
+			}
+		}
+		// This is a regular consensus result
 		p.handleConsensusResult(stream, msg)
 	case MessageTypeConsensusBenchmark:
 		p.handleConsensusBenchmark(stream, msg)
@@ -721,6 +789,8 @@ func (p *DexponentProtocol) BroadcastMessage(msgType MessageType, payload interf
 func (p *DexponentProtocol) SetEthClient(client interface {
 	SubmitConsensusResult(farmId int64, score float64, participants []string) (string, error)
 	WaitForTransaction(txHash string) (*types.Receipt, error)
+	GetAssignedFarms() ([]int64, error)
+	IsVerifierActiveForFarm(farmID int64) (bool, error)
 }) {
 	p.ethClient = client
 }
