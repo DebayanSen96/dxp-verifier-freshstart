@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/dexponent/dxp-verifier/pkg/logger"
 	"github.com/libp2p/go-libp2p/core/host"
 	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/libp2p/go-libp2p/p2p/discovery/mdns"
@@ -28,16 +29,17 @@ func (n *mdnsNotifee) HandlePeerFound(pi peer.AddrInfo) {
 		return
 	}
 
-	fmt.Printf("mDNS: discovered new peer: %s\n", pi.ID.String())
+	// Log to file only, not to console
+	logger.Info("mDNS: discovered new peer: %s", pi.ID.String())
 
 	// Connect to the discovered peer
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	if err := n.host.Connect(ctx, pi); err != nil {
-		fmt.Printf("mDNS: failed to connect to peer %s: %v\n", pi.ID.String(), err)
+		logger.Warn("mDNS: failed to connect to peer %s: %v", pi.ID.String(), err)
 	} else {
-		fmt.Printf("mDNS: successfully connected to peer %s\n", pi.ID.String())
+		logger.Info("mDNS: successfully connected to peer %s", pi.ID.String())
 	}
 }
 

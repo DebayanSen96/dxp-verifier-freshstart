@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-// Import OpenZeppelin contracts for access control, reentrancy protection, etc.
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -13,41 +12,29 @@ import "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
  * @notice Contract for verifier management, farm scoring, and reward distribution
  */
 contract Consensus is ReentrancyGuard, Ownable {
-    // -------------------------------
-    // Verifier Registry & Stakeholder Lists
-    // -------------------------------
-    uint256 public constant MIN_VERIFIER_STAKE = 100; // Minimum DXP tokens required
-    IERC20 public dxpToken; // DXP token contract interface
+    uint256 public constant MIN_VERIFIER_STAKE = 100;
+    IERC20 public dxpToken;
     
-    // Verifier stake and registration status
     mapping(address => uint256) public verifierStake;
     mapping(address => bool) public registeredVerifiers;
     
-    // Farm-specific verifier mappings
-    mapping(uint256 => mapping(address => bool)) public farmRegisteredVerifiers; // farmId => verifier => isRegistered
-    mapping(uint256 => address[]) public registeredVerifiersForFarm; // farmId => list of registered verifiers
-    mapping(uint256 => mapping(address => bool)) public farmActiveVerifiers; // farmId => verifier => isActive
-    mapping(uint256 => address[]) public activeVerifiersForFarm; // farmId => list of active verifiers
+    mapping(uint256 => mapping(address => bool)) public farmRegisteredVerifiers;
+    mapping(uint256 => address[]) public registeredVerifiersForFarm;
+    mapping(uint256 => mapping(address => bool)) public farmActiveVerifiers;
+    mapping(uint256 => address[]) public activeVerifiersForFarm;
     
-    // Farm benchmarks and scores
-    mapping(uint256 => uint256) public farmBenchmarks; // farmId => benchmark value (in basis points, 10000 = 100%)
-    mapping(uint256 => uint256) public farmScores; // farmId => current score
-    mapping(uint256 => uint256) public lastScoreUpdate; // farmId => last update timestamp
+    mapping(uint256 => uint256) public farmBenchmarks;
+    mapping(uint256 => uint256) public farmScores;
+    mapping(uint256 => uint256) public lastScoreUpdate;
     
-    // On-chain mapping for round leader
-    mapping(uint256 => address) public roundLeader;
+    mapping(uint256 => address) public farmLeader;
+    mapping(uint256 => uint256) public farmConsensusRound;
     
-    // Leader registration status enum
-    enum LeaderStatus { None, Registered, Active, Completed }
-    
-    // Leader registration status mapping
-    mapping(uint256 => LeaderStatus) public roundLeaderStatus;
-    
-    // Events for leader registration and round completion
-    event LeaderRegistered(uint256 indexed roundNumber, address indexed leader);
-    event RoundCompleted(uint256 indexed roundNumber, address indexed leader, uint256 timestamp);
 
-    // Verifier metrics
+    event FarmLeaderRegistered(uint256 indexed farmId, address indexed leader, uint256 indexed roundNumber);
+    event FarmConsensusCompleted(uint256 indexed farmId, uint256 indexed roundNumber, address indexed leader);
+
+
     struct VerifierMetrics {
         uint256 verificationsPerformed;
         uint256 lastActiveTimestamp;
@@ -58,7 +45,6 @@ contract Consensus is ReentrancyGuard, Ownable {
     
 
     
-    // Events
     event VerifierRegistered(address indexed verifier, uint256 stake, uint256 indexed farmId);
     event VerifierActivated(address indexed verifier, uint256 indexed farmId);
     event VerifierDeactivated(address indexed verifier, uint256 indexed farmId);
@@ -75,63 +61,52 @@ contract Consensus is ReentrancyGuard, Ownable {
      * @param _dxpTokenAddress The address of the DXP token contract
      */
     constructor(address _dxpTokenAddress) Ownable(msg.sender) {
-        // Initialize contract with deployer as owner
         require(_dxpTokenAddress != address(0), "DXP token address cannot be zero");
         dxpToken = IERC20(_dxpTokenAddress);
         
-        // Initialize 8 farms with 10% APY benchmark (1000 basis points)
         for (uint256 i = 1; i <= 8; i++) {
-            farmBenchmarks[i] = 1000; // 10% in basis points
-            farmScores[i] = 0.5 * 1e18;  // Initial normalized score (0.5)
+            farmBenchmarks[i] = 1000; 
+            farmScores[i] = 0.5 * 1e18; 
             emit FarmBenchmarkUpdated(i, 1000, msg.sender);
         }
     }
 
-    // Register leader for a round
-    function registerLeader(uint256 roundNumber) external onlyRegisteredVerifier {
-        // Ensure the round hasn't already been registered
-        require(roundLeader[roundNumber] == address(0), "Leader already registered for this round");
+    /**
+     * @notice Register as the leader for a farm consensus round
+     * @param farmId The ID of the farm for which to register as leader
+     */
+    function registerFarmLeader(uint256 farmId) 
+        external 
+        onlyRegisteredVerifier 
+        onlyFarmRegisteredVerifier(farmId)
+        validFarmId(farmId) 
+    {
+        // If there's already a leader for this farm, check if it's the caller
+        if (farmLeader[farmId] != address(0)) {
+            // If the caller is already the leader, just increment the round and return
+            if (farmLeader[farmId] == msg.sender) {
+                farmConsensusRound[farmId]++;
+                emit FarmLeaderRegistered(farmId, msg.sender, farmConsensusRound[farmId]);
+                return;
+            }
+            // If it's a different address, revert
+            revert("Farm already has a different leader");
+        }
         
-        // Register the leader
-        roundLeader[roundNumber] = msg.sender;
-        roundLeaderStatus[roundNumber] = LeaderStatus.Registered;
+        // No leader yet, register as the leader
+        farmLeader[farmId] = msg.sender;
         
-        // Update verifier metrics
+        // Increment the round counter
+        farmConsensusRound[farmId]++;
+        
         VerifierMetrics storage metrics = verifierMetrics[msg.sender];
         metrics.verificationsPerformed += 1;
         metrics.lastActiveTimestamp = block.timestamp;
         
-        // Emit event
-        emit LeaderRegistered(roundNumber, msg.sender);
-    }
-    
-    // Mark a round as active (called by the leader when consensus starts)
-    function activateRound(uint256 roundNumber) external onlyRegisteredVerifier {
-        require(roundLeader[roundNumber] == msg.sender, "Only the round leader can activate the round");
-        require(roundLeaderStatus[roundNumber] == LeaderStatus.Registered, "Round not in registered state");
-        
-        // Mark the round as active
-        roundLeaderStatus[roundNumber] = LeaderStatus.Active;
-    }
-    
-    // Mark a round as completed (called by the leader when consensus ends)
-    function completeRound(uint256 roundNumber) external onlyRegisteredVerifier {
-        require(roundLeader[roundNumber] == msg.sender || msg.sender == owner(), 
-                "Only the round leader or contract owner can complete a round");
-        require(roundLeaderStatus[roundNumber] == LeaderStatus.Registered || 
-                roundLeaderStatus[roundNumber] == LeaderStatus.Active, 
-                "Round not in progress");
-        
-        // Mark the round as completed
-        roundLeaderStatus[roundNumber] = LeaderStatus.Completed;
-        
-
-        
-        // Emit event
-        emit RoundCompleted(roundNumber, roundLeader[roundNumber], block.timestamp);
+        emit FarmLeaderRegistered(farmId, msg.sender, farmConsensusRound[farmId]);
     }
 
-    // Modifiers
+ 
     modifier onlyRegisteredVerifier() {
         require(registeredVerifiers[msg.sender], "Not a registered verifier");
         _;
@@ -144,6 +119,11 @@ contract Consensus is ReentrancyGuard, Ownable {
     
     modifier onlyFarmActiveVerifier(uint256 farmId) {
         require(farmActiveVerifiers[farmId][msg.sender], "Not an active verifier for this farm");
+        _;
+    }
+    
+    modifier onlyFarmLeader(uint256 farmId) {
+        require(farmLeader[farmId] == msg.sender, "Not the current leader for this farm");
         _;
     }
     
@@ -167,23 +147,18 @@ contract Consensus is ReentrancyGuard, Ownable {
         require(stakeAmount >= MIN_VERIFIER_STAKE, "Insufficient stake amount");
         require(dxpToken.allowance(msg.sender, address(this)) >= stakeAmount, "Insufficient DXP token allowance");
         
-        // Transfer DXP tokens from the sender to this contract
         bool success = dxpToken.transferFrom(msg.sender, address(this), stakeAmount);
         require(success, "DXP token transfer failed");
         
-        // Register the verifier
         registeredVerifiers[verifierAddress] = true;
         verifierStake[verifierAddress] = stakeAmount;
         
-        // Register for the specific farm
         farmRegisteredVerifiers[farmId][verifierAddress] = true;
         registeredVerifiersForFarm[farmId].push(verifierAddress);
         
-        // Auto-activate the verifier for the farm
         farmActiveVerifiers[farmId][verifierAddress] = true;
         activeVerifiersForFarm[farmId].push(verifierAddress);
         
-        // Initialize metrics
         VerifierMetrics storage metrics = verifierMetrics[verifierAddress];
         metrics.lastActiveTimestamp = block.timestamp;
         metrics.assignedFarms.push(farmId);
@@ -226,7 +201,7 @@ contract Consensus is ReentrancyGuard, Ownable {
         
         farmActiveVerifiers[farmId][verifier] = false;
         
-        // Remove from active verifiers array
+     
         for (uint i = 0; i < activeVerifiersForFarm[farmId].length; i++) {
             if (activeVerifiersForFarm[farmId][i] == verifier) {
                 activeVerifiersForFarm[farmId][i] = activeVerifiersForFarm[farmId][activeVerifiersForFarm[farmId].length - 1];
@@ -247,8 +222,6 @@ contract Consensus is ReentrancyGuard, Ownable {
         require(registeredVerifiers[verifierAddress], "Not registered as verifier");
         require(additionalStake > 0, "No stake provided");
         require(dxpToken.allowance(msg.sender, address(this)) >= additionalStake, "Insufficient DXP token allowance");
-        
-        // Transfer additional DXP tokens from the sender to this contract
         bool success = dxpToken.transferFrom(msg.sender, address(this), additionalStake);
         require(success, "DXP token transfer failed");
         
@@ -270,17 +243,16 @@ contract Consensus is ReentrancyGuard, Ownable {
         
         uint256 remainingStake = verifierStake[verifierAddress] - amount;
         
-        // Either withdraw partial stake (leaving at least MIN_VERIFIER_STAKE)
-        // or withdraw everything and unregister
+
         if (remainingStake > 0) {
             require(remainingStake >= MIN_VERIFIER_STAKE, "Remaining stake below minimum");
             verifierStake[verifierAddress] = remainingStake;
         } else {
-            // Full withdrawal, unregister the verifier
+         
             _deregisterVerifier(verifierAddress, "Full stake withdrawal");
         }
         
-        // Transfer DXP tokens from this contract back to the verifier
+       
         bool success = dxpToken.transfer(verifierAddress, amount);
         require(success, "DXP token transfer failed");
         
@@ -288,40 +260,51 @@ contract Consensus is ReentrancyGuard, Ownable {
     }
 
     /**
-     * @notice Submit a farm score (only registered verifiers for the farm)
+     * @notice Submit a farm score with cryptographic verification using ECDSA (only by the current farm leader)
      * @param farmId The ID of the farm
-     * @param score The score to submit (in basis points, 10000 = 100%)
+     * @param score The score value
+     * @param signature ECDSA signature of the score data
      */
-    function submitFarmScore(uint256 farmId, uint256 score, uint256 roundNumber)
-        external
+    function submitFarmScore(
+        uint256 farmId, 
+        uint256 score,
+        bytes memory signature
+    ) 
+        external 
         onlyRegisteredVerifier
-        onlyFarmRegisteredVerifier(farmId)
-        validFarmId(farmId)
+        onlyFarmRegisteredVerifier(farmId) 
+        onlyFarmLeader(farmId)
+        validFarmId(farmId) 
     {
         require(score <= 1e18, "Score cannot exceed 1.0");
-        require(roundLeader[roundNumber] == msg.sender, "Not the elected leader for this round");
 
-        // Update farm score
+        bytes32 messageHash = keccak256(abi.encodePacked(farmId, score, msg.sender));
+        
+        bytes32 ethSignedMessageHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
+        
+        address signer = ECDSA.recover(ethSignedMessageHash, signature);
+        
+        require(signer == msg.sender, "Invalid signature");
+        
         farmScores[farmId] = score;
         lastScoreUpdate[farmId] = block.timestamp;
 
-        // Update verifier metrics
         VerifierMetrics storage metrics = verifierMetrics[msg.sender];
         metrics.verificationsPerformed++;
 
-        // Calculate uptime (time since last activity)
         uint256 timeSinceLastActive = block.timestamp - metrics.lastActiveTimestamp;
         metrics.totalUptime += timeSinceLastActive;
         metrics.lastActiveTimestamp = block.timestamp;
 
-
+        uint256 currentRound = farmConsensusRound[farmId];
 
         emit FarmScoreUpdated(farmId, score, msg.sender);
+        emit FarmConsensusCompleted(farmId, currentRound, msg.sender);
         emit VerifierMetricsUpdated(msg.sender, metrics.verificationsPerformed, metrics.totalUptime);
     }
 
     /**
-     * @notice Set farm benchmark with cryptographic verification using ECDSA
+     * @notice Set farm benchmark with cryptographic verification using ECDSA (only by the current farm leader)
      * @param farmId The ID of the farm
      * @param benchmark The benchmark value (in basis points, 10000 = 100%)
      * @param signature ECDSA signature of the benchmark data
@@ -334,71 +317,36 @@ contract Consensus is ReentrancyGuard, Ownable {
         external 
         onlyRegisteredVerifier
         onlyFarmRegisteredVerifier(farmId) 
+        onlyFarmLeader(farmId)
         validFarmId(farmId) 
     {
         require(benchmark <= 10000, "Benchmark cannot exceed 100%");
         
-        // Create message hash from the benchmark data
+       
         bytes32 messageHash = keccak256(abi.encodePacked(farmId, benchmark, msg.sender));
         
-        // Convert to Ethereum signed message hash
+       
         bytes32 ethSignedMessageHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
         
-        // Recover the signer address from the signature
         address signer = ECDSA.recover(ethSignedMessageHash, signature);
         
-        // Verify the signature is from the sender
         require(signer == msg.sender, "Invalid signature");
         
-        // Update the benchmark
         farmBenchmarks[farmId] = benchmark;
         
-        // Update verifier metrics
         VerifierMetrics storage metrics = verifierMetrics[msg.sender];
         metrics.verificationsPerformed++;
         
-        // Calculate uptime
         uint256 timeSinceLastActive = block.timestamp - metrics.lastActiveTimestamp;
         metrics.totalUptime += timeSinceLastActive;
         metrics.lastActiveTimestamp = block.timestamp;
         
-
+        uint256 currentRound = farmConsensusRound[farmId];
         
         emit FarmBenchmarkUpdated(farmId, benchmark, msg.sender);
+        emit FarmConsensusCompleted(farmId, currentRound, msg.sender);
         emit VerifierMetricsUpdated(msg.sender, metrics.verificationsPerformed, metrics.totalUptime);
     }
-
-    /**
-     * @notice Set benchmark for a farm (legacy method)
-     * @param farmId The ID of the farm
-     * @param benchmark The benchmark value (in basis points, 10000 = 100%)
-     */
-    function setFarmBenchmark(uint256 farmId, uint256 benchmark) 
-        external 
-        onlyRegisteredVerifier
-        onlyFarmRegisteredVerifier(farmId) 
-        validFarmId(farmId) 
-    {
-        require(benchmark <= 10000, "Benchmark cannot exceed 100%");
-        
-        farmBenchmarks[farmId] = benchmark;
-        
-        // Update verifier metrics
-        VerifierMetrics storage metrics = verifierMetrics[msg.sender];
-        metrics.verificationsPerformed++;
-        
-        // Calculate uptime
-        uint256 timeSinceLastActive = block.timestamp - metrics.lastActiveTimestamp;
-        metrics.totalUptime += timeSinceLastActive;
-        metrics.lastActiveTimestamp = block.timestamp;
-        
-
-        
-        emit FarmBenchmarkUpdated(farmId, benchmark, msg.sender);
-        emit VerifierMetricsUpdated(msg.sender, metrics.verificationsPerformed, metrics.totalUptime);
-    }
-
-
 
     /**
      * @notice Internal function to deregister a verifier
@@ -410,7 +358,7 @@ contract Consensus is ReentrancyGuard, Ownable {
         registeredVerifiers[verifierAddress] = false;
         delete verifierStake[verifierAddress];
         
-        // Remove from all farm registrations
+       
         VerifierMetrics storage metrics = verifierMetrics[verifierAddress];
         for (uint i = 0; i < metrics.assignedFarms.length; i++) {
             uint256 farmId = metrics.assignedFarms[i];
@@ -540,5 +488,30 @@ contract Consensus is ReentrancyGuard, Ownable {
         return _isActiveVerifier(verifierAddress);
     }
     
-
+    /**
+     * @notice Get the current consensus round number for a farm
+     * @param farmId The ID of the farm
+     * @return The current consensus round number
+     */
+    function getCurrentFarmRound(uint256 farmId) external view validFarmId(farmId) returns (uint256) {
+        return farmConsensusRound[farmId];
+    }
+    
+    /**
+     * @notice Check if a farm has an active leader
+     * @param farmId The ID of the farm
+     * @return True if the farm has an active leader, false otherwise
+     */
+    function hasFarmLeader(uint256 farmId) external view validFarmId(farmId) returns (bool) {
+        return farmLeader[farmId] != address(0);
+    }
+    
+    /**
+     * @notice Get the current leader for a farm
+     * @param farmId The ID of the farm
+     * @return The address of the current leader, or zero address if none
+     */
+    function getFarmLeader(uint256 farmId) external view validFarmId(farmId) returns (address) {
+        return farmLeader[farmId];
+    }
 }

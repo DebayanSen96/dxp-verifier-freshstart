@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math/big"
 	"sort"
 	"strings"
 	"sync"
@@ -187,6 +188,8 @@ type FarmConsensusState struct {
 	FarmReturns    []float64
 	Participants   map[peer.ID]bool
 	CooldownEndTime time.Time
+	// Tracks whether we've already logged the cooldown message for this period
+	CooldownLogged bool
 }
 
 // DexponentProtocol manages the Dexponent protocol
@@ -221,10 +224,15 @@ type DexponentProtocol struct {
 
 	// Ethereum client for blockchain interactions
 	ethClient interface {
+		RegisterFarmLeader(farmID int64) (*types.Transaction, error)
 		SubmitConsensusResult(farmId int64, score float64, participants []string) (string, error)
 		WaitForTransaction(txHash string) (*types.Receipt, error)
 		GetAssignedFarms() ([]int64, error)
 		IsVerifierActiveForFarm(farmID int64) (bool, error)
+		GetCurrentFarmRound(farmID int64) (uint64, error)
+		GetFarmScore(farmID int64) (*big.Int, error)
+		GetFarmBenchmark(farmID int64) (*big.Int, error)
+		SetFarmBenchmarkSecure(farmID int64, benchmark *big.Int) (*types.Transaction, error)
 	}
 }
 
@@ -787,10 +795,15 @@ func (p *DexponentProtocol) BroadcastMessage(msgType MessageType, payload interf
 
 // SetEthClient sets the Ethereum client for blockchain interactions
 func (p *DexponentProtocol) SetEthClient(client interface {
+	RegisterFarmLeader(farmID int64) (*types.Transaction, error)
 	SubmitConsensusResult(farmId int64, score float64, participants []string) (string, error)
 	WaitForTransaction(txHash string) (*types.Receipt, error)
 	GetAssignedFarms() ([]int64, error)
 	IsVerifierActiveForFarm(farmID int64) (bool, error)
+	GetCurrentFarmRound(farmID int64) (uint64, error)
+	GetFarmScore(farmID int64) (*big.Int, error)
+	GetFarmBenchmark(farmID int64) (*big.Int, error)
+	SetFarmBenchmarkSecure(farmID int64, benchmark *big.Int) (*types.Transaction, error)
 }) {
 	p.ethClient = client
 }

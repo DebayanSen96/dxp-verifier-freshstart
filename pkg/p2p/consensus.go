@@ -3,6 +3,7 @@ package p2p
 import (
 	"fmt"
 	"math"
+	"math/big"
 	"math/rand"
 	"sort"
 	"strings"
@@ -249,7 +250,7 @@ func (p *DexponentProtocol) startConsensusRound() {
 		StartTime:   startTime.Unix(),
 		EndTime:     endTime.Unix(),
 		// For global consensus, we use farm ID 0
-		FarmID:      0,
+		FarmID: 0,
 	}
 
 	// Broadcast consensus start message
@@ -427,7 +428,7 @@ func (p *DexponentProtocol) handleConsensusStart(stream network.Stream, msg Mess
 	if farmIDFloat, hasFarmID := payload["farm_id"].(float64); hasFarmID {
 		// This is a farm-specific consensus start message
 		farmID := int64(farmIDFloat)
-		
+
 		// Skip farm 0 (global consensus) messages if we have farm assignments
 		if farmID == 0 && p.ethClient != nil {
 			farms, err := p.ethClient.GetAssignedFarms()
@@ -768,14 +769,21 @@ func (p *DexponentProtocol) processFarmConsensus(farmID int64) {
 
 	// Check cooldown period
 	if !farmState.CooldownEndTime.IsZero() && time.Now().Before(farmState.CooldownEndTime) {
-		// Still in cooldown
-		fmt.Printf("Farm %d consensus in cooldown until %s (in %s)\n",
-			farmID,
-			farmState.CooldownEndTime.Format("15:04:05"),
-			farmState.CooldownEndTime.Sub(time.Now()).Round(time.Second))
+		// Only log cooldown message once per cooldown period
+		if !farmState.CooldownLogged {
+			fmt.Printf("Farm %d consensus in cooldown until %s (in %s)\n",
+				farmID,
+				farmState.CooldownEndTime.Format("15:04:05"),
+				farmState.CooldownEndTime.Sub(time.Now()).Round(time.Second))
+			// Mark that we've logged this cooldown period
+			farmState.CooldownLogged = true
+		}
 		p.farmConsensusLock.Unlock()
 		return
 	}
+
+	// If we're not in cooldown anymore, reset the cooldown logged flag
+	farmState.CooldownLogged = false
 
 	// We're not in a round and not in cooldown, check if we can start a new round
 	peers := p.GetDexponentPeers()
@@ -799,7 +807,21 @@ func (p *DexponentProtocol) startFarmConsensusRound(farmID int64) {
 		return
 	}
 
-	// Select a leader deterministically based on the current round
+	// If we have an Ethereum client, fetch the current round number from the contract
+	if p.ethClient != nil {
+		round, err := p.ethClient.GetCurrentFarmRound(farmID)
+		if err != nil {
+			fmt.Printf("⚠️ Failed to get current farm round from contract: %v\n", err)
+		} else {
+			fmt.Printf("ℹ️ Current farm %d round from contract: %d\n", farmID, round)
+
+			// Always set our local round to match the contract round
+			// This ensures we're always in sync with the contract
+			farmState.CurrentRound = int64(round)
+		}
+	}
+
+	// Select the leader based on the current round
 	leaderID, ok := p.selectFarmLeader(farmID)
 	if !ok {
 		p.farmConsensusLock.Unlock()
@@ -825,8 +847,23 @@ func (p *DexponentProtocol) startFarmConsensusRound(farmID int64) {
 		farmID, farmState.CurrentRound,
 		map[bool]string{true: "leader", false: "participant"}[farmState.IsLeader])
 
-	// If we're the leader, broadcast the start message
+	// If we're the leader, register with the contract and broadcast the start message
 	if farmState.IsLeader {
+		// Register as the farm leader in the contract if we have an Ethereum client
+		if p.ethClient != nil {
+			fmt.Printf("📝 Registering as leader for farm %d consensus round %d\n", farmID, farmState.CurrentRound)
+			tx, err := p.ethClient.RegisterFarmLeader(farmID)
+			if err != nil {
+				fmt.Printf("❌ Failed to register as farm leader: %v\n", err)
+			} else if tx != nil {
+				// Only try to access tx.Hash() if tx is not nil
+				fmt.Printf("✅ Successfully registered as farm leader, tx: %s\n", tx.Hash().Hex())
+			} else {
+				// If tx is nil but no error, we're already the leader
+				fmt.Printf("✅ Already registered as farm leader for farm %d\n", farmID)
+			}
+		}
+
 		// Calculate our own score first
 		farmState.Scores[p.host.ID()] = calculateFarmScore(farmState.FarmReturns)
 		farmState.Benchmarks[p.host.ID()] = calculateBenchmarkScore()
@@ -896,7 +933,7 @@ func (p *DexponentProtocol) finalizeFarmConsensusRound(farmID int64) {
 
 	// Set the cooldown end time (45 seconds from now)
 	farmState.RoundActive = false
-	farmState.CooldownEndTime = time.Now().Add(45 * time.Second)
+	farmState.CooldownEndTime = time.Now().Add(60 * time.Second)
 
 	// Create the result payload
 	resultPayload := ConsensusResultPayload{
@@ -918,22 +955,76 @@ func (p *DexponentProtocol) finalizeFarmConsensusRound(farmID int64) {
 	// Submit the result to the blockchain
 	if p.ethClient != nil {
 		go func() {
+			// Get previous score and benchmark from the blockchain if available
+			prevScore, prevBenchmark := 0.0, 0.0
+			if p.ethClient != nil {
+				prevScoreRaw, err := p.ethClient.GetFarmScore(farmID)
+				if err == nil && prevScoreRaw != nil {
+					prevScore = float64(prevScoreRaw.Uint64()) / 1e18
+				}
+				prevBenchmarkRaw, err := p.ethClient.GetFarmBenchmark(farmID)
+				if err == nil && prevBenchmarkRaw != nil {
+					prevBenchmark = float64(prevBenchmarkRaw.Uint64()) / 100 // Convert basis points to percentage
+				}
+			}
+
+			// Submit both farm score and benchmark to the blockchain
+			fmt.Printf("🔗 Submitting farm %d consensus result to blockchain (score: %.4f → %.4f, benchmark: %.2f%% → %.2f%%)\n",
+				farmID, prevScore, finalFarmScore, prevBenchmark, finalBenchmark)
+
+			// First submit the farm score
 			txHash, err := p.ethClient.SubmitConsensusResult(farmID, finalFarmScore, participants)
 			if err != nil {
-				fmt.Printf("Error submitting consensus result: %v\n", err)
+				fmt.Printf("❌ Error submitting farm score: %v\n", err)
 				return
 			}
 
-			fmt.Printf("🔗 Submitted farm %d consensus result to blockchain: %s\n", farmID, txHash)
+			fmt.Printf("📝 Farm %d score submitted, tx: %s\n", farmID, txHash)
 
-			// Wait for the transaction to be mined
-			_, err = p.ethClient.WaitForTransaction(txHash)
+			// Wait for the score transaction to be mined
+			scoreReceipt, err := p.ethClient.WaitForTransaction(txHash)
 			if err != nil {
-				fmt.Printf("Error waiting for transaction: %v\n", err)
+				fmt.Printf("❌ Error waiting for score transaction: %v\n", err)
 				return
 			}
 
-			fmt.Printf("✅ Farm %d consensus result confirmed on blockchain\n", farmID)
+			// Check if the score transaction was successful
+			if scoreReceipt.Status == 1 {
+				fmt.Printf("✅ Farm %d score confirmed on blockchain\n", farmID)
+			} else {
+				fmt.Printf("❌ Farm %d score transaction failed on blockchain\n", farmID)
+				return
+			}
+
+			// Now submit the benchmark
+			// Convert benchmark to basis points (multiply by 100)
+			benchmarkBasisPoints := new(big.Int)
+			benchmarkFloat := big.NewFloat(finalBenchmark * 100) // Convert to basis points (10.5% -> 1050)
+			benchmarkFloat.Int(benchmarkBasisPoints)
+
+			// Submit the benchmark
+			tx, err := p.ethClient.SetFarmBenchmarkSecure(farmID, benchmarkBasisPoints)
+			if err != nil {
+				fmt.Printf("❌ Error submitting farm benchmark: %v\n", err)
+				return
+			}
+
+			fmt.Printf("📝 Farm %d benchmark submitted, tx: %s\n", farmID, tx.Hash().Hex())
+
+			// Wait for the benchmark transaction to be mined
+			benchmarkTxHash := tx.Hash().Hex()
+			benchmarkReceipt, err := p.ethClient.WaitForTransaction(benchmarkTxHash)
+			if err != nil {
+				fmt.Printf("❌ Error waiting for benchmark transaction: %v\n", err)
+				return
+			}
+
+			// Check if the benchmark transaction was successful
+			if benchmarkReceipt.Status == 1 {
+				fmt.Printf("✅ Farm %d benchmark confirmed on blockchain\n", farmID)
+			} else {
+				fmt.Printf("❌ Farm %d benchmark transaction failed on blockchain\n", farmID)
+			}
 		}()
 	}
 

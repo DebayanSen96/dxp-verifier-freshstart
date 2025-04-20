@@ -33,10 +33,17 @@ type Logger struct {
 	warnLogger  *log.Logger
 	errorLogger *log.Logger
 	console     bool
+	// Controls whether INFO level logs are printed to console
+	verboseConsole bool
 }
 
 // Init initializes the default logger
 func Init(logDir string, console bool) error {
+	return InitWithVerbosity(logDir, console, false)
+}
+
+// InitWithVerbosity initializes the default logger with control over verbose console output
+func InitWithVerbosity(logDir string, console bool, verboseConsole bool) error {
 	// Create log directory if it doesn't exist
 	if err := os.MkdirAll(logDir, 0755); err != nil {
 		return fmt.Errorf("failed to create log directory: %v", err)
@@ -59,6 +66,7 @@ func Init(logDir string, console bool) error {
 		warnLogger:  log.New(logFile, "[WARN] ", log.Ldate|log.Ltime),
 		errorLogger: log.New(logFile, "[ERROR] ", log.Ldate|log.Ltime),
 		console:     console,
+		verboseConsole: verboseConsole,
 	}
 
 	return nil
@@ -94,7 +102,8 @@ func Info(format string, v ...interface{}) {
 	msg := fmt.Sprintf(format, v...)
 	defaultLogger.infoLogger.Println(msg)
 	
-	if defaultLogger.console {
+	// Only print to console if verbose console logging is enabled
+	if defaultLogger.console && defaultLogger.verboseConsole {
 		fmt.Printf("[INFO] %s\n", msg)
 	}
 }

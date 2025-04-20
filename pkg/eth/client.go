@@ -90,26 +90,26 @@ func (c *Client) GetDXPBalance() (*big.Int, error) {
 	// Create the method signature for balanceOf
 	methodSig := []byte("balanceOf(address)")
 	methodID := crypto.Keccak256(methodSig)[:4]
-	
+
 	// Pack the address parameter
 	address := c.GetAddress()
 	paddedAddress := common.LeftPadBytes(address.Bytes(), 32)
-	
+
 	// Create the call data
 	data := append(methodID, paddedAddress...)
-	
+
 	// Create the call message
 	msg := ethereum.CallMsg{
 		To:   &c.tokenAddress,
 		Data: data,
 	}
-	
+
 	// Call the contract
 	result, err := c.ethClient.CallContract(context.Background(), msg, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to call balanceOf: %v", err)
 	}
-	
+
 	// Parse the result
 	balance := new(big.Int).SetBytes(result)
 	return balance, nil
@@ -157,26 +157,26 @@ func (c *Client) ApproveDXPToken(amount *big.Int) (string, error) {
 	// Create the method signature for approve
 	methodSig := []byte("approve(address,uint256)")
 	methodID := crypto.Keccak256(methodSig)[:4]
-	
+
 	// Pack the parameters
 	paddedAddress := common.LeftPadBytes(c.contractAddress.Bytes(), 32)
 	paddedAmount := common.LeftPadBytes(amount.Bytes(), 32)
-	
+
 	// Create the transaction data
 	data := append(methodID, append(paddedAddress, paddedAmount...)...)
-	
+
 	// Create and sign the transaction
 	tx, err := c.createAndSignTransaction(c.tokenAddress, big.NewInt(0), data)
 	if err != nil {
 		return "", fmt.Errorf("failed to create and sign transaction: %v", err)
 	}
-	
+
 	// Send the transaction
 	err = c.ethClient.SendTransaction(context.Background(), tx)
 	if err != nil {
 		return "", fmt.Errorf("failed to send transaction: %v", err)
 	}
-	
+
 	return tx.Hash().Hex(), nil
 }
 
@@ -185,28 +185,28 @@ func (c *Client) RegisterVerifierWithFarmID(stakeAmount *big.Int, farmID int64) 
 	// Create the method signature for registerVerifier
 	methodSig := []byte("registerVerifier(address,uint256,uint256)")
 	methodID := crypto.Keccak256(methodSig)[:4]
-	
+
 	// Pack the parameters
 	address := c.GetAddress()
 	paddedAddress := common.LeftPadBytes(address.Bytes(), 32)
 	paddedAmount := common.LeftPadBytes(stakeAmount.Bytes(), 32)
 	paddedFarmID := common.LeftPadBytes(big.NewInt(farmID).Bytes(), 32)
-	
+
 	// Create the transaction data
 	data := append(methodID, append(paddedAddress, append(paddedAmount, paddedFarmID...)...)...)
-	
+
 	// Create and sign the transaction
 	tx, err := c.createAndSignTransaction(c.contractAddress, big.NewInt(0), data)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create and sign transaction: %v", err)
 	}
-	
+
 	// Send the transaction
 	err = c.ethClient.SendTransaction(context.Background(), tx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to send transaction: %v", err)
 	}
-	
+
 	return tx, nil
 }
 
@@ -215,31 +215,31 @@ func (c *Client) IsRegisteredVerifier() (bool, error) {
 	// Create the method signature for isVerifier
 	methodSig := []byte("isVerifier(address)")
 	methodID := crypto.Keccak256(methodSig)[:4]
-	
+
 	// Pack the address parameter
 	address := c.GetAddress()
 	paddedAddress := common.LeftPadBytes(address.Bytes(), 32)
-	
+
 	// Create the call data
 	data := append(methodID, paddedAddress...)
-	
+
 	// Create the call message
 	msg := ethereum.CallMsg{
 		To:   &c.contractAddress,
 		Data: data,
 	}
-	
+
 	// Call the contract
 	result, err := c.ethClient.CallContract(context.Background(), msg, nil)
 	if err != nil {
 		return false, fmt.Errorf("failed to call isVerifier: %v", err)
 	}
-	
+
 	// Parse the result
 	if len(result) == 0 {
 		return false, nil
 	}
-	
+
 	return result[len(result)-1] == 1, nil
 }
 
@@ -250,11 +250,11 @@ func (c *Client) GetAssignedFarms() ([]int64, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to check if verifier is registered: %v", err)
 	}
-	
+
 	if !isRegistered {
 		return []int64{}, nil
 	}
-	
+
 	// For each farm ID (1-8), check if the verifier is registered for it
 	var farms []int64
 	for farmID := int64(1); farmID <= 8; farmID++ {
@@ -262,12 +262,12 @@ func (c *Client) GetAssignedFarms() ([]int64, error) {
 		if err != nil {
 			continue
 		}
-		
+
 		if isRegisteredForFarm {
 			farms = append(farms, farmID)
 		}
 	}
-	
+
 	return farms, nil
 }
 
@@ -276,31 +276,31 @@ func (c *Client) isVerifierRegisteredForFarm(farmID int64) (bool, error) {
 	// Create the method signature for isVerifierRegisteredForFarm
 	methodSig := []byte("isVerifierRegisteredForFarm(uint256,address)")
 	methodID := crypto.Keccak256(methodSig)[:4]
-	
+
 	// Pack the parameters
 	paddedFarmID := common.LeftPadBytes(big.NewInt(farmID).Bytes(), 32)
 	paddedAddress := common.LeftPadBytes(c.address.Bytes(), 32)
-	
+
 	// Create the call data
 	data := append(methodID, append(paddedFarmID, paddedAddress...)...)
-	
+
 	// Create the call message
 	msg := ethereum.CallMsg{
 		To:   &c.contractAddress,
 		Data: data,
 	}
-	
+
 	// Call the contract
 	result, err := c.ethClient.CallContract(context.Background(), msg, nil)
 	if err != nil {
 		return false, fmt.Errorf("failed to call isVerifierRegisteredForFarm: %v", err)
 	}
-	
+
 	// Parse the result
 	if len(result) == 0 {
 		return false, nil
 	}
-	
+
 	return result[len(result)-1] == 1, nil
 }
 
@@ -309,31 +309,31 @@ func (c *Client) IsVerifierActiveForFarm(farmID int64) (bool, error) {
 	// Create the method signature for isVerifierActiveForFarm
 	methodSig := []byte("isVerifierActiveForFarm(uint256,address)")
 	methodID := crypto.Keccak256(methodSig)[:4]
-	
+
 	// Pack the parameters
 	paddedFarmID := common.LeftPadBytes(big.NewInt(farmID).Bytes(), 32)
 	paddedAddress := common.LeftPadBytes(c.GetAddress().Bytes(), 32)
-	
+
 	// Create the call data
 	data := append(methodID, append(paddedFarmID, paddedAddress...)...)
-	
+
 	// Create the call message
 	msg := ethereum.CallMsg{
 		To:   &c.contractAddress,
 		Data: data,
 	}
-	
+
 	// Call the contract
 	result, err := c.ethClient.CallContract(context.Background(), msg, nil)
 	if err != nil {
 		return false, fmt.Errorf("failed to call isVerifierActiveForFarm: %v", err)
 	}
-	
+
 	// Parse the result
 	if len(result) == 0 {
 		return false, nil
 	}
-	
+
 	return result[len(result)-1] == 1, nil
 }
 
@@ -342,37 +342,37 @@ func (c *Client) GetVerifierMetrics() (*VerifierMetrics, error) {
 	// Create the method signature for getVerifierMetrics
 	methodSig := []byte("getVerifierMetrics(address)")
 	methodID := crypto.Keccak256(methodSig)[:4]
-	
+
 	// Pack the parameters
 	paddedAddress := common.LeftPadBytes(c.GetAddress().Bytes(), 32)
-	
+
 	// Create the call data
 	data := append(methodID, paddedAddress...)
-	
+
 	// Create the call message
 	msg := ethereum.CallMsg{
 		To:   &c.contractAddress,
 		Data: data,
 	}
-	
+
 	// Call the contract
 	result, err := c.ethClient.CallContract(context.Background(), msg, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to call getVerifierMetrics: %v", err)
 	}
-	
+
 	// Parse the result
 	if len(result) < 160 { // 5 uint256 values (32 bytes each)
 		return nil, fmt.Errorf("invalid result length: %d", len(result))
 	}
-	
+
 	// Parse each uint256 value from the result
 	verificationsPerformed := new(big.Int).SetBytes(result[0:32])
 	lastActiveTimestamp := new(big.Int).SetBytes(result[32:64])
 	totalUptime := new(big.Int).SetBytes(result[64:96])
 	accumulatedRewards := new(big.Int).SetBytes(result[96:128])
 	lastRewardsClaim := new(big.Int).SetBytes(result[128:160])
-	
+
 	return &VerifierMetrics{
 		VerificationsPerformed: int64(verificationsPerformed.Uint64()),
 		LastActiveTimestamp:    lastActiveTimestamp.Uint64(),
@@ -387,33 +387,33 @@ func (c *Client) CalculatePendingRewards() (*big.Int, error) {
 	// Create the method signature for calculatePendingRewards
 	methodSig := []byte("calculatePendingRewards(address)")
 	methodID := crypto.Keccak256(methodSig)[:4]
-	
+
 	// Pack the parameters
 	paddedAddress := common.LeftPadBytes(c.GetAddress().Bytes(), 32)
-	
+
 	// Create the call data
 	data := append(methodID, paddedAddress...)
-	
+
 	// Create the call message
 	msg := ethereum.CallMsg{
 		To:   &c.contractAddress,
 		Data: data,
 	}
-	
+
 	// Call the contract
 	result, err := c.ethClient.CallContract(context.Background(), msg, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to call calculatePendingRewards: %v", err)
 	}
-	
+
 	// Parse the result
 	if len(result) < 32 {
 		return nil, fmt.Errorf("invalid result length: %d", len(result))
 	}
-	
+
 	// Parse the uint256 value from the result
 	pendingRewards := new(big.Int).SetBytes(result[0:32])
-	
+
 	return pendingRewards, nil
 }
 
@@ -429,22 +429,22 @@ func (c *Client) ClaimRewards() (*types.Transaction, error) {
 	// Create the method signature for claimRewards
 	methodSig := []byte("claimRewards()")
 	methodID := crypto.Keccak256(methodSig)[:4]
-	
+
 	// Create the transaction data
 	data := methodID
-	
+
 	// Create and sign the transaction
 	tx, err := c.createAndSignTransaction(c.contractAddress, big.NewInt(0), data)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create and sign transaction: %v", err)
 	}
-	
+
 	// Send the transaction
 	err = c.ethClient.SendTransaction(context.Background(), tx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to send transaction: %v", err)
 	}
-	
+
 	return tx, nil
 }
 
@@ -453,30 +453,30 @@ func (c *Client) SubmitVerification(farmID int64, score *big.Float) (*types.Tran
 	// Convert score to uint256
 	scoreInt := new(big.Int)
 	score.Mul(score, big.NewFloat(100)).Int(scoreInt) // Convert to percentage * 100
-	
+
 	// Create the method signature for submitVerification
 	methodSig := []byte("submitVerification(uint8,uint256)")
 	methodID := crypto.Keccak256(methodSig)[:4]
-	
+
 	// Pack the parameters
 	paddedFarmID := common.LeftPadBytes(big.NewInt(farmID).Bytes(), 32)
 	paddedScore := common.LeftPadBytes(scoreInt.Bytes(), 32)
-	
+
 	// Create the transaction data
 	data := append(methodID, append(paddedFarmID, paddedScore...)...)
-	
+
 	// Create and sign the transaction
 	tx, err := c.createAndSignTransaction(c.contractAddress, big.NewInt(0), data)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create and sign transaction: %v", err)
 	}
-	
+
 	// Send the transaction
 	err = c.ethClient.SendTransaction(context.Background(), tx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to send transaction: %v", err)
 	}
-	
+
 	return tx, nil
 }
 
@@ -485,27 +485,27 @@ func (c *Client) WithdrawVerifierStake(amount *big.Int) (*types.Transaction, err
 	// Create the method signature for withdrawVerifierStake
 	methodSig := []byte("withdrawVerifierStake(address,uint256)")
 	methodID := crypto.Keccak256(methodSig)[:4]
-	
+
 	// Pack the parameters
 	address := c.GetAddress()
 	paddedAddress := common.LeftPadBytes(address.Bytes(), 32)
 	paddedAmount := common.LeftPadBytes(amount.Bytes(), 32)
-	
+
 	// Create the transaction data
 	data := append(methodID, append(paddedAddress, paddedAmount...)...)
-	
+
 	// Create and sign the transaction
 	tx, err := c.createAndSignTransaction(c.contractAddress, big.NewInt(0), data)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create and sign transaction: %v", err)
 	}
-	
+
 	// Send the transaction
 	err = c.ethClient.SendTransaction(context.Background(), tx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to send transaction: %v", err)
 	}
-	
+
 	return tx, nil
 }
 
@@ -513,7 +513,7 @@ func (c *Client) WithdrawVerifierStake(amount *big.Int) (*types.Transaction, err
 func (c *Client) WaitForTransaction(txHash string) (*types.Receipt, error) {
 	// Parse the transaction hash
 	hash := common.HexToHash(txHash)
-	
+
 	// Wait for the transaction to be mined
 	for {
 		// Check if the transaction has been mined
@@ -521,14 +521,14 @@ func (c *Client) WaitForTransaction(txHash string) (*types.Receipt, error) {
 		if err == nil {
 			return receipt, nil
 		}
-		
+
 		// Check if the error is "not found"
 		if err == ethereum.NotFound {
 			// Wait for a short time before checking again
 			time.Sleep(2 * time.Second)
 			continue
 		}
-		
+
 		// Return other errors
 		return nil, fmt.Errorf("failed to get transaction receipt: %v", err)
 	}
@@ -559,26 +559,26 @@ func (c *Client) GetDXPAllowance(owner, spender common.Address) (*big.Int, error
 	// Create the method signature for allowance
 	methodSig := []byte("allowance(address,address)")
 	methodID := crypto.Keccak256(methodSig)[:4]
-	
+
 	// Pack the parameters
 	paddedOwner := common.LeftPadBytes(owner.Bytes(), 32)
 	paddedSpender := common.LeftPadBytes(spender.Bytes(), 32)
-	
+
 	// Create the call data
 	data := append(methodID, append(paddedOwner, paddedSpender...)...)
-	
+
 	// Create the call message
 	msg := ethereum.CallMsg{
 		To:   &c.tokenAddress,
 		Data: data,
 	}
-	
+
 	// Call the contract
 	result, err := c.ethClient.CallContract(context.Background(), msg, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to call allowance: %v", err)
 	}
-	
+
 	// Parse the result
 	allowance := new(big.Int).SetBytes(result)
 	return allowance, nil
@@ -594,31 +594,31 @@ func (c *Client) GetVerifierStake() (*big.Int, error) {
 	// Create the method signature for getVerifierStake
 	methodSig := []byte("getVerifierStake(address)")
 	methodID := crypto.Keccak256(methodSig)[:4]
-	
+
 	// Pack the address parameter
 	address := c.GetAddress()
 	paddedAddress := common.LeftPadBytes(address.Bytes(), 32)
-	
+
 	// Create the call data
 	data := append(methodID, paddedAddress...)
-	
+
 	// Create the call message
 	msg := ethereum.CallMsg{
 		To:   &c.contractAddress,
 		Data: data,
 	}
-	
+
 	// Call the contract
 	result, err := c.ethClient.CallContract(context.Background(), msg, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to call getVerifierStake: %v", err)
 	}
-	
+
 	// Parse the result
 	if len(result) == 0 {
 		return big.NewInt(0), nil
 	}
-	
+
 	stake := new(big.Int).SetBytes(result)
 	return stake, nil
 }
@@ -628,34 +628,34 @@ func (c *Client) GetFarmData(farmID int64) (*FarmData, error) {
 	// Create the method signature for getFarmData
 	methodSig := []byte("getFarmData(uint256)")
 	methodID := crypto.Keccak256(methodSig)[:4]
-	
+
 	// Pack the farmID parameter
 	paddedFarmID := common.LeftPadBytes(big.NewInt(farmID).Bytes(), 32)
-	
+
 	// Create the call data
 	data := append(methodID, paddedFarmID...)
-	
+
 	// Create the call message
 	msg := ethereum.CallMsg{
 		To:   &c.contractAddress,
 		Data: data,
 	}
-	
+
 	// Call the contract
 	result, err := c.ethClient.CallContract(context.Background(), msg, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to call getFarmData: %v", err)
 	}
-	
+
 	// Parse the result (3 uint256 values)
 	if len(result) < 96 {
 		return nil, fmt.Errorf("invalid result length")
 	}
-	
+
 	score := new(big.Int).SetBytes(result[0:32]).Uint64()
 	benchmark := new(big.Int).SetBytes(result[32:64]).Uint64()
 	lastUpdate := new(big.Int).SetBytes(result[64:96]).Uint64()
-	
+
 	return &FarmData{
 		Score:      score,
 		Benchmark:  benchmark,
@@ -663,59 +663,180 @@ func (c *Client) GetFarmData(farmID int64) (*FarmData, error) {
 	}, nil
 }
 
-// SetFarmBenchmark sets the benchmark for a farm
+// SetFarmBenchmark sets the benchmark for a farm (legacy method, use SetFarmBenchmarkSecure instead)
 func (c *Client) SetFarmBenchmark(farmID int64, benchmark *big.Int) (*types.Transaction, error) {
-	// Create the method signature for setFarmBenchmark
-	methodSig := []byte("setFarmBenchmark(uint256,uint256)")
+	// This function is kept for backward compatibility
+	// It's recommended to use SetFarmBenchmarkSecure instead which includes ECDSA verification
+	return c.SetFarmBenchmarkSecure(farmID, benchmark)
+}
+
+// SetFarmBenchmarkSecure sets the benchmark for a farm with ECDSA verification
+func (c *Client) SetFarmBenchmarkSecure(farmID int64, benchmark *big.Int) (*types.Transaction, error) {
+	// Check if we are the current leader - we should be since we just submitted the score
+	leader, err := c.GetFarmLeader(farmID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get farm leader: %v", err)
+	}
+
+	if leader != c.address {
+		return nil, fmt.Errorf("cannot set benchmark: farm %d has a different leader: %s (we are %s)", farmID, leader.Hex(), c.address.Hex())
+	}
+
+	// We're the leader, proceed with benchmark submission
+
+	// Create a message hash from the benchmark data for signing
+	// This must match the contract's implementation: keccak256(abi.encodePacked(farmId, benchmark, msg.sender))
+	packedData := append(common.LeftPadBytes(big.NewInt(farmID).Bytes(), 32),
+		append(common.LeftPadBytes(benchmark.Bytes(), 32),
+			c.address.Bytes()...)...)
+	messageHash := crypto.Keccak256Hash(packedData)
+
+	// Convert to Ethereum signed message hash (same as MessageHashUtils.toEthSignedMessageHash in Solidity)
+	// This prefixes the hash with "\x19Ethereum Signed Message:\n32" before hashing again
+	prefix := []byte("\x19Ethereum Signed Message:\n32")
+	dataToSign := append(prefix, messageHash.Bytes()...)
+	ethSignedMessageHash := crypto.Keccak256Hash(dataToSign)
+
+	// Sign the Ethereum signed message hash with the private key
+	signature, err := crypto.Sign(ethSignedMessageHash.Bytes(), c.privateKey)
+	if err != nil {
+		return nil, fmt.Errorf("failed to sign benchmark data: %v", err)
+	}
+
+	// Adjust v value for Ethereum (Solidity expects 27/28, Go returns 0/1)
+	if len(signature) == 65 && (signature[64] == 0 || signature[64] == 1) {
+		signature[64] += 27
+	}
+
+	// Create the method signature for setFarmBenchmarkSecure
+	methodSig := []byte("setFarmBenchmarkSecure(uint256,uint256,bytes)")
 	methodID := crypto.Keccak256(methodSig)[:4]
-	
+
 	// Pack the parameters
 	paddedFarmID := common.LeftPadBytes(big.NewInt(farmID).Bytes(), 32)
 	paddedBenchmark := common.LeftPadBytes(benchmark.Bytes(), 32)
-	
+
+	// For the signature, we need to encode it as a bytes array
+	// First, we need to encode the offset to the signature data
+	sigOffset := common.LeftPadBytes(big.NewInt(96).Bytes(), 32) // 96 bytes offset (2 previous params * 32 bytes)
+
+	// Then we encode the length of the signature
+	sigLength := common.LeftPadBytes(big.NewInt(int64(len(signature))).Bytes(), 32)
+
+	// Pad the signature to a multiple of 32 bytes
+	padLen := (32 - len(signature)%32) % 32
+	paddedSig := append(signature, make([]byte, padLen)...)
+
 	// Create the call data
-	data := append(methodID, append(paddedFarmID, paddedBenchmark...)...)
-	
+	data := append(methodID, append(paddedFarmID, append(paddedBenchmark, append(sigOffset, append(sigLength, paddedSig...)...)...)...)...)
+
 	// Create and sign the transaction
 	tx, err := c.createAndSignTransaction(c.contractAddress, big.NewInt(0), data)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create transaction: %v", err)
 	}
-	
+
 	// Send the transaction
 	err = c.ethClient.SendTransaction(context.Background(), tx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to send transaction: %v", err)
 	}
-	
+
 	return tx, nil
 }
 
-// SubmitFarmScore submits a score for a farm
+// SubmitFarmScore submits a score for a farm with ECDSA verification (only callable by the current farm leader)
 func (c *Client) SubmitFarmScore(farmID int64, score *big.Int) (*types.Transaction, error) {
+	// First check if we're already the leader or can register as the leader
+	hasLeader, err := c.CheckFarmLeader(farmID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to check farm leader status: %v", err)
+	}
+
+	if hasLeader {
+		// Check if we are the current leader
+		leader, err := c.GetFarmLeader(farmID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get farm leader: %v", err)
+		}
+
+		if leader != c.address {
+			return nil, fmt.Errorf("cannot submit score: farm %d already has another leader: %s", farmID, leader.Hex())
+		}
+
+		// We're already the leader, proceed with score submission without additional logging
+	} else {
+		// Try to register as the farm leader
+		tx, err := c.RegisterFarmLeader(farmID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to register as farm leader: %v", err)
+		}
+
+		if tx != nil {
+			// Wait for the leader registration transaction to be mined
+			fmt.Printf("Waiting for leader registration transaction to be mined...\n")
+			time.Sleep(5 * time.Second)
+		}
+	}
+
+	// Create a message hash from the score data for signing
+	// This must match the contract's implementation: keccak256(abi.encodePacked(farmId, score, msg.sender))
+	packedData := append(common.LeftPadBytes(big.NewInt(farmID).Bytes(), 32),
+		append(common.LeftPadBytes(score.Bytes(), 32),
+			c.address.Bytes()...)...)
+	messageHash := crypto.Keccak256Hash(packedData)
+
+	// Convert to Ethereum signed message hash (same as MessageHashUtils.toEthSignedMessageHash in Solidity)
+	// This prefixes the hash with "\x19Ethereum Signed Message:\n32" before hashing again
+	prefix := []byte("\x19Ethereum Signed Message:\n32")
+	dataToSign := append(prefix, messageHash.Bytes()...)
+	ethSignedMessageHash := crypto.Keccak256Hash(dataToSign)
+
+	// Sign the Ethereum signed message hash with the private key
+	signature, err := crypto.Sign(ethSignedMessageHash.Bytes(), c.privateKey)
+	if err != nil {
+		return nil, fmt.Errorf("failed to sign score data: %v", err)
+	}
+
+	// Adjust v value for Ethereum (Solidity expects 27/28, Go returns 0/1)
+	if len(signature) == 65 && (signature[64] == 0 || signature[64] == 1) {
+		signature[64] += 27
+	}
+
 	// Create the method signature for submitFarmScore
-	methodSig := []byte("submitFarmScore(uint256,uint256)")
+	methodSig := []byte("submitFarmScore(uint256,uint256,bytes)")
 	methodID := crypto.Keccak256(methodSig)[:4]
-	
+
 	// Pack the parameters
 	paddedFarmID := common.LeftPadBytes(big.NewInt(farmID).Bytes(), 32)
 	paddedScore := common.LeftPadBytes(score.Bytes(), 32)
-	
+
+	// For the signature, we need to encode it as a bytes array
+	// First, we need to encode the offset to the signature data
+	sigOffset := common.LeftPadBytes(big.NewInt(96).Bytes(), 32) // 96 bytes offset (2 previous params * 32 bytes)
+
+	// Then we encode the length of the signature
+	sigLength := common.LeftPadBytes(big.NewInt(int64(len(signature))).Bytes(), 32)
+
+	// Pad the signature to a multiple of 32 bytes
+	padLen := (32 - len(signature)%32) % 32
+	paddedSig := append(signature, make([]byte, padLen)...)
+
 	// Create the call data
-	data := append(methodID, append(paddedFarmID, paddedScore...)...)
-	
+	data := append(methodID, append(paddedFarmID, append(paddedScore, append(sigOffset, append(sigLength, paddedSig...)...)...)...)...)
+
 	// Create and sign the transaction
 	tx, err := c.createAndSignTransaction(c.contractAddress, big.NewInt(0), data)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create transaction: %v", err)
 	}
-	
+
 	// Send the transaction
 	err = c.ethClient.SendTransaction(context.Background(), tx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to send transaction: %v", err)
 	}
-	
+
 	return tx, nil
 }
 
@@ -723,18 +844,277 @@ func (c *Client) SubmitFarmScore(farmID int64, score *big.Int) (*types.Transacti
 func (c *Client) GetTransactionReceipt(txHash common.Hash) (*types.Receipt, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	
+
 	return c.ethClient.TransactionReceipt(ctx, txHash)
+}
+
+// CheckFarmLeader checks if there's already a leader for a farm
+func (c *Client) CheckFarmLeader(farmID int64) (bool, error) {
+	// Create the method signature for hasFarmLeader
+	methodSig := []byte("hasFarmLeader(uint256)")
+	methodID := crypto.Keccak256(methodSig)[:4]
+
+	// Pack the parameters
+	paddedFarmID := common.LeftPadBytes(big.NewInt(farmID).Bytes(), 32)
+
+	// Create the call data
+	data := append(methodID, paddedFarmID...)
+
+	// Call the contract
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	result, err := c.ethClient.CallContract(ctx, ethereum.CallMsg{
+		To:   &c.contractAddress,
+		Data: data,
+	}, nil)
+	if err != nil {
+		return false, fmt.Errorf("failed to check if farm has leader: %v", err)
+	}
+
+	// Parse the result (boolean)
+	if len(result) < 32 {
+		return false, fmt.Errorf("invalid result length")
+	}
+
+	// Check if the result is true (has leader)
+	hasLeader := new(big.Int).SetBytes(result).Uint64() > 0
+	return hasLeader, nil
+}
+
+// GetFarmLeader gets the current leader for a farm
+func (c *Client) GetFarmLeader(farmID int64) (common.Address, error) {
+	// Create the method signature for getFarmLeader
+	methodSig := []byte("getFarmLeader(uint256)")
+	methodID := crypto.Keccak256(methodSig)[:4]
+
+	// Pack the parameters
+	paddedFarmID := common.LeftPadBytes(big.NewInt(farmID).Bytes(), 32)
+
+	// Create the call data
+	data := append(methodID, paddedFarmID...)
+
+	// Call the contract
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	result, err := c.ethClient.CallContract(ctx, ethereum.CallMsg{
+		To:   &c.contractAddress,
+		Data: data,
+	}, nil)
+	if err != nil {
+		return common.Address{}, fmt.Errorf("failed to get farm leader: %v", err)
+	}
+
+	// Parse the result (address)
+	if len(result) < 32 {
+		return common.Address{}, fmt.Errorf("invalid result length")
+	}
+
+	// Extract the address from the result
+	var addr common.Address
+	copy(addr[:], result[12:32]) // Addresses are 20 bytes, padded to 32 bytes
+	return addr, nil
+}
+
+// GetCurrentFarmRound gets the current consensus round number for a farm
+func (c *Client) GetCurrentFarmRound(farmID int64) (uint64, error) {
+	// Create the method signature for farmConsensusRound
+	methodSig := []byte("farmConsensusRound(uint256)")
+	methodID := crypto.Keccak256(methodSig)[:4]
+
+	// Pack the parameters
+	paddedFarmID := common.LeftPadBytes(big.NewInt(farmID).Bytes(), 32)
+
+	// Create the call data
+	data := append(methodID, paddedFarmID...)
+
+	// Call the contract
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	result, err := c.ethClient.CallContract(ctx, ethereum.CallMsg{
+		To:   &c.contractAddress,
+		Data: data,
+	}, nil)
+	if err != nil {
+		return 0, fmt.Errorf("failed to get farm consensus round: %v", err)
+	}
+
+	// Parse the result (uint256)
+	if len(result) < 32 {
+		return 0, fmt.Errorf("invalid result length")
+	}
+
+	// Convert the result to uint64
+	roundNumber := new(big.Int).SetBytes(result).Uint64()
+	return roundNumber, nil
+}
+
+// RegisterFarmLeader registers the caller as the leader for a farm consensus round
+func (c *Client) RegisterFarmLeader(farmID int64) (*types.Transaction, error) {
+	// Check if the caller is registered for this farm
+	isRegistered, err := c.IsVerifierActiveForFarm(farmID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to check if verifier is registered for farm: %v", err)
+	}
+	if !isRegistered {
+		return nil, fmt.Errorf("verifier is not registered for farm %d", farmID)
+	}
+
+	// Check if there's already a leader for this farm
+	hasLeader, err := c.CheckFarmLeader(farmID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to check if farm has leader: %v", err)
+	}
+
+	if hasLeader {
+		// Check if we are the current leader
+		leader, err := c.GetFarmLeader(farmID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get farm leader: %v", err)
+		}
+
+		if leader == c.address {
+			// We're already the leader, but we still need to call the contract to increment the round
+			// Continue with the function to make the contract call
+		} else {
+			// Someone else is the leader
+			return nil, fmt.Errorf("farm %d already has an active leader: %s", farmID, leader.Hex())
+		}
+	}
+
+	// Create the method signature for registerFarmLeader
+	methodSig := []byte("registerFarmLeader(uint256)")
+	methodID := crypto.Keccak256(methodSig)[:4]
+
+	// Pack the parameters
+	paddedFarmID := common.LeftPadBytes(big.NewInt(farmID).Bytes(), 32)
+
+	// Create the call data
+	data := append(methodID, paddedFarmID...)
+
+	// Create and sign the transaction
+	tx, err := c.createAndSignTransaction(c.contractAddress, big.NewInt(0), data)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create transaction: %v", err)
+	}
+
+	// Send the transaction
+	err = c.ethClient.SendTransaction(context.Background(), tx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to send transaction: %v", err)
+	}
+
+	return tx, nil
+}
+
+// GetFarmScore gets the current score for a farm from the blockchain
+func (c *Client) GetFarmScore(farmId int64) (*big.Int, error) {
+	// Create the method signature for farmScores(uint256)
+	methodSig := []byte("farmScores(uint256)")
+	methodID := crypto.Keccak256(methodSig)[:4]
+
+	// Pack the parameters
+	paddedFarmID := common.LeftPadBytes(big.NewInt(farmId).Bytes(), 32)
+
+	// Create the call data
+	data := append(methodID, paddedFarmID...)
+
+	// Call the contract
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	result, err := c.ethClient.CallContract(ctx, ethereum.CallMsg{
+		To:   &c.contractAddress,
+		Data: data,
+	}, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get farm score: %v", err)
+	}
+
+	// Parse the result (uint256)
+	if len(result) < 32 {
+		return nil, fmt.Errorf("invalid result length")
+	}
+
+	// Return the score as a big.Int
+	return new(big.Int).SetBytes(result), nil
+}
+
+// GetFarmBenchmark gets the current benchmark for a farm from the blockchain
+func (c *Client) GetFarmBenchmark(farmId int64) (*big.Int, error) {
+	// Create the method signature for farmBenchmarks(uint256)
+	methodSig := []byte("farmBenchmarks(uint256)")
+	methodID := crypto.Keccak256(methodSig)[:4]
+
+	// Pack the parameters
+	paddedFarmID := common.LeftPadBytes(big.NewInt(farmId).Bytes(), 32)
+
+	// Create the call data
+	data := append(methodID, paddedFarmID...)
+
+	// Call the contract
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	result, err := c.ethClient.CallContract(ctx, ethereum.CallMsg{
+		To:   &c.contractAddress,
+		Data: data,
+	}, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get farm benchmark: %v", err)
+	}
+
+	// Parse the result (uint256)
+	if len(result) < 32 {
+		return nil, fmt.Errorf("invalid result length")
+	}
+
+	// Return the benchmark as a big.Int
+	return new(big.Int).SetBytes(result), nil
 }
 
 // SubmitConsensusResult submits consensus results for a farm to the blockchain
 func (c *Client) SubmitConsensusResult(farmId int64, score float64, participants []string) (string, error) {
-	// Convert score to uint256
+	// First check if we're already the leader or can register as the leader
+	hasLeader, err := c.CheckFarmLeader(farmId)
+	if err != nil {
+		return "", fmt.Errorf("failed to check farm leader status: %v", err)
+	}
+
+	if hasLeader {
+		// Check if we are the current leader
+		leader, err := c.GetFarmLeader(farmId)
+		if err != nil {
+			return "", fmt.Errorf("failed to get farm leader: %v", err)
+		}
+
+		if leader != c.address {
+			return "", fmt.Errorf("cannot submit consensus result: farm %d already has another leader: %s", farmId, leader.Hex())
+		}
+
+		// We're already the leader, proceed with score submission without additional logging
+	} else {
+		// Try to register as the farm leader
+		tx, err := c.RegisterFarmLeader(farmId)
+		if err != nil {
+			return "", fmt.Errorf("failed to register as farm leader: %v", err)
+		}
+
+		if tx != nil {
+			// Wait for the leader registration transaction to be mined
+			fmt.Printf("Waiting for leader registration transaction to be mined...\n")
+			time.Sleep(5 * time.Second)
+		}
+	}
+
+	// Convert score to uint256 (normalized to 1e18 scale)
 	scoreInt := new(big.Int)
 	scoreFloat := big.NewFloat(score)
-	scoreFloat.Mul(scoreFloat, big.NewFloat(100)).Int(scoreInt) // Convert to percentage * 100
+	scoreFloat.Mul(scoreFloat, big.NewFloat(1e18)).Int(scoreInt) // Convert to 1e18 scale (0.5 = 0.5 * 10^18)
 
-	// For now, we'll use the SubmitFarmScore method which is simpler
+	// Submit the farm score as the leader
 	tx, err := c.SubmitFarmScore(farmId, scoreInt)
 	if err != nil {
 		return "", fmt.Errorf("failed to submit consensus result: %v", err)
@@ -748,32 +1128,32 @@ func (c *Client) SubmitConsensusResult(farmId int64, score float64, participants
 func (c *Client) GetTransactionStatus(txHash string) (map[string]interface{}, error) {
 	// Parse the transaction hash
 	hash := common.HexToHash(txHash)
-	
+
 	// Check if the transaction has been mined
 	receipt, err := c.GetTransactionReceipt(hash)
 	if err != nil {
 		if err == ethereum.NotFound {
 			// Transaction not yet mined
 			return map[string]interface{}{
-				"mined": false,
+				"mined":  false,
 				"status": "pending",
 			}, nil
 		}
 		return nil, fmt.Errorf("failed to get transaction receipt: %v", err)
 	}
-	
+
 	// Transaction has been mined
 	status := "success"
 	if receipt.Status == 0 {
 		status = "failed"
 	}
-	
+
 	return map[string]interface{}{
-		"mined": true,
-		"status": status,
+		"mined":       true,
+		"status":      status,
 		"blockNumber": receipt.BlockNumber.Uint64(),
-		"blockHash": receipt.BlockHash.Hex(),
-		"gasUsed": receipt.GasUsed,
+		"blockHash":   receipt.BlockHash.Hex(),
+		"gasUsed":     receipt.GasUsed,
 	}, nil
 }
 
@@ -784,13 +1164,13 @@ func (c *Client) createAndSignTransaction(to common.Address, value *big.Int, dat
 	if err != nil {
 		return nil, fmt.Errorf("failed to get nonce: %v", err)
 	}
-	
+
 	// Get gas price
 	gasPrice, err := c.ethClient.SuggestGasPrice(context.Background())
 	if err != nil {
 		return nil, fmt.Errorf("failed to get gas price: %v", err)
 	}
-	
+
 	// Apply gas price multiplier from environment variable (default to 2.0 if not set)
 	multiplier := 2.0
 	if multiplierStr := os.Getenv("GAS_PRICE_MULTIPLIER"); multiplierStr != "" {
@@ -798,11 +1178,11 @@ func (c *Client) createAndSignTransaction(to common.Address, value *big.Int, dat
 			multiplier = m
 		}
 	}
-	
+
 	// Increase gas price by multiplier
 	adjustedGasPrice := new(big.Int).Mul(gasPrice, big.NewInt(int64(multiplier*100)))
 	adjustedGasPrice = new(big.Int).Div(adjustedGasPrice, big.NewInt(100))
-	
+
 	// Get gas limit from environment variable (default to 500000 if not set)
 	gasLimit := uint64(500000)
 	if gasLimitStr := os.Getenv("GAS_LIMIT"); gasLimitStr != "" {
@@ -810,15 +1190,15 @@ func (c *Client) createAndSignTransaction(to common.Address, value *big.Int, dat
 			gasLimit = gl
 		}
 	}
-	
+
 	// Create the transaction
 	tx := types.NewTransaction(nonce, to, value, gasLimit, adjustedGasPrice, data)
-	
+
 	// Sign the transaction
 	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(c.chainID), c.privateKey)
 	if err != nil {
 		return nil, fmt.Errorf("failed to sign transaction: %v", err)
 	}
-	
+
 	return signedTx, nil
 }

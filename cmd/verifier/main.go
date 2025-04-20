@@ -63,7 +63,8 @@ func main() {
 	}
 
 	// Initialize logger
-	if err := logger.Init(logsDir, true); err != nil {
+	// Initialize logger with console output enabled but verbose INFO logs disabled
+	if err := logger.InitWithVerbosity(logsDir, true, false); err != nil {
 		fmt.Printf("Warning: Failed to initialize logger: %v\n", err)
 	}
 	defer logger.Close()
@@ -207,7 +208,8 @@ func main() {
 							farmInfo += " (Active)"
 						}
 					}
-					logger.Success(farmInfo)
+					// Use fmt.Println instead of logger.Success with dynamic format string to fix lint error
+					fmt.Println("✅ Assigned farms:", farmInfo)
 
 					// Set the Ethereum client in the protocol to enable farm-specific consensus
 					protocol.SetEthClient(ethClient)
