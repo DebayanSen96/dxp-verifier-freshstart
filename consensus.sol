@@ -81,15 +81,14 @@ contract Consensus is ReentrancyGuard, Ownable {
         onlyFarmRegisteredVerifier(farmId)
         validFarmId(farmId) 
     {
-        // If there's already a leader for this farm, check if it's the caller
         if (farmLeader[farmId] != address(0)) {
-            // If the caller is already the leader, just increment the round and return
+ 
             if (farmLeader[farmId] == msg.sender) {
                 farmConsensusRound[farmId]++;
                 emit FarmLeaderRegistered(farmId, msg.sender, farmConsensusRound[farmId]);
                 return;
             }
-            // If it's a different address, revert
+
             revert("Farm already has a different leader");
         }
         

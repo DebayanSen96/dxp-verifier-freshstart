@@ -3,8 +3,8 @@ package p2p
 import (
 	"context"
 	"fmt"
-	"sync"
 	"strings"
+	"sync"
 	"time"
 
 	dht "github.com/libp2p/go-libp2p-kad-dht"
@@ -12,8 +12,10 @@ import (
 	"github.com/libp2p/go-libp2p/core/host"
 	"github.com/libp2p/go-libp2p/core/network"
 	"github.com/libp2p/go-libp2p/core/peer"
-	"github.com/multiformats/go-multiaddr"
 	"github.com/libp2p/go-libp2p/core/protocol"
+	"github.com/multiformats/go-multiaddr"
+	drouting "github.com/libp2p/go-libp2p/p2p/discovery/routing"
+	dutil    "github.com/libp2p/go-libp2p/p2p/discovery/util"
 )
 
 // DefaultBootstrapPeers is a list of public DHT bootstrap nodes
@@ -23,6 +25,9 @@ var DefaultBootstrapPeers = []string{
 	"/dnsaddr/bootstrap.libp2p.io/p2p/QmbLHAnMoJPWSCR5Zhtx6BHJX9KiKNN6tpvbUcqanj75Nb",
 	"/dnsaddr/bootstrap.libp2p.io/p2p/QmcZf59bWwK5XFi76CZX8cbJ4BhTzzA3gU1ZjYZcYW3dwt",
 }
+
+// Rendezvous key for DHT peer discovery
+const RendezvousString = "/dexponent/consensus"
 
 // DHTService manages the DHT for peer discovery
 type DHTService struct {
@@ -61,6 +66,10 @@ func NewDHT(h host.Host) (*DHTService, error) {
 		cancel()
 		return nil, fmt.Errorf("failed to create DHT: %w", err)
 	}
+
+	// Advertise on DHT rendezvous for service discovery
+	df := drouting.NewRoutingDiscovery(kadDHT)
+	dutil.Advertise(ctx, df, RendezvousString)
 
 	d := &DHTService{
 		host:      h,
@@ -129,22 +138,22 @@ func (d *DHTService) discoverPeers() error {
 
 	// Get peers from the routing table instead of using GetClosestPeers
 	var routingTablePeers []peer.ID
-	
+
 	// Get peers from both LAN and WAN DHTs
 	if d.dht.LAN != nil {
 		lanPeers := d.dht.LAN.RoutingTable().ListPeers()
 		routingTablePeers = append(routingTablePeers, lanPeers...)
 	}
-	
+
 	if d.dht.WAN != nil {
 		wanPeers := d.dht.WAN.RoutingTable().ListPeers()
 		routingTablePeers = append(routingTablePeers, wanPeers...)
 	}
-	
+
 	// Deduplicate peers
 	peerMap := make(map[peer.ID]bool)
 	var uniquePeers []peer.ID
-	
+
 	for _, p := range routingTablePeers {
 		if !peerMap[p] {
 			peerMap[p] = true
@@ -153,15 +162,40 @@ func (d *DHTService) discoverPeers() error {
 	}
 
 	newPeers := make(map[peer.ID]*PeerInfo)
+
+	// Discover peers via DHT rendezvous
+	rd := drouting.NewRoutingDiscovery(d.dht)
+	peerChan, err := rd.FindPeers(ctx, RendezvousString)
+	if err != nil {
+		d.errChan <- fmt.Errorf("rendezvous discovery failed: %w", err)
+	} else {
+		for pi := range peerChan {
+			if pi.ID == d.host.ID() || d.host.Network().Connectedness(pi.ID) == network.Connected {
+				continue
+			}
+			if err := d.host.Connect(ctx, pi); err != nil {
+				continue
+			}
+			protocols, _ := d.host.Peerstore().GetProtocols(pi.ID)
+			newPeers[pi.ID] = &PeerInfo{
+				ID:              pi.ID,
+				LastSeen:        time.Now(),
+				IsReachable:     true,
+				ConnectionType:  "direct",
+				ProtocolSupport: protocols,
+			}
+		}
+	}
+
 	for _, p := range uniquePeers {
-		if p == d.host.ID() || d.host.Network().Connectedness(p) == network.Connected {
+		if p == d.host.ID() || d.host.Network().Connectedness(p) != network.Connected {
 			continue
 		}
 		addrInfo := d.host.Peerstore().PeerInfo(p)
 		if err := d.host.Connect(ctx, addrInfo); err == nil {
 			// Get protocols safely
 			protocols, _ := d.host.Peerstore().GetProtocols(p)
-			
+
 			// Determine connection type based on the connection's transport
 			connType := "direct"
 			conns := d.host.Network().ConnsToPeer(p)
@@ -176,7 +210,7 @@ func (d *DHTService) discoverPeers() error {
 					connType = "nat-traversal"
 				}
 			}
-			
+
 			newPeers[p] = &PeerInfo{
 				ID:              p,
 				LastSeen:        time.Now(),
@@ -199,7 +233,7 @@ func (d *DHTService) discoverPeers() error {
 	if len(newPeers) > 0 || connectedPeers > 0 {
 		fmt.Printf("Discovered %d new peers. Total connected: %d\n", len(newPeers), connectedPeers)
 	}
-	
+
 	return nil
 }
 

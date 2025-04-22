@@ -89,6 +89,11 @@ func calculateFarmScore(returns []float64) float64 {
 	// Calculate final score
 	farmScore := (normalizedYield * volumeWeight) * sortinoRatio * consistencyFactor
 
+	// Cap the score at 1.0
+	if farmScore > 1.0 {
+		farmScore = 1.0
+	}
+
 	// Round to 4 decimal places
 	return math.Round(farmScore*10000) / 10000
 }
@@ -993,7 +998,7 @@ func (p *DexponentProtocol) finalizeFarmConsensusRound(farmID int64) {
 				fmt.Printf("✅ Farm %d score confirmed on blockchain\n", farmID)
 			} else {
 				fmt.Printf("❌ Farm %d score transaction failed on blockchain\n", farmID)
-				return
+				// Continue with benchmark submission even if score submission fails
 			}
 
 			// Now submit the benchmark

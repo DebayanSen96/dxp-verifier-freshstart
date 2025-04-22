@@ -24,7 +24,7 @@ import (
 	"github.com/libp2p/go-libp2p/p2p/transport/tcp"
 	"github.com/multiformats/go-multiaddr"
 	manet "github.com/multiformats/go-multiaddr/net"
-	
+
 	"github.com/dexponent/dxp-verifier/pkg/logger"
 )
 
@@ -127,8 +127,27 @@ func NewHost() (*P2PHost, error) {
 		libp2p.Security(tls.ID, tls.New),      // Fallback for interoperability
 		libp2p.Transport(tcp.NewTCPTransport), // TCP transport
 		libp2p.Transport(quic.NewTransport),   // QUIC transport for UDP-based connectivity
-		libp2p.EnableNATService(),             // Enable NAT service for detection
-		libp2p.EnableHolePunching(),           // Enable UDP hole punching
+		libp2p.NATPortMap(),                    // UPnP/PCP port mapping
+		libp2p.EnableNATService(),             // NAT server for peers
+		libp2p.EnableHolePunching(),           // UDP hole punching
+		libp2p.EnableAutoNATv2(),               // AutoNAT v2 for reachability
+		libp2p.EnableRelay(),                  // Relay transport
+		libp2p.EnableRelayService(),           // Relay service (v2)
+		// Add dummy static relays to satisfy AutoRelay requirement
+		libp2p.EnableAutoRelayWithStaticRelays([]peer.AddrInfo{
+			{
+				ID: peer.ID("12D3KooWSqRxtCPzxNn3FPEpU42kD3tLPW3i9RioSi9CFdXcwHyt"),
+				Addrs: []multiaddr.Multiaddr{
+					multiaddr.StringCast("/ip4/127.0.0.1/tcp/4001/p2p/12D3KooWSqRxtCPzxNn3FPEpU42kD3tLPW3i9RioSi9CFdXcwHyt"),
+				},
+			},
+			{
+				ID: peer.ID("12D3KooWJtYhem338hgA7Q1ojeos7hfedjFB4ofXxR5CotE22d9E"),
+				Addrs: []multiaddr.Multiaddr{
+					multiaddr.StringCast("/ip4/127.0.0.1/tcp/4002/p2p/12D3KooWJtYhem338hgA7Q1ojeos7hfedjFB4ofXxR5CotE22d9E"),
+				},
+			},
+		}),
 		libp2p.ConnectionManager(connManager),
 		libp2p.Ping(true), // Enable ping for detecting dead connections
 	)
@@ -178,7 +197,7 @@ func (ph *P2PHost) AddPeerToAddressBook(peerID peer.ID, addr multiaddr.Multiaddr
 func (ph *P2PHost) setupPersistentNATMapping(ctx context.Context) {
 	// Track ports that need mapping
 	portsToMap := make(map[int]bool)
-	
+
 	// Extract ports from listening addresses
 	for _, addr := range ph.host.Addrs() {
 		port, err := extractPortFromMultiaddr(addr)
@@ -187,30 +206,30 @@ func (ph *P2PHost) setupPersistentNATMapping(ctx context.Context) {
 		}
 		portsToMap[port] = true
 	}
-	
+
 	// Skip if no ports to map
 	if len(portsToMap) == 0 {
 		return
 	}
-	
+
 	// Wait a bit for initial NAT detection
 	time.Sleep(2 * time.Second)
-	
+
 	// Count successfully mapped ports
 	successCount := 0
-	
+
 	// Try to map alternative ports if initial mapping fails
 	alternativePorts := []int{10000, 10001, 10002, 10003, 10004}
-	
+
 	// First try to map the dynamic ports
 	for port := range portsToMap {
 		// Try to map the port
 		logger.LogOnly("Attempting to map port %d", port)
-		
+
 		// Instead of using NATManager directly, we'll check for external addresses
 		// after attempting to listen on the port
 		time.Sleep(2 * time.Second)
-		
+
 		// Check if we have external addresses
 		externalAddrs := filterExternalAddrs(ph.host.Addrs())
 		if len(externalAddrs) > 0 {
@@ -221,11 +240,11 @@ func (ph *P2PHost) setupPersistentNATMapping(ctx context.Context) {
 			logger.LogOnly("Failed to map port %d", port)
 		}
 	}
-	
+
 	// If no ports were successfully mapped, try the alternative ports
 	if successCount == 0 {
 		logger.Info("Using local connectivity and relays for peer connections")
-		
+
 		for _, port := range alternativePorts {
 			// Try to listen on the alternative port
 			addr, err := multiaddr.NewMultiaddr(fmt.Sprintf("/ip4/0.0.0.0/tcp/%d", port))
@@ -233,30 +252,42 @@ func (ph *P2PHost) setupPersistentNATMapping(ctx context.Context) {
 				logger.LogOnly("Failed to create multiaddr for port %d: %v", port, err)
 				continue
 			}
-			
+
 			// Try to listen on the port
 			err = ph.host.Network().Listen(addr)
 			if err != nil {
 				logger.LogOnly("Failed to listen on port %d: %v", port, err)
 				continue
 			}
-			
+
 			logger.LogOnly("Successfully listening on alternative port %d", port)
 			ph.mappedPorts = append(ph.mappedPorts, port)
-			
-			// Wait a moment for NAT mapping to take effect
+
+			// Wait to see if we get external addresses
 			time.Sleep(2 * time.Second)
-			
+
 			// Check if we have external addresses
-			externalAddrs := filterExternalAddrs(ph.host.Addrs())
+			addrs := ph.host.Addrs()
+			externalAddrs := filterExternalAddrs(addrs)
+
 			if len(externalAddrs) > 0 {
-				successCount++
-				break
+				logger.LogOnly("Successfully obtained external address with alternative port %d", port)
+
+				// Display the external addresses
+				logger.LogOnly("External addresses detected:")
+				for _, addr := range externalAddrs {
+					addrStr := fmt.Sprintf("  %s/p2p/%s", addr, ph.ID().String())
+					logger.LogOnly("%s", addrStr)
+				}
+
+				// We've successfully established external connectivity, no need to try more ports
+				return
 			}
 		}
 	}
-	
-	// If still no success, log the issue
+
+	// If we've tried the maximum number of ports and still don't have external connectivity,
+	// inform the user that we'll be using relays
 	if successCount == 0 {
 		logger.Info("Could not establish direct external connectivity after trying multiple ports")
 		logger.Info("Will rely on relays and DHT for peer connectivity")
@@ -313,10 +344,10 @@ func (ph *P2PHost) monitorNATStatus() {
 	if len(externalAddrs) > 0 {
 		logger.Success("Public connectivity detected (properly mapped ports)")
 		logger.Info("External addresses detected:")
-		
+
 		// Use a map to track addresses we've already printed to avoid duplicates
 		printedAddrs := make(map[string]bool)
-		
+
 		for _, addr := range externalAddrs {
 			addrStr := fmt.Sprintf("  %s/p2p/%s", addr, ph.ID().String())
 			if !printedAddrs[addrStr] {
@@ -331,10 +362,10 @@ func (ph *P2PHost) monitorNATStatus() {
 
 	// Track whether we've found external addresses
 	hasExternalAddrs := len(externalAddrs) > 0
-	
+
 	// Keep track of consecutive status checks with no external addresses
 	consecutiveFailures := 0
-	
+
 	// Periodically check and report status
 	ticker := time.NewTicker(60 * time.Second) // Reduced frequency of checks
 	defer ticker.Stop()
@@ -344,27 +375,27 @@ func (ph *P2PHost) monitorNATStatus() {
 		case <-ticker.C:
 			// Get external addresses
 			externalAddrs := filterExternalAddrs(ph.host.Addrs())
-			
+
 			// Check if external address status has changed
 			currentHasExternal := len(externalAddrs) > 0
-			
+
 			// Only report status changes after confirming the change is persistent
 			// This prevents flapping between states due to temporary network issues
 			if currentHasExternal {
 				// Reset failure counter when we have external addresses
 				consecutiveFailures = 0
-				
+
 				if !hasExternalAddrs {
 					// Status changed from no external to having external
 					logger.Success("External connectivity established")
-					
+
 					// Update tracking
 					hasExternalAddrs = true
 				}
 			} else {
 				// Increment failure counter when we don't have external addresses
 				consecutiveFailures++
-				
+
 				// Only report lost connectivity after 5 consecutive checks (5 minutes)
 				// to avoid false alarms due to temporary network issues
 				if hasExternalAddrs && consecutiveFailures >= 5 {
@@ -373,13 +404,13 @@ func (ph *P2PHost) monitorNATStatus() {
 					hasExternalAddrs = false
 				}
 			}
-			
+
 			// Determine NAT status string for reporting
 			natStatusStr := "private"
 			if currentHasExternal {
 				natStatusStr = "public"
 			}
-			
+
 			// Report status
 			ph.statusChan <- HostStatus{
 				ExternalAddrs: externalAddrs,
@@ -397,7 +428,7 @@ func (ph *P2PHost) attemptAdditionalNATTraversal() {
 	// Get initial addresses
 	initialAddrs := ph.host.Addrs()
 	initialExternalAddrs := filterExternalAddrs(initialAddrs)
-	
+
 	// If we already have external addresses, no need to try alternative ports
 	if len(initialExternalAddrs) > 0 {
 		logger.LogOnly("External connectivity already established, skipping alternative port binding")
@@ -407,10 +438,10 @@ func (ph *P2PHost) attemptAdditionalNATTraversal() {
 	// Try alternative port ranges - limit to just a few ports
 	maxPortsToTry := 5
 	portsAttempted := 0
-	
+
 	for port := 10000; port < 10010 && portsAttempted < maxPortsToTry; port++ {
 		portsAttempted++
-		
+
 		// Create a new listen address with a specific port
 		addr, err := multiaddr.NewMultiaddr(fmt.Sprintf("/ip4/0.0.0.0/tcp/%d", port))
 		if err != nil {
@@ -447,7 +478,7 @@ func (ph *P2PHost) attemptAdditionalNATTraversal() {
 			return
 		}
 	}
-	
+
 	// If we've tried the maximum number of ports and still don't have external connectivity,
 	// inform the user that we'll be using relays
 	if portsAttempted >= maxPortsToTry {
@@ -460,20 +491,20 @@ func (ph *P2PHost) attemptAdditionalNATTraversal() {
 func (ph *P2PHost) logInitialNATStatus() {
 	addrs := ph.host.Addrs()
 	externalAddrs := filterExternalAddrs(addrs)
-	
+
 	// Determine NAT status
 	natStatus := "private"
 	if len(externalAddrs) > 0 {
 		natStatus = "public"
 	}
-	
+
 	// Report status to the channel
 	ph.statusChan <- HostStatus{
 		ExternalAddrs: externalAddrs,
 		NATStatus:     natStatus,
 		Error:         nil,
 	}
-	
+
 	// We don't print addresses here anymore since they're already printed in main.go
 	// This prevents duplicate address printing
 }
