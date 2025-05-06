@@ -310,8 +310,20 @@ func (s *Server) handleWithdrawAPI(w http.ResponseWriter, r *http.Request) {
 
 	logger.Info("Withdrawing %s DXP from stake...", s.ethClient.FormatTokenAmount(amountWei))
 
+	// Get farmID from request, default to 1 if not provided
+	farmID := int64(1)
+	farmIDStr := r.FormValue("farmId")
+	if farmIDStr != "" {
+		farmIDInt, err := strconv.ParseInt(farmIDStr, 10, 64)
+		if err == nil && farmIDInt > 0 {
+			farmID = farmIDInt
+		}
+	}
+
+	logger.Info("Withdrawing %s DXP from farm ID %d...", s.ethClient.FormatTokenAmount(amountWei), farmID)
+
 	// Withdraw stake
-	tx, err := s.ethClient.WithdrawVerifierStake(amountWei)
+	tx, err := s.ethClient.WithdrawVerifierStake(farmID, amountWei)
 	if err != nil {
 		logger.Error("Failed to withdraw stake: %v", err)
 		http.Error(w, fmt.Sprintf(`{"error": "Failed to withdraw stake: %v"}`, err), http.StatusInternalServerError)

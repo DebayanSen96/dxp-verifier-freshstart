@@ -448,17 +448,18 @@ func (c *Client) SubmitVerification(farmID int64, score *big.Float) (*types.Tran
 }
 
 // WithdrawVerifierStake withdraws the verifier stake
-func (c *Client) WithdrawVerifierStake(amount *big.Int) (*types.Transaction, error) {
+func (c *Client) WithdrawVerifierStake(farmID int64, amount *big.Int) (*types.Transaction, error) {
 	// Create the method signature for withdrawVerifierStake
-	methodSig := []byte("withdrawVerifierStake(address,uint256)")
+	methodSig := []byte("withdrawVerifierStake(uint256,uint256)")
 	methodID := crypto.Keccak256(methodSig)[:4]
 
 	// Pack the parameters
-	paddedAddress := common.LeftPadBytes(c.address.Bytes(), 32)
+	farmIdBig := big.NewInt(farmID)
+	paddedFarmId := common.LeftPadBytes(farmIdBig.Bytes(), 32)
 	paddedAmount := common.LeftPadBytes(amount.Bytes(), 32)
 
 	// Create the call data
-	data := append(methodID, paddedAddress...)
+	data := append(methodID, paddedFarmId...)
 	data = append(data, paddedAmount...)
 
 	// Create and sign the transaction

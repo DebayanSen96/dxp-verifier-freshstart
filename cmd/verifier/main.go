@@ -81,7 +81,8 @@ func main() {
 	registerAmount := registerCmd.Int("amount", 0, "Amount of DXP tokens to stake (required)")
 	farmId := registerCmd.Int("farmid", 0, "Farm ID to register for (1-8, required)")
 	withdrawCmd := flag.NewFlagSet("withdraw", flag.ExitOnError)
-	withdrawAmount := withdrawCmd.Int("amount", 0, "Amount of stake to withdraw")
+	amountFlag := withdrawCmd.String("amount", "", "Amount of DXP to withdraw")
+	farmIDFlag := withdrawCmd.Int("farmid", 1, "Farm ID to withdraw from (default: 1)")
 
 	// Get Ethereum configuration from environment variables
 	rpcURL := os.Getenv("BASE_RPC_URL")
@@ -447,9 +448,9 @@ func main() {
 		// Parse withdraw command flags
 		withdrawCmd.Parse(os.Args[2:])
 
-		// Validate required flags
-		if *withdrawAmount <= 0 {
-			logger.Error("Error: --amount flag is required and must be greater than 0")
+		if *amountFlag == "" {
+			logger.Error("Amount is required")
+			printUsage()
 			os.Exit(1)
 		}
 
@@ -480,7 +481,7 @@ func main() {
 		}
 
 		// Convert amount to wei
-		amountWei, err := ethClient.ConvertToWei(fmt.Sprintf("%d", *withdrawAmount))
+		amountWei, err := ethClient.ConvertToWei(*amountFlag)
 		if err != nil {
 			logger.Error("Failed to convert amount to wei: %v", err)
 			os.Exit(1)
@@ -497,7 +498,9 @@ func main() {
 		logger.Info("Withdrawing %s DXP from stake...", ethClient.FormatTokenAmount(amountWei))
 
 		// Withdraw stake
-		tx, err := ethClient.WithdrawVerifierStake(amountWei)
+		farmID := int64(*farmIDFlag)
+		logger.Info("Withdrawing %s DXP from farm ID %d...", ethClient.FormatTokenAmount(amountWei), farmID)
+		tx, err := ethClient.WithdrawVerifierStake(farmID, amountWei)
 		if err != nil {
 			logger.Error("Failed to withdraw stake: %v", err)
 			os.Exit(1)
