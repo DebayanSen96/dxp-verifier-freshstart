@@ -408,8 +408,9 @@ func (c *Client) ClaimRewards() (*types.Transaction, error) {
 	return tx, nil
 }
 
-// SubmitVerification submits a verification for a farm
-func (c *Client) SubmitVerification(farmID int64, score *big.Float) (*types.Transaction, error) {
+// SubmitVerification submits both score and benchmark for a farm to the Consensus contract
+// This matches the Consensus contract's submit(uint256 farmId, uint256 score, uint256 benchmark) function
+func (c *Client) SubmitVerification(farmID int64, score, benchmark *big.Float) (*types.Transaction, error) {
 	// Create the method signature for submit in Consensus contract
 	methodSig := []byte("submit(uint256,uint256,uint256)")
 	methodID := crypto.Keccak256(methodSig)[:4]
@@ -418,8 +419,9 @@ func (c *Client) SubmitVerification(farmID int64, score *big.Float) (*types.Tran
 	scoreInt := new(big.Int)
 	score.Mul(score, big.NewFloat(1e18)).Int(scoreInt) // Convert to 1e18 scale (0.5 = 0.5 * 10^18)
 
-	// Calculate benchmark (for now we'll use the same value for both)
-	benchmarkInt := new(big.Int).Set(scoreInt)
+	// Convert benchmark to uint256 (normalized to 1e18 scale)
+	benchmarkInt := new(big.Int)
+	benchmark.Mul(benchmark, big.NewFloat(1e18)).Int(benchmarkInt)
 
 	// Pack the parameters
 	paddedFarmID := common.LeftPadBytes(big.NewInt(farmID).Bytes(), 32)
@@ -638,181 +640,50 @@ func (c *Client) GetFarmData(farmID int64) (*FarmData, error) {
 	}, nil
 }
 
-// SetFarmBenchmark sets the benchmark for a farm (legacy method, use SetFarmBenchmarkSecure instead)
+// SetFarmBenchmark sets the benchmark for a farm (deprecated, use SubmitVerification instead)
 func (c *Client) SetFarmBenchmark(farmID int64, benchmark *big.Int) (*types.Transaction, error) {
-	// This function is kept for backward compatibility
-	// It's recommended to use SetFarmBenchmarkSecure instead which includes ECDSA verification
-	return c.SetFarmBenchmarkSecure(farmID, benchmark)
+	// This function is deprecated and redirects to SubmitVerification
+	// The Consensus contract requires both score and benchmark to be submitted together
+	
+	// Convert benchmark to *big.Float
+	benchmarkFloat := new(big.Float).SetInt(benchmark)
+	benchmarkFloat.Quo(benchmarkFloat, big.NewFloat(1e18)) // Convert from wei scale
+	
+	// Use the same value for score (this is not ideal but maintains backward compatibility)
+	scoreFloat := new(big.Float).Set(benchmarkFloat)
+	
+	return c.SubmitVerification(farmID, scoreFloat, benchmarkFloat)
 }
 
-// SetFarmBenchmarkSecure sets the benchmark for a farm with ECDSA verification
+// SetFarmBenchmarkSecure sets the benchmark for a farm with ECDSA verification (deprecated, use SubmitVerification instead)
 func (c *Client) SetFarmBenchmarkSecure(farmID int64, benchmark *big.Int) (*types.Transaction, error) {
-	// Check if we are the current leader - we should be since we just submitted the score
-	leader, err := c.GetFarmLeader(farmID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get farm leader: %v", err)
-	}
+	// This function is deprecated and redirects to SubmitVerification
+	// The Consensus contract requires both score and benchmark to be submitted together
+	
+	// Convert benchmark to *big.Float
+	benchmarkFloat := new(big.Float).SetInt(benchmark)
+	benchmarkFloat.Quo(benchmarkFloat, big.NewFloat(1e18)) // Convert from wei scale
+	
+	// Use the same value for score (this is not ideal but maintains backward compatibility)
+	scoreFloat := new(big.Float).Set(benchmarkFloat)
 
-	if leader != c.address {
-		return nil, fmt.Errorf("cannot set benchmark: farm %d has a different leader: %s (we are %s)", farmID, leader.Hex(), c.address.Hex())
-	}
-
-	// We're the leader, proceed with benchmark submission
-
-	// Create a message hash from the benchmark data for signing
-	// This must match the contract's implementation: keccak256(abi.encodePacked(farmId, benchmark, msg.sender))
-	packedData := append(common.LeftPadBytes(big.NewInt(farmID).Bytes(), 32),
-		append(common.LeftPadBytes(benchmark.Bytes(), 32),
-			c.address.Bytes()...)...)
-	messageHash := crypto.Keccak256Hash(packedData)
-
-	// Convert to Ethereum signed message hash (same as MessageHashUtils.toEthSignedMessageHash in Solidity)
-	// This prefixes the hash with "\x19Ethereum Signed Message:\n32" before hashing again
-	prefix := []byte("\x19Ethereum Signed Message:\n32")
-	dataToSign := append(prefix, messageHash.Bytes()...)
-	ethSignedMessageHash := crypto.Keccak256Hash(dataToSign)
-
-	// Sign the Ethereum signed message hash with the private key
-	signature, err := crypto.Sign(ethSignedMessageHash.Bytes(), c.privateKey)
-	if err != nil {
-		return nil, fmt.Errorf("failed to sign benchmark data: %v", err)
-	}
-
-	// Adjust v value for Ethereum (Solidity expects 27/28, Go returns 0/1)
-	if len(signature) == 65 && (signature[64] == 0 || signature[64] == 1) {
-		signature[64] += 27
-	}
-
-	// Create the method signature for setFarmBenchmarkSecure
-	methodSig := []byte("setFarmBenchmarkSecure(uint256,uint256,bytes)")
-	methodID := crypto.Keccak256(methodSig)[:4]
-
-	// Pack the parameters
-	paddedFarmID := common.LeftPadBytes(big.NewInt(farmID).Bytes(), 32)
-	paddedBenchmark := common.LeftPadBytes(benchmark.Bytes(), 32)
-
-	// For the signature, we need to encode it as a bytes array
-	// First, we need to encode the offset to the signature data
-	sigOffset := common.LeftPadBytes(big.NewInt(96).Bytes(), 32) // 96 bytes offset (2 previous params * 32 bytes)
-
-	// Then we encode the length of the signature
-	sigLength := common.LeftPadBytes(big.NewInt(int64(len(signature))).Bytes(), 32)
-
-	// Pad the signature to a multiple of 32 bytes
-	padLen := (32 - len(signature)%32) % 32
-	paddedSig := append(signature, make([]byte, padLen)...)
-
-	// Create the call data
-	data := append(methodID, append(paddedFarmID, append(paddedBenchmark, append(sigOffset, append(sigLength, paddedSig...)...)...)...)...)
-
-	// Create and sign the transaction
-	tx, err := c.createAndSignTransaction(c.protocolAddress, big.NewInt(0), data)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create transaction: %v", err)
-	}
-
-	// Send the transaction
-	err = c.ethClient.SendTransaction(context.Background(), tx)
-	if err != nil {
-		return nil, fmt.Errorf("failed to send transaction: %v", err)
-	}
-
-	return tx, nil
+	// Return the result of SubmitVerification
+	return c.SubmitVerification(farmID, scoreFloat, benchmarkFloat)
 }
 
-// SubmitFarmScore submits a score for a farm with ECDSA verification (only callable by the current farm leader)
+// SubmitFarmScore submits a score for a farm (deprecated, use SubmitVerification instead)
 func (c *Client) SubmitFarmScore(farmID int64, score *big.Int) (*types.Transaction, error) {
-	// First check if we're already the leader or can register as the leader
-	hasLeader, err := c.CheckFarmLeader(farmID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to check farm leader status: %v", err)
-	}
-
-	if hasLeader {
-		// Check if we are the current leader
-		leader, err := c.GetFarmLeader(farmID)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get farm leader: %v", err)
-		}
-
-		if leader != c.address {
-			return nil, fmt.Errorf("cannot submit score: farm %d already has another leader: %s", farmID, leader.Hex())
-		}
-
-		// We're already the leader, proceed with score submission without additional logging
-	} else {
-		// Try to register as the farm leader
-		tx, err := c.RegisterFarmLeader(farmID)
-		if err != nil {
-			return nil, fmt.Errorf("failed to register as farm leader: %v", err)
-		}
-
-		if tx != nil {
-			// Wait for the leader registration transaction to be mined
-			fmt.Printf("Waiting for leader registration transaction to be mined...\n")
-			time.Sleep(5 * time.Second)
-		}
-	}
-
-	// Create a message hash from the score data for signing
-	// This must match the contract's implementation: keccak256(abi.encodePacked(farmId, score, msg.sender))
-	packedData := append(common.LeftPadBytes(big.NewInt(farmID).Bytes(), 32),
-		append(common.LeftPadBytes(score.Bytes(), 32),
-			c.address.Bytes()...)...)
-	messageHash := crypto.Keccak256Hash(packedData)
-
-	// Convert to Ethereum signed message hash (same as MessageHashUtils.toEthSignedMessageHash in Solidity)
-	// This prefixes the hash with "\x19Ethereum Signed Message:\n32" before hashing again
-	prefix := []byte("\x19Ethereum Signed Message:\n32")
-	dataToSign := append(prefix, messageHash.Bytes()...)
-	ethSignedMessageHash := crypto.Keccak256Hash(dataToSign)
-
-	// Sign the Ethereum signed message hash with the private key
-	signature, err := crypto.Sign(ethSignedMessageHash.Bytes(), c.privateKey)
-	if err != nil {
-		return nil, fmt.Errorf("failed to sign score data: %v", err)
-	}
-
-	// Adjust v value for Ethereum (Solidity expects 27/28, Go returns 0/1)
-	if len(signature) == 65 && (signature[64] == 0 || signature[64] == 1) {
-		signature[64] += 27
-	}
-
-	// Create the method signature for submitFarmScore
-	methodSig := []byte("submitFarmScore(uint256,uint256,bytes)")
-	methodID := crypto.Keccak256(methodSig)[:4]
-
-	// Pack the parameters
-	paddedFarmID := common.LeftPadBytes(big.NewInt(farmID).Bytes(), 32)
-	paddedScore := common.LeftPadBytes(score.Bytes(), 32)
-
-	// For the signature, we need to encode it as a bytes array
-	// First, we need to encode the offset to the signature data
-	sigOffset := common.LeftPadBytes(big.NewInt(96).Bytes(), 32) // 96 bytes offset (2 previous params * 32 bytes)
-
-	// Then we encode the length of the signature
-	sigLength := common.LeftPadBytes(big.NewInt(int64(len(signature))).Bytes(), 32)
-
-	// Pad the signature to a multiple of 32 bytes
-	padLen := (32 - len(signature)%32) % 32
-	paddedSig := append(signature, make([]byte, padLen)...)
-
-	// Create the call data
-	data := append(methodID, append(paddedFarmID, append(paddedScore, append(sigOffset, append(sigLength, paddedSig...)...)...)...)...)
-
-	// Create and sign the transaction
-	tx, err := c.createAndSignTransaction(c.protocolAddress, big.NewInt(0), data)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create transaction: %v", err)
-	}
-
-	// Send the transaction
-	err = c.ethClient.SendTransaction(context.Background(), tx)
-	if err != nil {
-		return nil, fmt.Errorf("failed to send transaction: %v", err)
-	}
-
-	return tx, nil
+	// This function is deprecated and redirects to SubmitVerification
+	// The Consensus contract requires both score and benchmark to be submitted together
+	
+	// Convert score to *big.Float
+	scoreFloat := new(big.Float).SetInt(score)
+	scoreFloat.Quo(scoreFloat, big.NewFloat(1e18)) // Convert from wei scale
+	
+	// Use the same value for benchmark (this is not ideal but maintains backward compatibility)
+	benchmarkFloat := new(big.Float).Set(scoreFloat)
+	
+	return c.SubmitVerification(farmID, scoreFloat, benchmarkFloat)
 }
 
 // GetTransactionReceipt gets the receipt of a transaction by its hash
