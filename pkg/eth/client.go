@@ -226,9 +226,6 @@ func (c *Client) IsRegisteredVerifier() (bool, error) {
 	data := append(methodID, paddedFarmId...)
 	data = append(data, paddedAddress...)
 
-	fmt.Printf("[DEBUG] Calling isApprovedVerifier at %s with farmId=%s, address=%s\n", c.protocolAddress.Hex(), farmId.String(), address.Hex())
-	fmt.Printf("[DEBUG] Call data: %x\n", data)
-
 	// Create the call message
 	msg := ethereum.CallMsg{
 		To:   &c.protocolAddress,

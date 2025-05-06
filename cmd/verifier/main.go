@@ -375,14 +375,14 @@ func main() {
 		if len(farms) == 0 {
 			fmt.Println("Not assigned to any farms")
 		} else {
-			for _, farmID := range farms {
-				isActive, err := ethClient.IsVerifierActiveForFarm(farmID)
-				status := "Registered"
-				if err == nil && isActive {
-					status = "Active"
+			fmt.Print("Assigned to farm IDs: ")
+			for i, farmID := range farms {
+				if i > 0 {
+					fmt.Print(", ")
 				}
-				fmt.Printf("Farm ID: %d (Status: %s)\n", farmID, status)
+				fmt.Print(farmID)
 			}
+			fmt.Println()
 		}
 
 	case "claim-rewards":
