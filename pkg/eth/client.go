@@ -59,7 +59,7 @@ func NewClient(rpcURL, privateKeyHex, protocolAddress, consensusAddress, tokenAd
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse private key: %v", err)
 	}
-
+	//get chain ID from the contract address as mentioned in the protocol core blah blah
 	// Get chain ID
 	chainID, err := ethClient.ChainID(context.Background())
 	if err != nil {
@@ -184,20 +184,20 @@ func (c *Client) ApproveDXPToken(amount *big.Int) (string, error) {
 
 // RegisterVerifierWithFarmID registers the current wallet as a verifier with a farm ID
 func (c *Client) RegisterVerifierWithFarmID(stakeAmount *big.Int, farmID int64) (*types.Transaction, error) {
-	// Create the method signature for registerVerifier
-	methodSig := []byte("registerVerifier(address,uint256,uint256)")
+	// Use the correct method signature for ProtocolCore: registerAsVerifier(uint256,uint256)
+	methodSig := []byte("registerAsVerifier(uint256,uint256)")
 	methodID := crypto.Keccak256(methodSig)[:4]
 
-	// Pack the parameters
-	address := c.GetAddress()
-	paddedAddress := common.LeftPadBytes(address.Bytes(), 32)
-	paddedStakeAmount := common.LeftPadBytes(stakeAmount.Bytes(), 32)
+	// Pack the parameters: farmId, amount
 	paddedFarmID := common.LeftPadBytes(big.NewInt(farmID).Bytes(), 32)
+	paddedStakeAmount := common.LeftPadBytes(stakeAmount.Bytes(), 32)
 
 	// Create the transaction data
-	data := append(methodID, paddedAddress...)
+	data := append(methodID, paddedFarmID...)
 	data = append(data, paddedStakeAmount...)
-	data = append(data, paddedFarmID...)
+
+	fmt.Printf("[DEBUG] Calling registerAsVerifier at %s with farmId=%d, amount=%s\n", c.protocolAddress.Hex(), farmID, stakeAmount.String())
+	fmt.Printf("[DEBUG] Call data: %x\n", data)
 
 	// Create and sign the transaction
 	tx, err := c.createAndSignTransaction(c.protocolAddress, big.NewInt(0), data)
@@ -214,17 +214,26 @@ func (c *Client) RegisterVerifierWithFarmID(stakeAmount *big.Int, farmID int64) 
 	return tx, nil
 }
 
-// IsRegisteredVerifier checks if the current wallet is registered as a verifier
+// IsRegisteredVerifier checks if the current wallet is an approved verifier for a farm (default farmId = 1)
 func (c *Client) IsRegisteredVerifier() (bool, error) {
-	// Create the method signature for registeredVerifiers
-	methodSig := []byte("registeredVerifiers(address)")
+	// Use farmId 1 as default; update if you want to check a different farm
+	farmId := big.NewInt(1)
+	address := c.address
+
+	// Create the method signature for isApprovedVerifier(uint256,address)
+	methodSig := []byte("isApprovedVerifier(uint256,address)")
 	methodID := crypto.Keccak256(methodSig)[:4]
 
-	// Pack the address parameter
-	paddedAddress := common.LeftPadBytes(c.address.Bytes(), 32)
+	// Pack the parameters
+	paddedFarmId := common.LeftPadBytes(farmId.Bytes(), 32)
+	paddedAddress := common.LeftPadBytes(address.Bytes(), 32)
 
 	// Create the call data
-	data := append(methodID, paddedAddress...)
+	data := append(methodID, paddedFarmId...)
+	data = append(data, paddedAddress...)
+
+	fmt.Printf("[DEBUG] Calling isApprovedVerifier at %s with farmId=%s, address=%s\n", c.protocolAddress.Hex(), farmId.String(), address.Hex())
+	fmt.Printf("[DEBUG] Call data: %x\n", data)
 
 	// Create the call message
 	msg := ethereum.CallMsg{
@@ -235,14 +244,14 @@ func (c *Client) IsRegisteredVerifier() (bool, error) {
 	// Call the contract
 	result, err := c.ethClient.CallContract(context.Background(), msg, nil)
 	if err != nil {
-		return false, fmt.Errorf("failed to call registeredVerifiers: %v", err)
+		return false, fmt.Errorf("failed to call isApprovedVerifier: %v", err)
 	}
 
-	// Parse the result
 	if len(result) == 0 {
 		return false, nil
 	}
 
+	// Solidity returns bool as 32 bytes, last byte is 1 for true, 0 for false
 	return result[len(result)-1] == 1, nil
 }
 
