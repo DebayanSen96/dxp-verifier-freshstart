@@ -3,6 +3,7 @@ package p2p
 import (
 	"context"
 	"fmt"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -28,6 +29,20 @@ var DefaultBootstrapPeers = []string{
 
 // Rendezvous key for DHT peer discovery
 const RendezvousString = "/dexponent/consensus"
+
+// getRendezvousString returns the DHT rendezvous string scoped by chain and farm IDs.
+func getRendezvousString() string {
+	key := RendezvousString
+	chainID := os.Getenv("CHAIN_ID")
+	if chainID != "" {
+		key = fmt.Sprintf("%s/chain-%s", key, chainID)
+	}
+	farmID := os.Getenv("FARM_ID")
+	if farmID != "" {
+		key = fmt.Sprintf("%s/farm-%s", key, farmID)
+	}
+	return key
+}
 
 // DHTService manages the DHT for peer discovery
 type DHTService struct {
@@ -69,7 +84,7 @@ func NewDHT(h host.Host) (*DHTService, error) {
 
 	// Advertise on DHT rendezvous for service discovery
 	df := drouting.NewRoutingDiscovery(kadDHT)
-	dutil.Advertise(ctx, df, RendezvousString)
+	dutil.Advertise(ctx, df, getRendezvousString())
 
 	d := &DHTService{
 		host:      h,
@@ -165,7 +180,7 @@ func (d *DHTService) discoverPeers() error {
 
 	// Discover peers via DHT rendezvous
 	rd := drouting.NewRoutingDiscovery(d.dht)
-	peerChan, err := rd.FindPeers(ctx, RendezvousString)
+	peerChan, err := rd.FindPeers(ctx, getRendezvousString())
 	if err != nil {
 		d.errChan <- fmt.Errorf("rendezvous discovery failed: %w", err)
 	} else {
@@ -253,6 +268,9 @@ func (d *DHTService) maintainDHT() {
 				d.errChan <- fmt.Errorf("failed to refresh DHT: %w", err)
 			}
 			d.cleanupStalePeers()
+			// Re-advertise on DHT rendezvous to keep entries fresh
+			df := drouting.NewRoutingDiscovery(d.dht)
+			dutil.Advertise(d.ctx, df, getRendezvousString())
 		}
 	}
 }

@@ -61,6 +61,22 @@ func calculateFarmScore(returns []float64) float64 {
 	// Calculate volume weight (simplified)
 	volumeWeight := math.Log10(float64(len(returns)) + 1)
 
+	// Calculate standard deviation for Sharpe ratio
+	var variance float64
+	if len(returns) > 1 {
+		for _, r := range returns {
+			variance += math.Pow(r-normalizedYield, 2)
+		}
+		variance /= float64(len(returns))
+	}
+	stdDev := math.Sqrt(variance)
+
+	// Calculate Sharpe ratio (assuming risk-free rate of 0 for simplicity)
+	sharpeRatio := 1.0
+	if stdDev > 0 {
+		sharpeRatio = normalizedYield / stdDev
+	}
+
 	// Calculate Sortino ratio (simplified)
 	// In a real implementation, this would be more complex
 	var downside float64
@@ -77,17 +93,13 @@ func calculateFarmScore(returns []float64) float64 {
 	// Calculate consistency factor
 	consistencyFactor := 1.0
 	if len(returns) > 1 {
-		var variance float64
-		for _, r := range returns {
-			variance += math.Pow(r-normalizedYield, 2)
-		}
-		variance /= float64(len(returns))
 		// Higher consistency (lower variance) gives higher factor
 		consistencyFactor = 1.0 / (1.0 + variance)
 	}
 
-	// Calculate final score
-	farmScore := (normalizedYield * volumeWeight) * sortinoRatio * consistencyFactor
+	// Calculate final score - now incorporating both Sharpe and Sortino ratios
+	// We weight them equally in this implementation
+	farmScore := (normalizedYield * volumeWeight) * (0.5*sharpeRatio + 0.5*sortinoRatio) * consistencyFactor
 
 	// Cap the score at 1.0
 	if farmScore > 1.0 {

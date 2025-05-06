@@ -86,8 +86,14 @@ func main() {
 	// Get Ethereum configuration from environment variables
 	rpcURL := os.Getenv("BASE_RPC_URL")
 	privateKeyHex := os.Getenv("WALLET_PRIVATE_KEY")
-	contractAddress := os.Getenv("DXP_CONTRACT_ADDRESS")
+	protocolAddress := os.Getenv("PROTOCOL_CORE_ADDRESS")
+	consensusAddress := os.Getenv("CONSENSUS_ADDRESS")
 	tokenAddress := os.Getenv("DXP_TOKEN_ADDRESS")
+
+	// For backward compatibility, use DXP_CONTRACT_ADDRESS as PROTOCOL_CORE_ADDRESS if not set
+	if protocolAddress == "" {
+		protocolAddress = os.Getenv("DXP_CONTRACT_ADDRESS")
+	}
 
 	// Use default token address if not provided
 	if tokenAddress == "" {
@@ -163,7 +169,7 @@ func main() {
 		}
 
 		// Initialize Ethereum client
-		ethClient, err := eth.NewClient(rpcURL, privateKeyHex, contractAddress, tokenAddress)
+		ethClient, err := eth.NewClient(rpcURL, privateKeyHex, protocolAddress, consensusAddress, tokenAddress)
 		if err != nil {
 			logger.Warn("Failed to initialize Ethereum client: %v", err)
 			logger.Info("Continuing without blockchain integration...")
@@ -260,7 +266,7 @@ func main() {
 		}
 
 		// Initialize Ethereum client
-		ethClient, err := eth.NewClient(rpcURL, privateKeyHex, contractAddress, tokenAddress)
+		ethClient, err := eth.NewClient(rpcURL, privateKeyHex, protocolAddress, consensusAddress, tokenAddress)
 		if err != nil {
 			logger.Error("Failed to initialize Ethereum client: %v", err)
 			os.Exit(1)
@@ -332,7 +338,7 @@ func main() {
 		statusCmd.Parse(os.Args[2:])
 
 		// Initialize Ethereum client
-		ethClient, err := eth.NewClient(rpcURL, privateKeyHex, contractAddress, tokenAddress)
+		ethClient, err := eth.NewClient(rpcURL, privateKeyHex, protocolAddress, consensusAddress, tokenAddress)
 		if err != nil {
 			logger.Error("Failed to initialize Ethereum client: %v", err)
 			os.Exit(1)
@@ -429,7 +435,7 @@ func main() {
 		claimCmd.Parse(os.Args[2:])
 
 		// Initialize Ethereum client
-		ethClient, err := eth.NewClient(rpcURL, privateKeyHex, contractAddress, tokenAddress)
+		ethClient, err := eth.NewClient(rpcURL, privateKeyHex, protocolAddress, consensusAddress, tokenAddress)
 		if err != nil {
 			logger.Error("Failed to initialize Ethereum client: %v", err)
 			os.Exit(1)
@@ -493,7 +499,7 @@ func main() {
 		}
 
 		// Initialize Ethereum client
-		ethClient, err := eth.NewClient(rpcURL, privateKeyHex, contractAddress, tokenAddress)
+		ethClient, err := eth.NewClient(rpcURL, privateKeyHex, protocolAddress, consensusAddress, tokenAddress)
 		if err != nil {
 			logger.Error("Failed to initialize Ethereum client: %v", err)
 			os.Exit(1)
@@ -645,7 +651,7 @@ func main() {
 
 	case "dashboard":
 		// Initialize Ethereum client
-		ethClient, err := eth.NewClient(rpcURL, privateKeyHex, contractAddress, tokenAddress)
+		ethClient, err := eth.NewClient(rpcURL, privateKeyHex, protocolAddress, consensusAddress, tokenAddress)
 		if err != nil {
 			logger.Error("Failed to initialize Ethereum client: %v", err)
 			os.Exit(1)

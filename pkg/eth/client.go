@@ -37,16 +37,17 @@ type FarmData struct {
 
 // Client represents an Ethereum client
 type Client struct {
-	ethClient       *ethclient.Client
-	privateKey      *ecdsa.PrivateKey
-	contractAddress common.Address
-	tokenAddress    common.Address
-	chainID         *big.Int
-	address         common.Address
+	ethClient         *ethclient.Client
+	privateKey        *ecdsa.PrivateKey
+	protocolAddress   common.Address
+	consensusAddress  common.Address
+	tokenAddress      common.Address
+	chainID           *big.Int
+	address           common.Address
 }
 
 // NewClient creates a new Ethereum client
-func NewClient(rpcURL, privateKeyHex, contractAddress, tokenAddress string) (*Client, error) {
+func NewClient(rpcURL, privateKeyHex, protocolAddress, consensusAddress, tokenAddress string) (*Client, error) {
 	// Connect to Ethereum node
 	ethClient, err := ethclient.Dial(rpcURL)
 	if err != nil {
@@ -71,12 +72,13 @@ func NewClient(rpcURL, privateKeyHex, contractAddress, tokenAddress string) (*Cl
 	}
 
 	return &Client{
-		ethClient:       ethClient,
-		privateKey:      privateKey,
-		contractAddress: common.HexToAddress(contractAddress),
-		tokenAddress:    common.HexToAddress(tokenAddress),
-		chainID:         chainID,
-		address:         crypto.PubkeyToAddress(privateKey.PublicKey),
+		ethClient:        ethClient,
+		privateKey:       privateKey,
+		protocolAddress:  common.HexToAddress(protocolAddress),
+		consensusAddress: common.HexToAddress(consensusAddress),
+		tokenAddress:     common.HexToAddress(tokenAddress),
+		chainID:          chainID,
+		address:          crypto.PubkeyToAddress(privateKey.PublicKey),
 	}, nil
 }
 
@@ -158,8 +160,8 @@ func (c *Client) ApproveDXPToken(amount *big.Int) (string, error) {
 	methodSig := []byte("approve(address,uint256)")
 	methodID := crypto.Keccak256(methodSig)[:4]
 
-	// Pack the parameters
-	paddedAddress := common.LeftPadBytes(c.contractAddress.Bytes(), 32)
+	// Pack the address parameter
+	paddedAddress := common.LeftPadBytes(c.protocolAddress.Bytes(), 32)
 	paddedAmount := common.LeftPadBytes(amount.Bytes(), 32)
 
 	// Create the transaction data
@@ -189,14 +191,16 @@ func (c *Client) RegisterVerifierWithFarmID(stakeAmount *big.Int, farmID int64) 
 	// Pack the parameters
 	address := c.GetAddress()
 	paddedAddress := common.LeftPadBytes(address.Bytes(), 32)
-	paddedAmount := common.LeftPadBytes(stakeAmount.Bytes(), 32)
+	paddedStakeAmount := common.LeftPadBytes(stakeAmount.Bytes(), 32)
 	paddedFarmID := common.LeftPadBytes(big.NewInt(farmID).Bytes(), 32)
 
 	// Create the transaction data
-	data := append(methodID, append(paddedAddress, append(paddedAmount, paddedFarmID...)...)...)
+	data := append(methodID, paddedAddress...)
+	data = append(data, paddedStakeAmount...)
+	data = append(data, paddedFarmID...)
 
 	// Create and sign the transaction
-	tx, err := c.createAndSignTransaction(c.contractAddress, big.NewInt(0), data)
+	tx, err := c.createAndSignTransaction(c.protocolAddress, big.NewInt(0), data)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create and sign transaction: %v", err)
 	}
@@ -212,27 +216,26 @@ func (c *Client) RegisterVerifierWithFarmID(stakeAmount *big.Int, farmID int64) 
 
 // IsRegisteredVerifier checks if the current wallet is registered as a verifier
 func (c *Client) IsRegisteredVerifier() (bool, error) {
-	// Create the method signature for isVerifier
-	methodSig := []byte("isVerifier(address)")
+	// Create the method signature for registeredVerifiers
+	methodSig := []byte("registeredVerifiers(address)")
 	methodID := crypto.Keccak256(methodSig)[:4]
 
 	// Pack the address parameter
-	address := c.GetAddress()
-	paddedAddress := common.LeftPadBytes(address.Bytes(), 32)
+	paddedAddress := common.LeftPadBytes(c.address.Bytes(), 32)
 
 	// Create the call data
 	data := append(methodID, paddedAddress...)
 
 	// Create the call message
 	msg := ethereum.CallMsg{
-		To:   &c.contractAddress,
+		To:   &c.protocolAddress,
 		Data: data,
 	}
 
 	// Call the contract
 	result, err := c.ethClient.CallContract(context.Background(), msg, nil)
 	if err != nil {
-		return false, fmt.Errorf("failed to call isVerifier: %v", err)
+		return false, fmt.Errorf("failed to call registeredVerifiers: %v", err)
 	}
 
 	// Parse the result
@@ -282,11 +285,12 @@ func (c *Client) isVerifierRegisteredForFarm(farmID int64) (bool, error) {
 	paddedAddress := common.LeftPadBytes(c.address.Bytes(), 32)
 
 	// Create the call data
-	data := append(methodID, append(paddedFarmID, paddedAddress...)...)
+	data := append(methodID, paddedFarmID...)
+	data = append(data, paddedAddress...)
 
 	// Create the call message
 	msg := ethereum.CallMsg{
-		To:   &c.contractAddress,
+		To:   &c.protocolAddress,
 		Data: data,
 	}
 
@@ -315,11 +319,12 @@ func (c *Client) IsVerifierActiveForFarm(farmID int64) (bool, error) {
 	paddedAddress := common.LeftPadBytes(c.GetAddress().Bytes(), 32)
 
 	// Create the call data
-	data := append(methodID, append(paddedFarmID, paddedAddress...)...)
+	data := append(methodID, paddedFarmID...)
+	data = append(data, paddedAddress...)
 
 	// Create the call message
 	msg := ethereum.CallMsg{
-		To:   &c.contractAddress,
+		To:   &c.protocolAddress,
 		Data: data,
 	}
 
@@ -339,26 +344,27 @@ func (c *Client) IsVerifierActiveForFarm(farmID int64) (bool, error) {
 
 // GetVerifierMetrics returns the metrics of the verifier
 func (c *Client) GetVerifierMetrics() (*VerifierMetrics, error) {
-	// Create the method signature for getVerifierMetrics
-	methodSig := []byte("getVerifierMetrics(address)")
+	// Create the method signature for verifierMetrics
+	methodSig := []byte("verifierMetrics(address)")
 	methodID := crypto.Keccak256(methodSig)[:4]
 
-	// Pack the parameters
-	paddedAddress := common.LeftPadBytes(c.GetAddress().Bytes(), 32)
+	// Pack the address parameter
+	address := c.GetAddress()
+	paddedAddress := common.LeftPadBytes(address.Bytes(), 32)
 
 	// Create the call data
 	data := append(methodID, paddedAddress...)
 
 	// Create the call message
 	msg := ethereum.CallMsg{
-		To:   &c.contractAddress,
+		To:   &c.protocolAddress,
 		Data: data,
 	}
 
 	// Call the contract
 	result, err := c.ethClient.CallContract(context.Background(), msg, nil)
 	if err != nil {
-		return nil, fmt.Errorf("failed to call getVerifierMetrics: %v", err)
+		return nil, fmt.Errorf("failed to call verifierMetrics: %v", err)
 	}
 
 	// Parse the result
@@ -388,15 +394,16 @@ func (c *Client) CalculatePendingRewards() (*big.Int, error) {
 	methodSig := []byte("calculatePendingRewards(address)")
 	methodID := crypto.Keccak256(methodSig)[:4]
 
-	// Pack the parameters
-	paddedAddress := common.LeftPadBytes(c.GetAddress().Bytes(), 32)
+	// Pack the address parameter
+	address := c.GetAddress()
+	paddedAddress := common.LeftPadBytes(address.Bytes(), 32)
 
 	// Create the call data
 	data := append(methodID, paddedAddress...)
 
 	// Create the call message
 	msg := ethereum.CallMsg{
-		To:   &c.contractAddress,
+		To:   &c.protocolAddress,
 		Data: data,
 	}
 
@@ -434,7 +441,7 @@ func (c *Client) ClaimRewards() (*types.Transaction, error) {
 	data := methodID
 
 	// Create and sign the transaction
-	tx, err := c.createAndSignTransaction(c.contractAddress, big.NewInt(0), data)
+	tx, err := c.createAndSignTransaction(c.protocolAddress, big.NewInt(0), data)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create and sign transaction: %v", err)
 	}
@@ -450,23 +457,29 @@ func (c *Client) ClaimRewards() (*types.Transaction, error) {
 
 // SubmitVerification submits a verification for a farm
 func (c *Client) SubmitVerification(farmID int64, score *big.Float) (*types.Transaction, error) {
-	// Convert score to uint256
-	scoreInt := new(big.Int)
-	score.Mul(score, big.NewFloat(100)).Int(scoreInt) // Convert to percentage * 100
-
-	// Create the method signature for submitVerification
-	methodSig := []byte("submitVerification(uint8,uint256)")
+	// Create the method signature for submit in Consensus contract
+	methodSig := []byte("submit(uint256,uint256,uint256)")
 	methodID := crypto.Keccak256(methodSig)[:4]
+
+	// Convert score to uint256 (normalized to 1e18 scale)
+	scoreInt := new(big.Int)
+	score.Mul(score, big.NewFloat(1e18)).Int(scoreInt) // Convert to 1e18 scale (0.5 = 0.5 * 10^18)
+
+	// Calculate benchmark (for now we'll use the same value for both)
+	benchmarkInt := new(big.Int).Set(scoreInt)
 
 	// Pack the parameters
 	paddedFarmID := common.LeftPadBytes(big.NewInt(farmID).Bytes(), 32)
 	paddedScore := common.LeftPadBytes(scoreInt.Bytes(), 32)
+	paddedBenchmark := common.LeftPadBytes(benchmarkInt.Bytes(), 32)
 
-	// Create the transaction data
-	data := append(methodID, append(paddedFarmID, paddedScore...)...)
+	// Create the call data
+	data := append(methodID, paddedFarmID...)
+	data = append(data, paddedScore...)
+	data = append(data, paddedBenchmark...)
 
 	// Create and sign the transaction
-	tx, err := c.createAndSignTransaction(c.contractAddress, big.NewInt(0), data)
+	tx, err := c.createAndSignTransaction(c.consensusAddress, big.NewInt(0), data)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create and sign transaction: %v", err)
 	}
@@ -487,15 +500,15 @@ func (c *Client) WithdrawVerifierStake(amount *big.Int) (*types.Transaction, err
 	methodID := crypto.Keccak256(methodSig)[:4]
 
 	// Pack the parameters
-	address := c.GetAddress()
-	paddedAddress := common.LeftPadBytes(address.Bytes(), 32)
+	paddedAddress := common.LeftPadBytes(c.address.Bytes(), 32)
 	paddedAmount := common.LeftPadBytes(amount.Bytes(), 32)
 
-	// Create the transaction data
-	data := append(methodID, append(paddedAddress, paddedAmount...)...)
+	// Create the call data
+	data := append(methodID, paddedAddress...)
+	data = append(data, paddedAmount...)
 
 	// Create and sign the transaction
-	tx, err := c.createAndSignTransaction(c.contractAddress, big.NewInt(0), data)
+	tx, err := c.createAndSignTransaction(c.protocolAddress, big.NewInt(0), data)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create and sign transaction: %v", err)
 	}
@@ -539,9 +552,14 @@ func (c *Client) GetWalletAddress() string {
 	return c.GetAddress().Hex()
 }
 
-// GetContractAddress returns the contract address as a string
-func (c *Client) GetContractAddress() string {
-	return c.contractAddress.Hex()
+// GetProtocolAddress returns the protocol contract address as a string
+func (c *Client) GetProtocolAddress() string {
+	return c.protocolAddress.Hex()
+}
+
+// GetConsensusAddress returns the consensus contract address as a string
+func (c *Client) GetConsensusAddress() string {
+	return c.consensusAddress.Hex()
 }
 
 // GetETHBalance returns the ETH balance of the client
@@ -591,8 +609,8 @@ func (c *Client) CheckVerifierStatus() (bool, error) {
 
 // GetVerifierStake returns the stake amount of the verifier
 func (c *Client) GetVerifierStake() (*big.Int, error) {
-	// Create the method signature for getVerifierStake
-	methodSig := []byte("getVerifierStake(address)")
+	// Create the method signature for verifierStake
+	methodSig := []byte("verifierStake(address)")
 	methodID := crypto.Keccak256(methodSig)[:4]
 
 	// Pack the address parameter
@@ -604,14 +622,14 @@ func (c *Client) GetVerifierStake() (*big.Int, error) {
 
 	// Create the call message
 	msg := ethereum.CallMsg{
-		To:   &c.contractAddress,
+		To:   &c.protocolAddress,
 		Data: data,
 	}
 
 	// Call the contract
 	result, err := c.ethClient.CallContract(context.Background(), msg, nil)
 	if err != nil {
-		return nil, fmt.Errorf("failed to call getVerifierStake: %v", err)
+		return nil, fmt.Errorf("failed to call verifierStake: %v", err)
 	}
 
 	// Parse the result
@@ -637,7 +655,7 @@ func (c *Client) GetFarmData(farmID int64) (*FarmData, error) {
 
 	// Create the call message
 	msg := ethereum.CallMsg{
-		To:   &c.contractAddress,
+		To:   &c.protocolAddress,
 		Data: data,
 	}
 
@@ -731,7 +749,7 @@ func (c *Client) SetFarmBenchmarkSecure(farmID int64, benchmark *big.Int) (*type
 	data := append(methodID, append(paddedFarmID, append(paddedBenchmark, append(sigOffset, append(sigLength, paddedSig...)...)...)...)...)
 
 	// Create and sign the transaction
-	tx, err := c.createAndSignTransaction(c.contractAddress, big.NewInt(0), data)
+	tx, err := c.createAndSignTransaction(c.protocolAddress, big.NewInt(0), data)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create transaction: %v", err)
 	}
@@ -826,7 +844,7 @@ func (c *Client) SubmitFarmScore(farmID int64, score *big.Int) (*types.Transacti
 	data := append(methodID, append(paddedFarmID, append(paddedScore, append(sigOffset, append(sigLength, paddedSig...)...)...)...)...)
 
 	// Create and sign the transaction
-	tx, err := c.createAndSignTransaction(c.contractAddress, big.NewInt(0), data)
+	tx, err := c.createAndSignTransaction(c.protocolAddress, big.NewInt(0), data)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create transaction: %v", err)
 	}
@@ -865,7 +883,7 @@ func (c *Client) CheckFarmLeader(farmID int64) (bool, error) {
 	defer cancel()
 
 	result, err := c.ethClient.CallContract(ctx, ethereum.CallMsg{
-		To:   &c.contractAddress,
+		To:   &c.protocolAddress,
 		Data: data,
 	}, nil)
 	if err != nil {
@@ -899,7 +917,7 @@ func (c *Client) GetFarmLeader(farmID int64) (common.Address, error) {
 	defer cancel()
 
 	result, err := c.ethClient.CallContract(ctx, ethereum.CallMsg{
-		To:   &c.contractAddress,
+		To:   &c.protocolAddress,
 		Data: data,
 	}, nil)
 	if err != nil {
@@ -934,7 +952,7 @@ func (c *Client) GetCurrentFarmRound(farmID int64) (uint64, error) {
 	defer cancel()
 
 	result, err := c.ethClient.CallContract(ctx, ethereum.CallMsg{
-		To:   &c.contractAddress,
+		To:   &c.protocolAddress,
 		Data: data,
 	}, nil)
 	if err != nil {
@@ -995,7 +1013,7 @@ func (c *Client) RegisterFarmLeader(farmID int64) (*types.Transaction, error) {
 	data := append(methodID, paddedFarmID...)
 
 	// Create and sign the transaction
-	tx, err := c.createAndSignTransaction(c.contractAddress, big.NewInt(0), data)
+	tx, err := c.createAndSignTransaction(c.protocolAddress, big.NewInt(0), data)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create transaction: %v", err)
 	}
@@ -1026,7 +1044,7 @@ func (c *Client) GetFarmScore(farmId int64) (*big.Int, error) {
 	defer cancel()
 
 	result, err := c.ethClient.CallContract(ctx, ethereum.CallMsg{
-		To:   &c.contractAddress,
+		To:   &c.protocolAddress,
 		Data: data,
 	}, nil)
 	if err != nil {
@@ -1059,7 +1077,7 @@ func (c *Client) GetFarmBenchmark(farmId int64) (*big.Int, error) {
 	defer cancel()
 
 	result, err := c.ethClient.CallContract(ctx, ethereum.CallMsg{
-		To:   &c.contractAddress,
+		To:   &c.protocolAddress,
 		Data: data,
 	}, nil)
 	if err != nil {
