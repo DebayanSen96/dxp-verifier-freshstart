@@ -190,8 +190,7 @@ func (c *Client) RegisterVerifierWithFarmID(stakeAmount *big.Int, farmID int64) 
 	data := append(methodID, paddedFarmID...)
 	data = append(data, paddedStakeAmount...)
 
-	fmt.Printf("[DEBUG] Calling registerAsVerifier at %s with farmId=%d, amount=%s\n", c.protocolAddress.Hex(), farmID, stakeAmount.String())
-	fmt.Printf("[DEBUG] Call data: %x\n", data)
+	
 
 	// Create and sign the transaction
 	tx, err := c.createAndSignTransaction(c.protocolAddress, big.NewInt(0), data)
