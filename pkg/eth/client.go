@@ -276,8 +276,8 @@ func (c *Client) GetAssignedFarms() ([]int64, error) {
 
 // isVerifierRegisteredForFarm checks if the verifier is registered for a specific farm
 func (c *Client) isVerifierRegisteredForFarm(farmID int64) (bool, error) {
-	// Create the method signature for isVerifierRegisteredForFarm
-	methodSig := []byte("isVerifierRegisteredForFarm(uint256,address)")
+	// Create the method signature for isApprovedVerifier
+	methodSig := []byte("isApprovedVerifier(uint256,address)")
 	methodID := crypto.Keccak256(methodSig)[:4]
 
 	// Pack the parameters
@@ -297,7 +297,7 @@ func (c *Client) isVerifierRegisteredForFarm(farmID int64) (bool, error) {
 	// Call the contract
 	result, err := c.ethClient.CallContract(context.Background(), msg, nil)
 	if err != nil {
-		return false, fmt.Errorf("failed to call isVerifierRegisteredForFarm: %v", err)
+		return false, fmt.Errorf("failed to call isApprovedVerifier: %v", err)
 	}
 
 	// Parse the result
