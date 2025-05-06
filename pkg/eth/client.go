@@ -20,13 +20,7 @@ import (
 const DefaultDXPTokenAddress = "0x4ed7c70F96B99c776995fB64377f0d4aB3B0e1C1"
 
 // VerifierMetrics represents the metrics of a verifier
-type VerifierMetrics struct {
-	VerificationsPerformed int64
-	LastActiveTimestamp    uint64
-	TotalUptime            uint64
-	AccumulatedRewards     *big.Int
-	LastRewardsClaim       uint64
-}
+
 
 // FarmData represents data about a farm
 type FarmData struct {
@@ -351,52 +345,6 @@ func (c *Client) IsVerifierActiveForFarm(farmID int64) (bool, error) {
 	return result[len(result)-1] == 1, nil
 }
 
-// GetVerifierMetrics returns the metrics of the verifier
-func (c *Client) GetVerifierMetrics() (*VerifierMetrics, error) {
-	// Create the method signature for verifierMetrics
-	methodSig := []byte("verifierMetrics(address)")
-	methodID := crypto.Keccak256(methodSig)[:4]
-
-	// Pack the address parameter
-	address := c.GetAddress()
-	paddedAddress := common.LeftPadBytes(address.Bytes(), 32)
-
-	// Create the call data
-	data := append(methodID, paddedAddress...)
-
-	// Create the call message
-	msg := ethereum.CallMsg{
-		To:   &c.protocolAddress,
-		Data: data,
-	}
-
-	// Call the contract
-	result, err := c.ethClient.CallContract(context.Background(), msg, nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to call verifierMetrics: %v", err)
-	}
-
-	// Parse the result
-	if len(result) < 160 { // 5 uint256 values (32 bytes each)
-		return nil, fmt.Errorf("invalid result length: %d", len(result))
-	}
-
-	// Parse each uint256 value from the result
-	verificationsPerformed := new(big.Int).SetBytes(result[0:32])
-	lastActiveTimestamp := new(big.Int).SetBytes(result[32:64])
-	totalUptime := new(big.Int).SetBytes(result[64:96])
-	accumulatedRewards := new(big.Int).SetBytes(result[96:128])
-	lastRewardsClaim := new(big.Int).SetBytes(result[128:160])
-
-	return &VerifierMetrics{
-		VerificationsPerformed: int64(verificationsPerformed.Uint64()),
-		LastActiveTimestamp:    lastActiveTimestamp.Uint64(),
-		TotalUptime:            totalUptime.Uint64(),
-		AccumulatedRewards:     accumulatedRewards,
-		LastRewardsClaim:       lastRewardsClaim.Uint64(),
-	}, nil
-}
-
 // CalculatePendingRewards calculates the pending rewards for the verifier
 func (c *Client) CalculatePendingRewards() (*big.Int, error) {
 	// Create the method signature for calculatePendingRewards
@@ -616,18 +564,20 @@ func (c *Client) CheckVerifierStatus() (bool, error) {
 	return c.IsRegisteredVerifier()
 }
 
-// GetVerifierStake returns the stake amount of the verifier
-func (c *Client) GetVerifierStake() (*big.Int, error) {
-	// Create the method signature for verifierStake
-	methodSig := []byte("verifierStake(address)")
+// GetVerifierStake returns the stake amount of the verifier for a specific farm
+func (c *Client) GetVerifierStake(farmID int64) (*big.Int, error) {
+	// Use the correct method signature for the public mapping: verifierStakes(uint256,address)
+	methodSig := []byte("verifierStakes(uint256,address)")
 	methodID := crypto.Keccak256(methodSig)[:4]
 
-	// Pack the address parameter
+	// Pack the parameters: farmId, address
+	paddedFarmID := common.LeftPadBytes(big.NewInt(farmID).Bytes(), 32)
 	address := c.GetAddress()
 	paddedAddress := common.LeftPadBytes(address.Bytes(), 32)
 
 	// Create the call data
-	data := append(methodID, paddedAddress...)
+	data := append(methodID, paddedFarmID...)
+	data = append(data, paddedAddress...)
 
 	// Create the call message
 	msg := ethereum.CallMsg{
@@ -638,7 +588,7 @@ func (c *Client) GetVerifierStake() (*big.Int, error) {
 	// Call the contract
 	result, err := c.ethClient.CallContract(context.Background(), msg, nil)
 	if err != nil {
-		return nil, fmt.Errorf("failed to call verifierStake: %v", err)
+		return nil, fmt.Errorf("failed to call verifierStakes: %v", err)
 	}
 
 	// Parse the result
@@ -649,6 +599,7 @@ func (c *Client) GetVerifierStake() (*big.Int, error) {
 	stake := new(big.Int).SetBytes(result)
 	return stake, nil
 }
+
 
 // GetFarmData returns data about a farm
 func (c *Client) GetFarmData(farmID int64) (*FarmData, error) {

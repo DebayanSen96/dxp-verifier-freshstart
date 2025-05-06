@@ -207,17 +207,8 @@ func main() {
 							farmInfo += ", "
 						}
 						farmInfo += fmt.Sprintf("%d", farmID)
-
-						// Check if active for this farm
-						isActive, err := ethClient.IsVerifierActiveForFarm(farmID)
-						if err == nil && isActive {
-							farmInfo += " (Active)"
-						}
 					}
-					// Use fmt.Println instead of logger.Success with dynamic format string to fix lint error
-					fmt.Println("✅ Assigned farms:", farmInfo)
-
-					// Set the Ethereum client in the protocol to enable farm-specific consensus
+					logger.Success(farmInfo)
 					protocol.SetEthClient(ethClient)
 
 					// Benchmark calculation is now handled by the leader in the consensus process
@@ -357,7 +348,7 @@ func main() {
 		}
 
 		// Get verifier stake
-		stake, err := ethClient.GetVerifierStake()
+		stake, err := ethClient.GetVerifierStake(1)
 		if err != nil {
 			logger.Error("Failed to get verifier stake: %v", err)
 			os.Exit(1)
@@ -370,19 +361,8 @@ func main() {
 			os.Exit(1)
 		}
 
-		// Get verifier metrics
-		metrics, err := ethClient.GetVerifierMetrics()
-		if err != nil {
-			logger.Error("Failed to get verifier metrics: %v", err)
-			os.Exit(1)
-		}
 
-		// Calculate pending rewards
-		pendingRewards, err := ethClient.CalculatePendingRewards()
-		if err != nil {
-			logger.Error("Failed to calculate pending rewards: %v", err)
-			os.Exit(1)
-		}
+		
 
 		// Print verifier status
 		fmt.Println("=== Verifier Status ===")
@@ -404,31 +384,6 @@ func main() {
 				fmt.Printf("Farm ID: %d (Status: %s)\n", farmID, status)
 			}
 		}
-
-		// Print verifier metrics
-		fmt.Println("\n=== Verifier Metrics ===")
-		fmt.Printf("Verifications Performed: %d\n", metrics.VerificationsPerformed)
-		fmt.Printf("Total Uptime: %s\n", formatDuration(metrics.TotalUptime))
-		fmt.Printf("Last Active: %s\n", formatTime(metrics.LastActiveTimestamp))
-
-		// Print rewards
-		fmt.Println("\n=== Rewards ===")
-		fmt.Printf("Pending Rewards: %s DXP\n", ethClient.FormatTokenAmount(pendingRewards))
-		fmt.Printf("Last Claimed: %s\n", formatTime(metrics.LastRewardsClaim))
-
-		// Calculate estimated daily rewards based on current metrics
-		// This is a client-side calculation to show potential earnings
-		dailyVerifications := float64(metrics.VerificationsPerformed)
-		if metrics.TotalUptime > 0 {
-			// Calculate verifications per day based on total uptime
-			daysActive := float64(metrics.TotalUptime) / (24 * 60 * 60)
-			if daysActive > 0 {
-				dailyVerifications = float64(metrics.VerificationsPerformed) / daysActive
-			}
-		}
-
-		// Show estimated daily earnings (simple calculation)
-		fmt.Printf("Estimated Daily Verifications: %.2f\n", dailyVerifications)
 
 	case "claim-rewards":
 		// Parse claim-rewards command flags
@@ -518,7 +473,7 @@ func main() {
 		}
 
 		// Get verifier stake
-		stake, err := ethClient.GetVerifierStake()
+		stake, err := ethClient.GetVerifierStake(1)
 		if err != nil {
 			logger.Error("Failed to get verifier stake: %v", err)
 			os.Exit(1)

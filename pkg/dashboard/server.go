@@ -82,27 +82,11 @@ func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
 		logger.Error("Failed to check if verifier is registered: %v", err)
 	}
 
-	// Get metrics if registered
-	var metrics *eth.VerifierMetrics
-	var formattedMetrics map[string]interface{}
 	var pendingRewards string
 	var verifierStake string
 	var assignedFarms []int64
 
 	if isRegistered {
-		metrics, err = s.ethClient.GetVerifierMetrics()
-		if err != nil {
-			logger.Error("Failed to get verifier metrics: %v", err)
-		} else {
-			// Format metrics for display
-			formattedMetrics = map[string]interface{}{
-				"VerificationsPerformed": metrics.VerificationsPerformed,
-				"LastActiveTime":         formatTimestamp(metrics.LastActiveTimestamp),
-				"TotalUptimeFormatted":   formatDuration(metrics.TotalUptime),
-				"AccumulatedRewards":     s.ethClient.FormatTokenAmount(metrics.AccumulatedRewards),
-			}
-		}
-
 		// Get pending rewards
 		rewards, err := s.ethClient.CalculatePendingRewards()
 		if err == nil {
@@ -110,7 +94,7 @@ func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Get verifier stake
-		stake, err := s.ethClient.GetVerifierStake()
+		stake, err := s.ethClient.GetVerifierStake(1)
 		if err == nil {
 			verifierStake = s.ethClient.FormatTokenAmount(stake)
 		}
@@ -133,7 +117,6 @@ func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
 		"WalletAddress":  walletAddress,
 		"IsRegistered":   isRegistered,
 		"TokenBalance":   s.ethClient.FormatTokenAmount(tokenBalance),
-		"Metrics":        formattedMetrics,
 		"PendingRewards": pendingRewards,
 		"VerifierStake":  verifierStake,
 		"AssignedFarms":  assignedFarms,
@@ -188,40 +171,31 @@ func (s *Server) handleStatusAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var metrics *eth.VerifierMetrics
 	var pendingRewards string
-	var assignedFarms []int64
 	var verifierStake string
 
-	// Get verifier stake (even if not registered, this will return 0)
-	stake, err := s.ethClient.GetVerifierStake()
-	if err == nil {
-		verifierStake = s.ethClient.FormatTokenAmount(stake)
-	}
-
 	if isRegistered {
-		metrics, err = s.ethClient.GetVerifierMetrics()
-		if err != nil {
-			http.Error(w, fmt.Sprintf(`{"error": "%v"}`, err), http.StatusInternalServerError)
-			return
+		// Get verifier stake
+		stake, err := s.ethClient.GetVerifierStake(1)
+		if err == nil {
+			verifierStake = s.ethClient.FormatTokenAmount(stake)
 		}
 
+		// Get pending rewards
 		rewards, err := s.ethClient.CalculatePendingRewards()
 		if err == nil {
 			pendingRewards = s.ethClient.FormatTokenAmount(rewards)
 		}
-
-		assignedFarms, _ = s.ethClient.GetAssignedFarms()
 	}
 
 	// Prepare response
+	assignedFarms, _ := s.ethClient.GetAssignedFarms()
 	response := map[string]interface{}{
 		"isRegistered":   isRegistered,
 		"walletAddress":  s.ethClient.GetWalletAddress(),
-		"metrics":        metrics,
 		"pendingRewards": pendingRewards,
-		"assignedFarms":  assignedFarms,
 		"verifierStake":  verifierStake,
+		"assignedFarms":  assignedFarms,
 	}
 
 	json.NewEncoder(w).Encode(response)
@@ -293,7 +267,7 @@ func (s *Server) handleWithdrawAPI(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get verifier stake
-	stake, err := s.ethClient.GetVerifierStake()
+	stake, err := s.ethClient.GetVerifierStake(1)
 	if err != nil {
 		logger.Error("Failed to get verifier stake: %v", err)
 		http.Error(w, fmt.Sprintf(`{"error": "Failed to get verifier stake: %v"}`, err), http.StatusInternalServerError)
