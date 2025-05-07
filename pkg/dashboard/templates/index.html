@@ -132,6 +132,24 @@
             {{ end }}
         </div>
 
+        <!-- Withdrawal Modal -->
+        <div id="withdrawModal" class="modal">
+            <div class="modal-content">
+                <span class="close-button" onclick="closeModal('withdrawModal')">&times;</span>
+                <h2>Withdraw Stake</h2>
+                <p>Your current stake: <span id="modalCurrentStake">0.00</span> DXP</p>
+                <div class="form-group">
+                    <label for="withdrawAmountInput">Amount to Withdraw (DXP):</label>
+                    <input type="number" id="withdrawAmountInput" placeholder="e.g. 50" min="0.000001" step="0.000001">
+                </div>
+                <p id="withdraw-error-message" class="error-message" style="display:none;"></p>
+                <div class="modal-actions">
+                    <button onclick="confirmWithdrawal()" class="btn primary">Confirm Withdraw</button>
+                    <button onclick="closeModal('withdrawModal')" class="btn">Cancel</button>
+                </div>
+            </div>
+        </div>
+
         <footer>
             <p>DXP Verifier | {{ .CurrentTime }}</p>
             <p><a href="#" id="refresh-btn">Refresh Data</a></p>
