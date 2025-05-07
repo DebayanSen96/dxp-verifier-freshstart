@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"runtime"
 	"strconv"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -241,6 +242,7 @@ func (s *Server) handleClaimRewardsAPI(w http.ResponseWriter, r *http.Request) {
 
 // handleWithdrawAPI handles the withdraw stake action
 func (s *Server) handleWithdrawAPI(w http.ResponseWriter, r *http.Request) {
+	logger.Info("handleWithdrawAPI called")
 	w.Header().Set("Content-Type", "application/json")
 
 	if r.Method != http.MethodPost {
@@ -248,22 +250,69 @@ func (s *Server) handleWithdrawAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Parse form data
-	err := r.ParseForm()
-	if err != nil {
-		logger.Error("Failed to parse form data: %v", err)
-		http.Error(w, fmt.Sprintf(`{"error": "%v"}`, err), http.StatusBadRequest)
-		return
+	// Variables to store the amount and farmID
+	var amountStr string
+	var farmIDStr string
+
+	// Check content type to determine how to parse the request
+	contentType := r.Header.Get("Content-Type")
+
+	if strings.Contains(contentType, "application/json") {
+		// Parse JSON request body
+		var requestData struct {
+			Amount string `json:"amount"`
+			FarmId string `json:"farmId,omitempty"`
+		}
+
+		decoder := json.NewDecoder(r.Body)
+		err := decoder.Decode(&requestData)
+		if err != nil {
+			logger.Error("Failed to parse JSON request body: %v", err)
+			http.Error(w, fmt.Sprintf(`{"error": "Failed to parse request: %v"}`, err), http.StatusBadRequest)
+			return
+		}
+
+		amountStr = requestData.Amount
+		farmIDStr = requestData.FarmId
+	} else {
+		// Parse form data (application/x-www-form-urlencoded)
+		err := r.ParseForm()
+		if err != nil {
+			logger.Error("Failed to parse form data: %v", err)
+			http.Error(w, fmt.Sprintf(`{"error": "%v"}`, err), http.StatusBadRequest)
+			return
+		}
+
+		amountStr = r.FormValue("amount")
+		farmIDStr = r.FormValue("farmId")
 	}
 
-	amountStr := r.FormValue("amount")
 	if amountStr == "" {
 		logger.Error("Amount is required")
 		http.Error(w, `{"error": "Amount is required"}`, http.StatusBadRequest)
 		return
 	}
+	logger.Info("Parsed amount: %s, farmID string: %s", amountStr, farmIDStr)
 
-	logger.Info("Withdraw request received for amount: %s", amountStr)
+	// Get farmID from request, default to first assigned farm if not provided
+	farmID := int64(1)
+
+	// If farmID is provided in the request, use it
+	if farmIDStr != "" {
+		farmIDInt, err := strconv.ParseInt(farmIDStr, 10, 64)
+		if err == nil && farmIDInt > 0 {
+			farmID = farmIDInt
+		}
+	} else {
+		// Otherwise, get the first assigned farm from the ethClient
+		assignedFarms, err := s.ethClient.GetAssignedFarms()
+		if err == nil && len(assignedFarms) > 0 {
+			farmID = assignedFarms[0]
+			logger.Info("Using first assigned farm ID: %d", farmID)
+		}
+	}
+
+	logger.Info("Withdraw request received for amount: %s from farm ID: %d", amountStr, farmID)
 
 	// Check if registered as verifier
 	isRegistered, err := s.ethClient.IsRegisteredVerifier()
@@ -272,6 +321,7 @@ func (s *Server) handleWithdrawAPI(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf(`{"error": "Failed to check verifier status: %v"}`, err), http.StatusInternalServerError)
 		return
 	}
+	logger.Info("Verifier registration status: %v", isRegistered)
 
 	if !isRegistered {
 		logger.Error("Not registered as a verifier")
@@ -279,13 +329,15 @@ func (s *Server) handleWithdrawAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get verifier stake
-	stake, err := s.ethClient.GetVerifierStake(1)
+	// Get verifier stake for the specified farm ID
+	stake, err := s.ethClient.GetVerifierStake(farmID)
 	if err != nil {
-		logger.Error("Failed to get verifier stake: %v", err)
-		http.Error(w, fmt.Sprintf(`{"error": "Failed to get verifier stake: %v"}`, err), http.StatusInternalServerError)
+		logger.Error("Failed to get verifier stake for farm %d: %v", farmID, err)
+		http.Error(w, fmt.Sprintf(`{"error": "Failed to get verifier stake for farm %d: %v"}`, farmID, err), http.StatusInternalServerError)
 		return
 	}
+	logger.Info("Current stake for farm %d: %s", farmID, s.ethClient.FormatTokenAmount(stake))
+
 
 	// Convert amount string to wei
 	amountWei, err := s.ethClient.ConvertToWei(amountStr)
@@ -294,16 +346,19 @@ func (s *Server) handleWithdrawAPI(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf(`{"error": "Invalid amount: %v"}`, err), http.StatusBadRequest)
 		return
 	}
+	logger.Info("Parsed amount in wei: %s", amountWei.String())
 
 	// Check if stake is sufficient
 	if stake.Cmp(amountWei) < 0 {
-		errorMsg := fmt.Sprintf("Insufficient stake. Requested: %s DXP, Available: %s DXP",
+		errorMsg := fmt.Sprintf("Insufficient stake in farm %d. Requested: %s DXP, Available: %s DXP",
+			farmID,
 			s.ethClient.FormatTokenAmount(amountWei),
 			s.ethClient.FormatTokenAmount(stake))
 		logger.Error("Validation failed: %s", errorMsg)
 		http.Error(w, fmt.Sprintf(`{"error": "%s"}`, errorMsg), http.StatusBadRequest)
 		return
 	}
+	logger.Info("Stake is sufficient for withdrawal")
 
 	// Define minimum stake requirement (100 DXP)
 	minStakeWei, _ := s.ethClient.ConvertToWei("100")
@@ -313,39 +368,31 @@ func (s *Server) handleWithdrawAPI(w http.ResponseWriter, r *http.Request) {
 
 	// Check if remaining stake would be below minimum but greater than zero
 	if remainingStake.Cmp(big.NewInt(0)) > 0 && remainingStake.Cmp(minStakeWei) < 0 {
-		errorMsg := fmt.Sprintf("Withdrawal would leave stake below minimum requirement of 100 DXP. Requested: %s DXP, Remaining would be: %s DXP",
+		errorMsg := fmt.Sprintf("Withdrawal from farm %d would leave stake below minimum requirement of 100 DXP. Requested: %s DXP, Remaining would be: %s DXP",
+			farmID,
 			s.ethClient.FormatTokenAmount(amountWei),
 			s.ethClient.FormatTokenAmount(remainingStake))
 		logger.Error("Validation failed: %s", errorMsg)
 		http.Error(w, fmt.Sprintf(`{"error": "%s"}`, errorMsg), http.StatusBadRequest)
 		return
 	}
-
-	logger.Info("Withdrawing %s DXP from stake...", s.ethClient.FormatTokenAmount(amountWei))
-
-	// Get farmID from request, default to 1 if not provided
-	farmID := int64(1)
-	farmIDStr := r.FormValue("farmId")
-	if farmIDStr != "" {
-		farmIDInt, err := strconv.ParseInt(farmIDStr, 10, 64)
-		if err == nil && farmIDInt > 0 {
-			farmID = farmIDInt
-		}
-	}
+	logger.Info("Minimum stake check passed. Proceeding to withdrawal.")
 
 	logger.Info("Withdrawing %s DXP from farm ID %d...", s.ethClient.FormatTokenAmount(amountWei), farmID)
 
 	// Withdraw stake
+	logger.Info("Calling ethClient.WithdrawVerifierStake(%d, %s)", farmID, amountWei.String())
 	tx, err := s.ethClient.WithdrawVerifierStake(farmID, amountWei)
 	if err != nil {
-		logger.Error("Failed to withdraw stake: %v", err)
-		http.Error(w, fmt.Sprintf(`{"error": "Failed to withdraw stake: %v"}`, err), http.StatusInternalServerError)
+		logger.Error("Failed to withdraw stake from farm %d: %v", farmID, err)
+		http.Error(w, fmt.Sprintf(`{"error": "Failed to withdraw stake from farm %d: %v"}`, farmID, err), http.StatusInternalServerError)
 		return
 	}
+	logger.Info("WithdrawVerifierStake returned tx: %v", tx)
 
 	// Return transaction hash
 	txHash := tx.Hash().Hex()
-	logger.Success("Withdrawal transaction submitted: %s", txHash)
+	logger.Success("Withdrawal transaction submitted for farm %d: %s", farmID, txHash)
 
 	response := map[string]string{
 		"txHash": txHash,

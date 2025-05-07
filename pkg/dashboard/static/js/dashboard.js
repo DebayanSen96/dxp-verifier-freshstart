@@ -271,8 +271,9 @@ function claimRewards() {
 window.withdrawStake = function() {
     console.log('[withdrawStake] Called.'); // Log 1
 
-    const walletAddressElement = document.getElementById('wallet-address-display'); // Use new ID
-    console.log('[withdrawStake] walletAddressElement (DOM object):', walletAddressElement); // Log 2
+    // Validate wallet address
+    const walletAddressElement = document.getElementById('wallet-address-display');
+    console.log('[withdrawStake] walletAddressElement (DOM object):', walletAddressElement);
 
     if (!walletAddressElement) {
         showStatus('Error: Wallet address display element not found in DOM. Cannot proceed.', 'error');
@@ -280,15 +281,16 @@ window.withdrawStake = function() {
     }
 
     const walletAddress = walletAddressElement.textContent.trim();
-    console.log('[withdrawStake] walletAddress (text content):', walletAddress); // Log 3
+    console.log('[withdrawStake] walletAddress (text content):', walletAddress);
 
     if (!walletAddress || walletAddress === 'N/A' || walletAddress === '') {
         showStatus('Error: Wallet address not available or N/A. Please connect wallet. Value: "' + walletAddress + '"', 'error');
         return;
     }
 
+    // Validate current stake
     const currentStakeElement = document.getElementById('current-stake-value');
-    console.log('[withdrawStake] currentStakeElement (DOM object with ID current-stake-value):', currentStakeElement); // Log 4
+    console.log('[withdrawStake] currentStakeElement (DOM object with ID current-stake-value):', currentStakeElement);
 
     if (!currentStakeElement) {
         showStatus('Error: Current stake display element (ID: current-stake-value) not found in DOM.', 'error');
@@ -296,7 +298,7 @@ window.withdrawStake = function() {
     }
     
     const currentStakeText = currentStakeElement.textContent.trim();
-    console.log('[withdrawStake] currentStakeText (from element content):', currentStakeText); // Log 5
+    console.log('[withdrawStake] currentStakeText (from element content):', currentStakeText);
     
     let currentStake;
     try {
@@ -311,18 +313,164 @@ window.withdrawStake = function() {
         showStatus('Error: Could not parse current stake value: ' + currentStakeText, 'error');
         return;
     }
-    console.log('[withdrawStake] currentStake (parsed float):', currentStake); // Log 6
+    console.log('[withdrawStake] currentStake (parsed float):', currentStake);
 
     if (isNaN(currentStake) || currentStake <= 0) { 
         showStatus('Error: Invalid or zero current stake (parsed as ' + currentStake + ' from text "' + currentStakeText + '"). Cannot initiate withdrawal.', 'error');
         return;
     }
 
-    // If all checks pass, populate and show the modal
-    console.log('[withdrawStake] All prerequisite checks passed. Populating modal with stake: ' + currentStake + ' and showing it.'); // Log 7
-    document.getElementById('modalCurrentStake').textContent = currentStake.toFixed(18); // Display with precision
-    document.getElementById('withdrawAmountInput').value = ''; // Clear previous input
-    document.getElementById('withdrawModal').style.display = 'block';
+    // If all checks pass, focus on the withdraw amount input
+    console.log('[withdrawStake] All prerequisite checks passed. Current stake: ' + currentStake);
+    document.getElementById('withdraw-amount').focus();
+    showStatus('Enter amount to withdraw and click Confirm Withdrawal', 'info');
+};
+
+// Function to handle the withdrawal confirmation directly from the form
+window.confirmWithdrawal = function() {
+    console.log('[confirmWithdrawal] Button clicked, function triggered.');
+    
+    // Get the withdrawal amount from the input field
+    const withdrawAmountInput = document.getElementById('withdraw-amount');
+    if (!withdrawAmountInput) {
+        showStatus('Error: Withdrawal amount input field not found.', 'error');
+        return;
+    }
+    
+    const amountStr = withdrawAmountInput.value.trim();
+    console.log('[confirmWithdrawal] Amount entered:', amountStr);
+    
+    if (!amountStr) {
+        showStatus('Please enter an amount to withdraw.', 'error');
+        return;
+    }
+    
+    // Parse and validate the amount
+    const amount = parseFloat(amountStr);
+    if (isNaN(amount) || amount <= 0) {
+        showStatus('Please enter a valid positive number.', 'error');
+        return;
+    }
+    
+    // Get the current stake from the page
+    const currentStakeElement = document.getElementById('current-stake-value');
+    const currentStake = parseFloat(currentStakeElement.textContent.trim());
+    console.log('[confirmWithdrawal] Current stake:', currentStake);
+    
+    if (amount > currentStake) {
+        showStatus(`Cannot withdraw more than your current stake of ${currentStake} DXP.`, 'error');
+        return;
+    }
+    
+    // Check minimum stake requirements
+    const minimumStake = 100; // DXP
+    const remainingStake = currentStake - amount;
+    
+    // If remaining stake would be below minimum but greater than zero, confirm full withdrawal
+    if (remainingStake > 0 && remainingStake < minimumStake) {
+        const confirmFullWithdrawal = confirm(
+            `Withdrawing ${amount} DXP would leave your stake at ${remainingStake.toFixed(6)} DXP, which is below the minimum requirement of ${minimumStake} DXP.\n\n` +
+            `You can either:\n- Withdraw up to ${(currentStake - minimumStake).toFixed(6)} DXP to maintain the minimum stake\n- Withdraw your full stake of ${currentStake} DXP\n\n` +
+            `Would you like to proceed with a full withdrawal instead?`
+        );
+        
+        if (confirmFullWithdrawal) {
+            // User chose to withdraw everything
+            console.log('[confirmWithdrawal] Switching to full withdrawal');
+            withdrawAmountInput.value = currentStake.toString();
+        } else {
+            // User canceled
+            return;
+        }
+    }
+    
+    // Get the final amount (in case it was updated for full withdrawal)
+    const finalAmount = parseFloat(withdrawAmountInput.value.trim());
+    console.log('[confirmWithdrawal] Final withdrawal amount:', finalAmount);
+    
+    // Determine if this is a full withdrawal
+    const isFullWithdrawal = Math.abs(finalAmount - currentStake) < 0.000001;
+    console.log('[confirmWithdrawal] Is full withdrawal:', isFullWithdrawal);
+    
+    // Disable the confirm button to prevent multiple submissions
+    const confirmButton = document.getElementById('confirm-withdraw-btn');
+    if (confirmButton) {
+        confirmButton.disabled = true;
+        confirmButton.textContent = 'Processing...';
+    }
+    
+    // Show processing status
+    showStatus('Processing withdrawal request...', 'info');
+    
+    // Make the API call
+    console.log('[confirmWithdrawal] Sending API request to /api/withdraw with data:', { amount: finalAmount.toString() });
+    
+    // Get the assigned farm ID if available
+    let farmId = '';
+    const assignedFarmsElement = document.querySelector('.metric:nth-child(3) .value');
+    if (assignedFarmsElement) {
+        const farmsText = assignedFarmsElement.textContent.trim();
+        if (farmsText && farmsText !== 'None') {
+            // Extract the first farm ID if multiple are listed
+            const farmMatch = farmsText.match(/\d+/);
+            if (farmMatch) {
+                farmId = farmMatch[0];
+                console.log('[confirmWithdrawal] Using farm ID:', farmId);
+            }
+        }
+    }
+    
+    // Create URL-encoded form data
+    const formData = new URLSearchParams();
+    formData.append('amount', finalAmount.toString());
+    if (farmId) {
+        formData.append('farmId', farmId);
+    }
+    
+    fetch('/api/withdraw', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: formData.toString()
+    })
+    .then(response => {
+        console.log('[confirmWithdrawal] API response received. Status:', response.status);
+        console.log('[confirmWithdrawal] Response headers:', response.headers);
+        
+        if (!response.ok) {
+            return response.json().then(data => {
+                console.error('[confirmWithdrawal] Error response data:', data);
+                throw new Error(data.error || 'Failed to process withdrawal');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('[confirmWithdrawal] API response data:', data);
+        showStatus('Withdrawal transaction submitted! Waiting for blockchain confirmation...', 'info');
+        
+        // Close the modal
+        document.getElementById('withdrawModal').style.display = 'none';
+        
+        // Start polling for blockchain state changes
+        waitForBlockchainUpdate(isFullWithdrawal, modalCurrentStake, finalAmount);
+    })
+    .catch(error => {
+        console.error('[confirmWithdrawal] Error:', error);
+        showStatus(`Error: ${error.message}`, 'error');
+        
+        // Re-enable the button
+        if (confirmButton) {
+            confirmButton.disabled = false;
+            confirmButton.textContent = 'Confirm Withdraw';
+        }
+    });
+};
+
+// Function to close any modal
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
 };
 
 // Function to wait for blockchain state to update
