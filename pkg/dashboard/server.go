@@ -93,14 +93,19 @@ func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
 			pendingRewards = s.ethClient.FormatTokenAmount(rewards)
 		}
 
-		// Get verifier stake
-		stake, err := s.ethClient.GetVerifierStake(1)
-		if err == nil {
-			verifierStake = s.ethClient.FormatTokenAmount(stake)
+		// Get assigned farms first
+		assignedFarms, err = s.ethClient.GetAssignedFarms()
+		if err != nil {
+			logger.Error("Failed to get assigned farms: %v", err)
+		} else if len(assignedFarms) > 0 {
+			// Get verifier stake for the first assigned farm
+			stake, err := s.ethClient.GetVerifierStake(assignedFarms[0])
+			if err == nil {
+				verifierStake = s.ethClient.FormatTokenAmount(stake)
+			} else {
+				logger.Error("Failed to get verifier stake: %v", err)
+			}
 		}
-
-		// Get assigned farms
-		assignedFarms, _ = s.ethClient.GetAssignedFarms()
 	}
 
 	// Get wallet address
@@ -175,10 +180,18 @@ func (s *Server) handleStatusAPI(w http.ResponseWriter, r *http.Request) {
 	var verifierStake string
 
 	if isRegistered {
-		// Get verifier stake
-		stake, err := s.ethClient.GetVerifierStake(1)
-		if err == nil {
-			verifierStake = s.ethClient.FormatTokenAmount(stake)
+		// Get assigned farms first
+		assignedFarms, err := s.ethClient.GetAssignedFarms()
+		if err != nil {
+			logger.Error("Failed to get assigned farms: %v", err)
+		} else if len(assignedFarms) > 0 {
+			// Get verifier stake for the first assigned farm
+			stake, err := s.ethClient.GetVerifierStake(assignedFarms[0])
+			if err == nil {
+				verifierStake = s.ethClient.FormatTokenAmount(stake)
+			} else {
+				logger.Error("Failed to get verifier stake: %v", err)
+			}
 		}
 
 		// Get pending rewards
