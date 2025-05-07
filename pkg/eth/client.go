@@ -410,18 +410,20 @@ func (c *Client) ClaimRewards() (*types.Transaction, error) {
 
 // SubmitVerification submits both score and benchmark for a farm to the Consensus contract
 // This matches the Consensus contract's submit(uint256 farmId, uint256 score, uint256 benchmark) function
+// Score should be a value between 0-1 (converted to basis points 0-10000)
+// Benchmark should be a percentage between 0-100 (converted to basis points 0-10000)
 func (c *Client) SubmitVerification(farmID int64, score, benchmark *big.Float) (*types.Transaction, error) {
 	// Create the method signature for submit in Consensus contract
 	methodSig := []byte("submit(uint256,uint256,uint256)")
 	methodID := crypto.Keccak256(methodSig)[:4]
 
-	// Convert score to uint256 (normalized to 1e18 scale)
+	// Convert score (0-1) to basis points (0-10000)
 	scoreInt := new(big.Int)
-	score.Mul(score, big.NewFloat(1e18)).Int(scoreInt) // Convert to 1e18 scale (0.5 = 0.5 * 10^18)
+	score.Mul(score, big.NewFloat(10000)).Int(scoreInt) // Convert 0.75 to 7500 basis points
 
-	// Convert benchmark to uint256 (normalized to 1e18 scale)
+	// Convert benchmark (0-100) to basis points (0-10000)
 	benchmarkInt := new(big.Int)
-	benchmark.Mul(benchmark, big.NewFloat(1e18)).Int(benchmarkInt)
+	benchmark.Mul(benchmark, big.NewFloat(100)).Int(benchmarkInt) // Convert 80% to 8000 basis points
 
 	// Pack the parameters
 	paddedFarmID := common.LeftPadBytes(big.NewInt(farmID).Bytes(), 32)
