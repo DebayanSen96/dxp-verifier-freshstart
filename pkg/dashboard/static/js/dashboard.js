@@ -269,186 +269,60 @@ function claimRewards() {
 
 // Make the function globally accessible
 window.withdrawStake = function() {
-    console.log('withdrawStake function called');
-    const amount = withdrawAmount.value.trim();
-    if (!amount) {
-        showStatus('Please enter an amount to withdraw', 'error');
+    console.log('[withdrawStake] Called.'); // Log 1
+
+    const walletAddressElement = document.getElementById('wallet-address-display'); // Use new ID
+    console.log('[withdrawStake] walletAddressElement (DOM object):', walletAddressElement); // Log 2
+
+    if (!walletAddressElement) {
+        showStatus('Error: Wallet address display element not found in DOM. Cannot proceed.', 'error');
         return;
     }
 
-    // Validate the amount is a valid number
-    if (isNaN(parseFloat(amount)) || !isFinite(amount) || parseFloat(amount) <= 0) {
-        showStatus('Please enter a valid positive number', 'error');
+    const walletAddress = walletAddressElement.textContent.trim();
+    console.log('[withdrawStake] walletAddress (text content):', walletAddress); // Log 3
+
+    if (!walletAddress || walletAddress === 'N/A' || walletAddress === '') {
+        showStatus('Error: Wallet address not available or N/A. Please connect wallet. Value: "' + walletAddress + '"', 'error');
         return;
     }
 
-    // Get the current stake amount from the page
-    const currentStakeElement = document.querySelector('.metric:nth-child(5) .value');
+    const currentStakeElement = document.getElementById('current-stake-value');
+    console.log('[withdrawStake] currentStakeElement (DOM object with ID current-stake-value):', currentStakeElement); // Log 4
+
     if (!currentStakeElement) {
-        showStatus('Error: Could not determine current stake', 'error');
+        showStatus('Error: Current stake display element (ID: current-stake-value) not found in DOM.', 'error');
         return;
     }
-
+    
     const currentStakeText = currentStakeElement.textContent.trim();
-    const currentStake = parseFloat(currentStakeText);
-    let withdrawAmountValue = parseFloat(amount);
+    console.log('[withdrawStake] currentStakeText (from element content):', currentStakeText); // Log 5
     
-    // Check if withdrawal amount exceeds current stake
-    if (withdrawAmountValue > currentStake) {
-        showStatus(`Error: Cannot withdraw more than your current stake of ${currentStake} DXP`, 'error');
+    let currentStake;
+    try {
+        currentStake = parseFloat(currentStakeText);
+        if (isNaN(currentStake)) {
+            // Try to see if it's a BigNumber string if parseFloat fails (e.g. has ' ETH' or similar)
+            const cleanedStakeText = currentStakeText.replace(/[^0-9.]/g, '');
+            currentStake = parseFloat(cleanedStakeText);
+        }
+    } catch (e) {
+        console.error('[withdrawStake] Error parsing currentStakeText:', e);
+        showStatus('Error: Could not parse current stake value: ' + currentStakeText, 'error');
         return;
     }
-    
-    // Minimum stake requirement is 100 DXP
-    const minimumStake = 100; 
-    let remainingStake = currentStake - withdrawAmountValue;
-    
-    // Check if the remaining stake would be below the minimum requirement but greater than zero
-    if (remainingStake > 0 && remainingStake < minimumStake) {
-        // Calculate the maximum amount they can withdraw while keeping minimum stake
-        const maxWithdrawal = currentStake - minimumStake;
-        
-        const message = `Withdrawing ${amount} DXP would leave your stake at ${remainingStake.toFixed(6)} DXP, which is below the minimum requirement of ${minimumStake} DXP.\n\nYou can either:\n- Withdraw up to ${maxWithdrawal.toFixed(6)} DXP to maintain the minimum stake\n- Withdraw your full stake of ${currentStake} DXP\n\nWould you like to proceed with a full withdrawal instead?`;
-        
-        if (confirm(message)) {
-            // User chose to withdraw everything
-            withdrawAmountValue = currentStake;
-            document.getElementById('withdraw-amount').value = currentStake.toString();
-            remainingStake = 0;
-            
-            // This is now a full withdrawal
-            console.log("Switching to full withdrawal of", currentStake, "DXP");
-        } else {
-            // User canceled
-            return;
-        }
-    }
-    
-    // Determine if this is a full withdrawal or partial withdrawal
-    const isFullWithdrawal = Math.abs(withdrawAmountValue - currentStake) < 0.000001 || remainingStake === 0;
-    console.log("Is full withdrawal:", isFullWithdrawal, "Amount:", withdrawAmountValue, "Current stake:", currentStake);
+    console.log('[withdrawStake] currentStake (parsed float):', currentStake); // Log 6
 
-    // Disable the button to prevent multiple submissions
-    if (confirmWithdrawBtn) {
-        confirmWithdrawBtn.disabled = true;
-        confirmWithdrawBtn.classList.add('disabled');
-        confirmWithdrawBtn.textContent = 'Processing...';
+    if (isNaN(currentStake) || currentStake <= 0) { 
+        showStatus('Error: Invalid or zero current stake (parsed as ' + currentStake + ' from text "' + currentStakeText + '"). Cannot initiate withdrawal.', 'error');
+        return;
     }
-    
-    // Show loading status
-    showStatus('Processing withdrawal request...', 'info');
-    
-    // Create URL-encoded form data instead of FormData
-    const formData = new URLSearchParams();
-    formData.append('amount', document.getElementById('withdraw-amount').value.trim());
 
-    fetch('/api/withdraw', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: formData.toString()
-    })
-    .then(response => {
-        console.log('Withdrawal response status:', response.status);
-        if (!response.ok) {
-            return response.json().then(data => {
-                console.error('Withdrawal error:', data);
-                throw new Error(data.error || 'Failed to process withdrawal');
-            });
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Withdrawal request submitted:', data);
-        showStatus(`Transaction submitted. Waiting for blockchain state to update...`, 'info');
-        
-        // Store the original stake amount for comparison
-        const originalStakeAmount = currentStake;
-        const expectedStakeAfterWithdrawal = originalStakeAmount - withdrawAmountValue;
-        console.log('Original stake:', originalStakeAmount);
-        console.log('Expected stake after withdrawal:', expectedStakeAfterWithdrawal);
-        
-        // Set up polling to check contract state directly
-        let attempts = 0;
-        const maxAttempts = 120; // 10 minutes (5s intervals)
-        
-        const statusCheckInterval = setInterval(() => {
-            attempts++;
-            console.log(`Checking contract state, attempt ${attempts}`);
-            
-            if (attempts % 4 === 0) {
-                showStatus(`Waiting for blockchain state to update... (${Math.floor(attempts / 12)} min)`, 'info');
-            }
-            
-            // Check current blockchain state directly using the status API
-            fetch('/api/status')
-                .then(response => response.json())
-                .then(statusData => {
-                    console.log('Contract state data:', statusData);
-                    
-                    // Get the current stake amount from the contract
-                    const currentStakeFromContract = parseFloat(statusData.verifierStake || "0");
-                    console.log('Current stake from contract:', currentStakeFromContract);
-                    
-                    // For full withdrawal, check if registration status has changed
-                    if (isFullWithdrawal) {
-                        if (!statusData.isRegistered || Math.abs(currentStakeFromContract) < 0.000001) {
-                            clearInterval(statusCheckInterval);
-                            showStatus('Withdrawal complete! You are no longer registered as a verifier.', 'success');
-                            
-                            // Refresh the page after a short delay
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 2000);
-                        }
-                    } 
-                    // For partial withdrawal, check if stake amount has changed
-                    else {
-                        // Check if the stake amount has changed from the original
-                        const hasStakeChanged = Math.abs(currentStakeFromContract - originalStakeAmount) > 0.000001;
-                        
-                        if (hasStakeChanged) {
-                            clearInterval(statusCheckInterval);
-                            showStatus(`Withdrawal complete! Your stake has been updated to ${currentStakeFromContract.toFixed(6)} DXP.`, 'success');
-                            
-                            // Refresh the page after a short delay
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 2000);
-                        }
-                    }
-                    
-                    // Check for timeout
-                    if (attempts >= maxAttempts) {
-                        clearInterval(statusCheckInterval);
-                        showStatus('Blockchain state update is taking longer than expected. Please refresh manually.', 'info');
-                        
-                        // Re-enable the button
-                        if (confirmWithdrawBtn) {
-                            confirmWithdrawBtn.disabled = false;
-                            confirmWithdrawBtn.classList.remove('disabled');
-                            confirmWithdrawBtn.textContent = 'Confirm Withdrawal';
-                        }
-                    }
-                })
-                .catch(error => {
-                    console.error('Error checking contract state:', error);
-                    // Don't clear interval, keep checking
-                });
-        }, 5000); // Check every 5 seconds
-    })
-    .catch(error => {
-        console.error('Withdrawal error:', error);
-        showStatus(`Error: ${error.message}`, 'error');
-        
-        // Re-enable the button on error
-        if (confirmWithdrawBtn) {
-            confirmWithdrawBtn.disabled = false;
-            confirmWithdrawBtn.classList.remove('disabled');
-            confirmWithdrawBtn.textContent = 'Confirm Withdrawal';
-        }
-    });
+    // If all checks pass, populate and show the modal
+    console.log('[withdrawStake] All prerequisite checks passed. Populating modal with stake: ' + currentStake + ' and showing it.'); // Log 7
+    document.getElementById('modalCurrentStake').textContent = currentStake.toFixed(18); // Display with precision
+    document.getElementById('withdrawAmountInput').value = ''; // Clear previous input
+    document.getElementById('withdrawModal').style.display = 'block';
 };
 
 // Function to wait for blockchain state to update
@@ -462,7 +336,7 @@ function waitForBlockchainUpdate(isFullWithdrawal, originalStake, withdrawalAmou
     
     const checkStateStatus = setInterval(() => {
         stateAttempts++;
-        console.log(`Checking blockchain state, attempt ${stateAttempts}`);
+        console.log(`Checking contract state, attempt ${stateAttempts}`);
         
         if (stateAttempts % 4 === 0) {
             showStatus(`Waiting for blockchain state to update... (${Math.floor(stateAttempts / 12)} min)`, 'info');
@@ -482,10 +356,9 @@ function waitForBlockchainUpdate(isFullWithdrawal, originalStake, withdrawalAmou
                 // Parse the current stake from the status response
                 const currentStakeFromStatus = parseFloat(statusData.verifierStake || "0");
                 console.log('Current stake from status:', currentStakeFromStatus);
-                console.log('Is registered:', statusData.isRegistered);
                 
                 if (isFullWithdrawal) {
-                    // For full withdrawal, we wait until isRegistered becomes false OR stake becomes 0
+                    // For full withdrawal, check if registration status has changed
                     if (!statusData.isRegistered || Math.abs(currentStakeFromStatus) < 0.000001) {
                         clearInterval(checkStateStatus);
                         showStatus('Withdrawal complete! You are no longer registered as a verifier.', 'success');
@@ -494,12 +367,9 @@ function waitForBlockchainUpdate(isFullWithdrawal, originalStake, withdrawalAmou
                         setTimeout(() => {
                             window.location.reload();
                         }, 3000);
-                    } else if (stateAttempts >= maxStateAttempts) {
-                        clearInterval(checkStateStatus);
-                        showStatus('Blockchain state update is taking longer than expected. Please refresh manually.', 'info');
                     }
                 } else {
-                    // For partial withdrawal, we check if the stake amount has been updated
+                    // For partial withdrawal, check if stake amount has changed
                     const expectedStakeAfterWithdrawal = originalStake - withdrawalAmount;
                     console.log('Expected stake after withdrawal:', expectedStakeAfterWithdrawal);
                     
@@ -781,7 +651,6 @@ window.registerVerifier = function() {
                                 window.location.reload();
                             }, 3000);
                         } else if (attempts >= maxAttempts) {
-                            // Timeout after max attempts
                             clearInterval(statusCheckInterval);
                             showRegisterStatus('Registration is taking longer than expected. Please check status later or try again.', 'info');
                             
