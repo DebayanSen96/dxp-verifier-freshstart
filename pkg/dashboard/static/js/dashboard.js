@@ -450,11 +450,8 @@ window.confirmWithdrawal = function() {
         console.log('[confirmWithdrawal] API response data:', data);
         showStatus('Withdrawal transaction submitted! Waiting for blockchain confirmation...', 'info');
         
-        // Close the modal
-        document.getElementById('withdrawModal').style.display = 'none';
-        
         // Start polling for blockchain state changes
-        waitForBlockchainUpdate(isFullWithdrawal, modalCurrentStake, finalAmount);
+        waitForBlockchainUpdate(isFullWithdrawal, currentStake, finalAmount);
     })
     .catch(error => {
         console.error('[confirmWithdrawal] Error:', error);
@@ -468,10 +465,7 @@ window.confirmWithdrawal = function() {
     });
 };
 
-// Function to close any modal
-function closeModal(modalId) {
-    document.getElementById(modalId).style.display = 'none';
-};
+// Modal handling functions removed to avoid confusion;
 
 // Function to wait for blockchain state to update
 function waitForBlockchainUpdate(isFullWithdrawal, originalStake, withdrawalAmount) {
