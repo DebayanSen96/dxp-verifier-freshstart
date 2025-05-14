@@ -1,25 +1,20 @@
 # Dexponent Verifier Client
 
-A robust verifier client for the Dexponent protocol built using Go Ethereum (Geth) and libp2p for peer-to-peer networking, with enhanced NAT traversal capabilities.
+A robust verifier client for the Dexponent protocol built using Go Ethereum (Geth) with smart contract integration for consensus.
 
 ## Features
 
-- **Advanced Peer Discovery**
-  - Dual Kademlia DHT implementation with separate LAN and WAN support
-  - Local peer discovery using mDNS
-  - Efficient peer exchange mechanism for better network connectivity
-  - Robust peer management with health checks and stale peer cleanup
+- **Smart Contract Integration**
+  - Direct integration with Consensus smart contract
+  - Event-driven architecture for round participation
+  - Automatic submission of verification results
+  - Efficient handling of concurrent verification rounds
 
-- **Enhanced Connectivity**
-  - Multiple transport protocols (TCP and QUIC) for improved connectivity
-  - Advanced NAT traversal with hole punching capabilities
-  - External IP detection and address filtering
-  - Automatic connection to bootstrap nodes
-
-- **Protocol & Consensus**
-  - Leader-based consensus mechanism with deterministic leader selection
-  - JSON-based message serialization for cross-platform compatibility
-  - Comprehensive protocol for verifier coordination
+- **Contract-Based Consensus**
+  - Centralized consensus coordination via smart contract
+  - Event subscription for round start notifications
+  - Reliable submission of farm scores and benchmarks
+  - Transparent verification process
 
 - **Blockchain Integration**
   - Ethereum blockchain integration for verifier registration and rewards
@@ -38,9 +33,9 @@ dxp-verifier/
 ├── cmd/
 │   └── verifier/      # Main executable
 ├── pkg/
-│   ├── config/        # Configuration
-│   ├── eth/           # Ethereum client integration
-│   └── p2p/           # P2P networking
+│   ├── consensus/     # Contract-based consensus implementation
+│   ├── dashboard/     # Web dashboard
+│   └── eth/           # Ethereum client integration
 ├── POLKADOT_IMPLEMENTATION.md  # Implementation details based on Polkadot
 └── dxp-verifier       # Executable binary
 ```

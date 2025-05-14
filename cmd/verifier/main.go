@@ -4,20 +4,16 @@ import (
 	"flag"
 	"fmt"
 	"math/big"
-
 	"os"
 	"os/exec"
 	"os/signal"
 	"syscall"
-	"time"
 
-	"github.com/dexponent/dxp-verifier/pkg/dashboard"
+	"github.com/dexponent/dxp-verifier/pkg/consensus"
 	"github.com/dexponent/dxp-verifier/pkg/eth"
 	"github.com/dexponent/dxp-verifier/pkg/logger"
-	"github.com/dexponent/dxp-verifier/pkg/p2p"
 
 	"github.com/joho/godotenv"
-	"github.com/libp2p/go-libp2p/core/peer"
 )
 
 // printUsage prints the usage information for the verifier
@@ -150,24 +146,7 @@ func main() {
 			os.Exit(0)
 		}
 
-		logger.Info("Initializing P2P host...")
-		host, err := p2p.NewHost()
-		if err != nil {
-			logger.Error("Failed to initialize P2P host: %v", err)
-			os.Exit(1)
-		}
-
-		// Log peer ID
-		peerID := host.ID().String()
-		logger.Success("Peer ID: %s", peerID)
-
-		// Initialize mDNS discovery service
-		_, err = p2p.NewMDNS(host)
-		if err != nil {
-			logger.Warn("Failed to initialize mDNS discovery: %v", err)
-		} else {
-			logger.Success("mDNS discovery service started")
-		}
+		logger.Info("Initializing contract-based consensus verifier...")
 
 		// Initialize Ethereum client
 		ethClient, err := eth.NewClient(rpcURL, privateKeyHex, protocolAddress, consensusAddress, tokenAddress)
@@ -176,11 +155,7 @@ func main() {
 			logger.Info("Continuing without blockchain integration...")
 		}
 
-		// Initialize the Dexponent protocol
-		logger.Info("Initializing Dexponent protocol...")
-		protocol := p2p.NewDexponentProtocol(host)
-
-		// Set Ethereum client if available
+		// Initialize Ethereum client if available
 		if ethClient != nil {
 			// Perform blockchain connection check
 			currentBlock, err := ethClient.GetCurrentBlock()
@@ -210,9 +185,16 @@ func main() {
 						farmInfo += fmt.Sprintf("%d", farmID)
 					}
 					logger.Success(farmInfo)
-					protocol.SetEthClient(ethClient)
 
-					// Benchmark calculation is now handled by the leader in the consensus process
+					// Initialize and start contract-based consensus
+					logger.Info("Initializing contract-based consensus...")
+					contractConsensus := consensus.NewContractConsensus(ethClient)
+					err = contractConsensus.Start()
+					if err != nil {
+						logger.Warn("Failed to start contract-based consensus: %v", err)
+					} else {
+						logger.Success("Contract-based consensus started successfully")
+					}
 				} else {
 					logger.Info("Not assigned to any farms")
 				}
@@ -221,19 +203,7 @@ func main() {
 			}
 		}
 
-		// Start peer discovery
-		logger.Info("Starting peer discovery...")
-
-		// Start consensus process in background
-		go runConsensusProcess(protocol)
-
 		logger.Success("Verifier started successfully!")
-
-		// Start periodic handshake attempts with new peers
-		go attemptHandshakes(host, protocol)
-
-		// Start periodic display of connected Dexponent peers
-		go displayDexponentPeers(protocol)
 
 		// Wait for interrupt signal
 		sigCh := make(chan os.Signal, 1)
@@ -252,7 +222,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		if *farmId < 0 || *farmId > 8 {
+		if *farmId < 1 || *farmId > 8 {
 			logger.Error("Error: --farmid flag is required and must be between 1 and 8")
 			os.Exit(1)
 		}
@@ -523,50 +493,9 @@ func main() {
 		logger.Success("Stake withdrawn successfully!")
 
 	case "send":
-		// Check if key and value are provided
-		if len(os.Args) < 4 {
-			logger.Error("Error: send command requires key and value arguments")
-			logger.Info("Usage: ./dxp-verifier send <key> <value>")
-			os.Exit(1)
-		}
-
-		key := os.Args[2]
-		value := os.Args[3]
-
-		// Initialize P2P host
-		host, err := p2p.NewHost()
-		if err != nil {
-			logger.Error("Failed to create P2P host: %v", err)
-			os.Exit(1)
-		}
-
-		// Initialize the Dexponent protocol
-		protocol := p2p.NewDexponentProtocol(host)
-
-		// Wait a bit for peer discovery
-		logger.Info("Waiting for peer discovery...")
-		time.Sleep(5 * time.Second)
-
-		// Get Dexponent peers
-		peers := protocol.GetDexponentPeers()
-		if len(peers) == 0 {
-			logger.Info("No Dexponent peers found")
-			os.Exit(1)
-		}
-
-		logger.Info("Sending data to %d Dexponent peers...", len(peers))
-		for _, peerID := range peers {
-			// Note: This is a placeholder. The actual implementation of SendData
-			// needs to be added to the DexponentProtocol
-			logger.Info("Would send data to %s: key=%s, value=%s", peerID.String(), key, value)
-			// Uncomment when SendData is implemented:
-			// err := protocol.SendData(peerID, key, value)
-			// if err != nil {
-			//     logger.Error("Failed to send data to %s: %v", peerID.String(), err)
-			// } else {
-			//     logger.Success("Data sent to %s", peerID.String())
-			// }
-		}
+		// This command is no longer supported in the contract-based consensus model
+		logger.Error("The 'send' command is not supported in the contract-based consensus model")
+		os.Exit(1)
 
 	case "stop":
 		// Parse stop command flags
@@ -606,137 +535,20 @@ func main() {
 
 		// Try to remove PID file
 		err = os.Remove(pidFile)
-		if err != nil {
-			logger.Warn("Failed to remove PID file: %v", err)
-		}
+		printUsage()
+		os.Exit(1)
 
 	case "dashboard":
-		// Initialize Ethereum client
-		ethClient, err := eth.NewClient(rpcURL, privateKeyHex, protocolAddress, consensusAddress, tokenAddress)
-		if err != nil {
-			logger.Error("Failed to initialize Ethereum client: %v", err)
-			os.Exit(1)
-		}
-
-		// Start the dashboard server
-		logger.Info("Starting dashboard server...")
-		err = dashboard.StartDashboard(ethClient)
-		if err != nil {
-			logger.Error("Failed to start dashboard server: %v", err)
-			os.Exit(1)
-		}
-
-	default:
-		logger.Error("Unknown command: %s", cmd)
-		printUsage()
+		// This command is no longer supported in the contract-based consensus model
+		logger.Error("Please use a web browser to access the dashboard at http://localhost:8080")
 		os.Exit(1)
 	}
 }
 
-// attemptHandshakes periodically checks for new peers and attempts to handshake with them
-func attemptHandshakes(host p2p.Host, protocol *p2p.DexponentProtocol) {
-	knownPeers := make(map[peer.ID]bool)
-	ticker := time.NewTicker(10 * time.Second)
-	defer ticker.Stop()
 
-	for {
-		select {
-		case <-ticker.C:
-			// Get all connected peers
-			peers := host.Network().Peers()
 
-			// Attempt handshake with new peers
-			for _, peerID := range peers {
-				// Skip if we already know this peer
-				if knownPeers[peerID] {
-					continue
-				}
 
-				// Skip if this is already a Dexponent peer
-				if protocol.IsDexponentPeer(peerID) {
-					knownPeers[peerID] = true
-					continue
-				}
 
-				// Attempt to handshake with this peer - don't log the attempt or errors
-				// Only log successful handshakes (which happens in the protocol)
-				_ = protocol.SendHandshake(peerID)
-				// Silently ignore all errors when connecting to public peers
-				// Mark as known regardless of outcome to avoid repeated attempts
-				knownPeers[peerID] = true
-			}
-		}
-	}
-}
 
-// displayDexponentPeers periodically checks for peer changes and displays the list only when changes occur
-func displayDexponentPeers(protocol *p2p.DexponentProtocol) {
-	ticker := time.NewTicker(5 * time.Second)
-	defer ticker.Stop()
 
-	// Track previous peer list for comparison
-	var previousPeers []peer.ID
 
-	for {
-		select {
-		case <-ticker.C:
-			currentPeers := protocol.GetDexponentPeers()
-
-			// Check if the peer list has changed
-			if peersChanged(previousPeers, currentPeers) {
-				logger.Info("Connected to %d Dexponent peers:", len(currentPeers))
-				for _, peerID := range currentPeers {
-					logger.Info("  Dexponent Peer: %s", peerID.String())
-				}
-
-				// Update previous peers
-				previousPeers = make([]peer.ID, len(currentPeers))
-				copy(previousPeers, currentPeers)
-			}
-		}
-	}
-}
-
-// peersChanged checks if the peer lists are different
-func peersChanged(previous, current []peer.ID) bool {
-	if len(previous) != len(current) {
-		return true
-	}
-
-	// Create maps for faster lookup
-	prevMap := make(map[string]bool)
-	for _, p := range previous {
-		prevMap[p.String()] = true
-	}
-
-	// Check if any current peer is not in the previous list
-	for _, p := range current {
-		if !prevMap[p.String()] {
-			return true
-		}
-	}
-
-	return false
-}
-
-// runConsensusProcess periodically checks if we can start a consensus round
-func runConsensusProcess(protocol *p2p.DexponentProtocol) {
-	// Wait for initial peer discovery
-	time.Sleep(10 * time.Second)
-
-	// Check for consensus opportunities every 5 seconds
-	ticker := time.NewTicker(5 * time.Second)
-	defer ticker.Stop()
-
-	for {
-		select {
-		case <-ticker.C:
-			// Check if we have enough peers for consensus (at least 3)
-			peers := protocol.GetDexponentPeers()
-			if len(peers) >= 2 { // At least 2 other peers (3 total including us)
-				// Only run farm-specific consensus processes
-				protocol.StartFarmConsensusProcesses()
-			}
-		}
-	}
-}

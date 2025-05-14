@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -39,6 +40,7 @@ type Client struct {
 	chainID           *big.Int
 	address           common.Address
 	displayAddress    *common.Address // Optional override for display purposes
+	consensusABI      abi.ABI         // ABI for the Consensus contract
 }
 
 // NewClient creates a new Ethereum client
@@ -147,6 +149,11 @@ func (c *Client) ConvertFromWei(wei *big.Int) string {
 // FormatTokenAmount formats a token amount for display
 func (c *Client) FormatTokenAmount(wei *big.Int) string {
 	return c.ConvertFromWei(wei)
+}
+
+// GetConsensusAddressObject returns the address object of the consensus contract
+func (c *Client) GetConsensusAddressObject() common.Address {
+	return c.consensusAddress
 }
 
 // ApproveDXPToken approves the contract to spend DXP tokens

@@ -25,7 +25,7 @@ const dexponentAscii = [
 const hackerPhrases = [
     "Initializing secure connection...",
     "Verifying blockchain integrity...",
-    "Establishing P2P network...",
+    "Connecting to consensus contract...",
     "Synchronizing with DXP protocol...",
     "Loading dashboard..."
 ];
