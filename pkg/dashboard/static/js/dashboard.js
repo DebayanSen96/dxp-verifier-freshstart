@@ -227,6 +227,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Add connect wallet button listener
+    const connectWalletBtn = document.getElementById('connect-wallet-btn');
+    if (connectWalletBtn) {
+        connectWalletBtn.addEventListener('click', connectWallet);
+        console.log('Connect wallet button listener attached');
+    }
+
     // Auto-refresh every 30 seconds
     setInterval(fetchStatus, 30000);
 
@@ -466,6 +473,130 @@ window.confirmWithdrawal = function() {
 };
 
 // Modal handling functions removed to avoid confusion;
+
+// Function to check if MetaMask is available
+function checkMetaMaskAvailability() {
+    const connectWalletBtn = document.getElementById('connect-wallet-btn');
+    if (!connectWalletBtn) return;
+    
+    // Check if ethereum object is available (MetaMask injects this)
+    if (typeof window.ethereum === 'undefined') {
+        console.log('MetaMask not detected');
+        connectWalletBtn.title = 'MetaMask extension not detected. Please install MetaMask to connect your wallet.';
+        connectWalletBtn.addEventListener('click', () => {
+            window.open('https://metamask.io/download/', '_blank');
+        });
+    } else {
+        console.log('MetaMask detected');
+        // Check if already connected
+        const walletAddressElement = document.getElementById('wallet-address-display');
+        const currentAddress = walletAddressElement.textContent.trim();
+        
+        if (currentAddress && currentAddress !== 'N/A') {
+            connectWalletBtn.textContent = 'Change Wallet';
+        } else {
+            connectWalletBtn.textContent = 'Connect Wallet';
+        }
+    }
+}
+
+// Function to connect to MetaMask wallet
+async function connectWallet() {
+    const connectWalletBtn = document.getElementById('connect-wallet-btn');
+    const walletAddressElement = document.getElementById('wallet-address-display');
+    
+    // Check if MetaMask is installed
+    if (typeof window.ethereum === 'undefined') {
+        showStatus('MetaMask is not installed. Please install MetaMask to connect your wallet.', 'error');
+        window.open('https://metamask.io/download/', '_blank');
+        return;
+    }
+    
+    try {
+        // Show connecting status
+        showStatus('Connecting to wallet...', 'info');
+        connectWalletBtn.disabled = true;
+        connectWalletBtn.textContent = 'Connecting...';
+        
+        // Request account access
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        const selectedAccount = accounts[0];
+        
+        if (!selectedAccount) {
+            throw new Error('No account selected');
+        }
+        
+        console.log('Connected to wallet:', selectedAccount);
+        
+        // Update UI with connected wallet
+        walletAddressElement.textContent = selectedAccount;
+        connectWalletBtn.textContent = 'Change Wallet';
+        connectWalletBtn.disabled = false;
+        
+        // Show success message
+        showStatus('Wallet connected successfully!', 'success');
+        
+        // Send wallet address to server
+        updateWalletOnServer(selectedAccount);
+        
+        // Listen for account changes
+        window.ethereum.on('accountsChanged', handleAccountsChanged);
+    } catch (error) {
+        console.error('Error connecting to wallet:', error);
+        showStatus(`Error connecting to wallet: ${error.message}`, 'error');
+        connectWalletBtn.textContent = 'Connect Wallet';
+        connectWalletBtn.disabled = false;
+    }
+}
+
+// Function to handle account changes in MetaMask
+function handleAccountsChanged(accounts) {
+    const walletAddressElement = document.getElementById('wallet-address-display');
+    
+    if (accounts.length === 0) {
+        // MetaMask is locked or user has no accounts
+        showStatus('Please connect to MetaMask.', 'error');
+        walletAddressElement.textContent = 'N/A';
+    } else {
+        // Update with new selected account
+        const selectedAccount = accounts[0];
+        walletAddressElement.textContent = selectedAccount;
+        showStatus('Wallet account changed.', 'info');
+        
+        // Send updated wallet address to server
+        updateWalletOnServer(selectedAccount);
+    }
+}
+
+// Function to update wallet address on server
+function updateWalletOnServer(walletAddress) {
+    fetch('/api/update-wallet', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams({
+            'walletAddress': walletAddress
+        }).toString()
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to update wallet on server');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Server response for wallet update:', data);
+        // Refresh the page to update all data with new wallet
+        setTimeout(() => {
+            window.location.reload();
+        }, 1000);
+    })
+    .catch(error => {
+        console.error('Error updating wallet on server:', error);
+        showStatus(`Error updating wallet on server: ${error.message}`, 'error');
+    });
+}
 
 // Function to wait for blockchain state to update
 function waitForBlockchainUpdate(isFullWithdrawal, originalStake, withdrawalAmount) {

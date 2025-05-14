@@ -85,7 +85,7 @@ func main() {
 	farmIDFlag := withdrawCmd.Int("farmid", 1, "Farm ID to withdraw from (default: 1)")
 
 	// Get Ethereum configuration from environment variables
-	rpcURL := os.Getenv("BASE_RPC_URL")
+	rpcURL := os.Getenv("NETWORK_RPC_URL")
 	privateKeyHex := os.Getenv("WALLET_PRIVATE_KEY")
 	protocolAddress := os.Getenv("PROTOCOL_CORE_ADDRESS")
 	consensusAddress := os.Getenv("CONSENSUS_ADDRESS")
@@ -252,7 +252,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		if *farmId <= 0 || *farmId > 8 {
+		if *farmId < 0 || *farmId > 8 {
 			logger.Error("Error: --farmid flag is required and must be between 1 and 8")
 			os.Exit(1)
 		}
@@ -315,9 +315,15 @@ func main() {
 		logger.Info("Waiting for registration transaction to be mined...")
 
 		// Wait for the registration transaction to be mined
-		_, err = ethClient.WaitForTransaction(tx.Hash().Hex())
+		receipt, err := ethClient.WaitForTransaction(tx.Hash().Hex())
 		if err != nil {
 			logger.Error("Failed to wait for registration transaction: %v", err)
+			os.Exit(1)
+		}
+
+		// Check if the transaction was successful
+		if receipt.Status == 0 {
+			logger.Error("Registration transaction failed on-chain. Check the transaction on Etherscan: https://sepolia.etherscan.io/tx/%s", tx.Hash().Hex())
 			os.Exit(1)
 		}
 
@@ -361,9 +367,6 @@ func main() {
 			logger.Error("Failed to get assigned farms: %v", err)
 			os.Exit(1)
 		}
-
-
-		
 
 		// Print verifier status
 		fmt.Println("=== Verifier Status ===")
@@ -736,31 +739,4 @@ func runConsensusProcess(protocol *p2p.DexponentProtocol) {
 			}
 		}
 	}
-}
-
-// formatDuration formats a duration in seconds as a human-readable string
-func formatDuration(seconds uint64) string {
-	duration := time.Duration(seconds) * time.Second
-
-	days := int(duration.Hours() / 24)
-	hours := int(duration.Hours()) % 24
-	minutes := int(duration.Minutes()) % 60
-
-	if days > 0 {
-		return fmt.Sprintf("%dd %dh %dm", days, hours, minutes)
-	} else if hours > 0 {
-		return fmt.Sprintf("%dh %dm", hours, minutes)
-	} else {
-		return fmt.Sprintf("%dm", minutes)
-	}
-}
-
-// formatTime formats a Unix timestamp as a human-readable string
-func formatTime(timestamp uint64) string {
-	if timestamp == 0 {
-		return "Never"
-	}
-
-	t := time.Unix(int64(timestamp), 0)
-	return t.Format("2006-01-02 15:04:05")
 }

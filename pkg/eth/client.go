@@ -38,6 +38,7 @@ type Client struct {
 	tokenAddress      common.Address
 	chainID           *big.Int
 	address           common.Address
+	displayAddress    *common.Address // Optional override for display purposes
 }
 
 // NewClient creates a new Ethereum client
@@ -507,7 +508,28 @@ func (c *Client) WaitForTransaction(txHash string) (*types.Receipt, error) {
 
 // GetWalletAddress returns the wallet address as a string
 func (c *Client) GetWalletAddress() string {
+	// If display address is set, use it instead of the actual address
+	if c.displayAddress != nil {
+		return c.displayAddress.Hex()
+	}
 	return c.GetAddress().Hex()
+}
+
+// SetDisplayAddress sets an override address for display purposes
+// This doesn't change the actual wallet used for transactions
+func (c *Client) SetDisplayAddress(address string) error {
+	if address == "" {
+		c.displayAddress = nil
+		return nil
+	}
+	
+	if !common.IsHexAddress(address) {
+		return fmt.Errorf("invalid Ethereum address: %s", address)
+	}
+	
+	displayAddr := common.HexToAddress(address)
+	c.displayAddress = &displayAddr
+	return nil
 }
 
 // GetProtocolAddress returns the protocol contract address as a string

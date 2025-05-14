@@ -56,6 +56,7 @@ func (s *Server) Start() error {
 	mux.HandleFunc("/api/stop-node", s.handleStopNodeAPI)
 	mux.HandleFunc("/api/node-output", s.handleNodeOutputAPI)
 	mux.HandleFunc("/api/transaction-status", s.handleTransactionStatusAPI)
+	mux.HandleFunc("/api/update-wallet", s.handleUpdateWalletAPI)
 
 	// Main page
 	mux.HandleFunc("/", s.handleIndex)
@@ -711,4 +712,50 @@ func (s *Server) handleTransactionStatusAPI(w http.ResponseWriter, r *http.Reque
 
 	// Return transaction status
 	json.NewEncoder(w).Encode(status)
+}
+
+// handleUpdateWalletAPI handles wallet address updates from MetaMask
+func (s *Server) handleUpdateWalletAPI(w http.ResponseWriter, r *http.Request) {
+	logger.Info("handleUpdateWalletAPI called")
+
+	// Only allow POST requests
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Parse form data
+	if err := r.ParseForm(); err != nil {
+		logger.Error("Failed to parse form data: %v", err)
+		http.Error(w, "Failed to parse form data", http.StatusBadRequest)
+		return
+	}
+
+	// Get wallet address from form data
+	walletAddress := r.FormValue("walletAddress")
+	if walletAddress == "" {
+		logger.Error("Wallet address is empty")
+		http.Error(w, "Wallet address is required", http.StatusBadRequest)
+		return
+	}
+
+	logger.Info("Received wallet address update: %s", walletAddress)
+
+	// Update the display address in the eth client
+	err := s.ethClient.SetDisplayAddress(walletAddress)
+	if err != nil {
+		logger.Error("Failed to set display address: %v", err)
+		http.Error(w, fmt.Sprintf("Invalid wallet address: %s", err.Error()), http.StatusBadRequest)
+		return
+	}
+	
+	logger.Success("Wallet address updated to: %s", walletAddress)
+
+	// Return success response
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{
+		"status": "success",
+		"message": "Wallet address updated successfully",
+	})
 }

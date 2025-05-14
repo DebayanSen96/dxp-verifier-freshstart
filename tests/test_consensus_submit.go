@@ -20,7 +20,7 @@ func main() {
 	}
 
 	// Get Ethereum configuration from environment variables
-	rpcURL := os.Getenv("BASE_RPC_URL")
+	rpcURL := os.Getenv("NETWORK_RPC_URL")
 	privateKeyHex := os.Getenv("WALLET_PRIVATE_KEY")
 	protocolAddress := os.Getenv("PROTOCOL_CORE_ADDRESS")
 	consensusAddress := os.Getenv("CONSENSUS_ADDRESS")
@@ -48,7 +48,7 @@ func main() {
 
 	if !isRegistered {
 		fmt.Println("Not registered as a verifier. Registering now...")
-		
+
 		// Convert amount to wei
 		amountWei, err := ethClient.ConvertToWei("100")
 		if err != nil {
@@ -65,7 +65,7 @@ func main() {
 
 		fmt.Printf("Approval transaction submitted: %s\n", txHash)
 		fmt.Println("Waiting for approval transaction to be mined...")
-		
+
 		// Wait for approval transaction to be mined
 		_, err = ethClient.WaitForTransaction(txHash)
 		if err != nil {
@@ -95,7 +95,7 @@ func main() {
 		}
 
 		fmt.Println("Successfully registered as a verifier!")
-		
+
 		// Wait a moment to ensure registration is fully processed
 		time.Sleep(2 * time.Second)
 	}
@@ -136,7 +136,7 @@ func main() {
 
 	fmt.Printf("\n=== Starting a New Consensus Round ===\n")
 	fmt.Printf("Attempting to start a consensus round for farm ID %d...\n", farmID)
-	
+
 	// Start a new consensus round
 	roundTx, roundErr := ethClient.StartConsensusRound(farmID)
 	if roundErr != nil {
@@ -146,7 +146,7 @@ func main() {
 		txHash := roundTx.Hash().Hex()
 		fmt.Printf("Round start transaction submitted: %s\n", txHash)
 		fmt.Println("Waiting for round start transaction to be mined...")
-		
+
 		// Wait for transaction to be mined
 		receipt, err := ethClient.WaitForTransaction(txHash)
 		if err != nil {
@@ -156,11 +156,11 @@ func main() {
 		} else {
 			fmt.Println("❌ Round start transaction failed!")
 		}
-		
+
 		// Wait a moment to ensure the round is fully started
 		time.Sleep(2 * time.Second)
 	}
-	
+
 	fmt.Printf("\n=== Submitting Verification ===")
 	fmt.Printf("\nFarm ID: %d\n", farmID)
 	fmt.Printf("Score: %.2f\n", score)
@@ -169,7 +169,7 @@ func main() {
 	// Submit verification
 	var txHash string
 	var alreadySubmitted bool
-	
+
 	tx, err := ethClient.SubmitVerification(farmID, score, benchmark)
 	if err != nil {
 		// Check if the error is 'Already submitted'
@@ -206,7 +206,7 @@ func main() {
 	// Finalize the consensus round (requires owner access)
 	fmt.Printf("\n=== Finalizing Consensus Round ===\n")
 	fmt.Printf("Attempting to finalize consensus round for farm ID %d...\n", farmID)
-	
+
 	// Finalize the consensus round
 	finalizeRoundTx, finalizeErr := ethClient.FinalizeConsensusRound(farmID)
 	if finalizeErr != nil {
@@ -216,7 +216,7 @@ func main() {
 		txHash := finalizeRoundTx.Hash().Hex()
 		fmt.Printf("Round finalization transaction submitted: %s\n", txHash)
 		fmt.Println("Waiting for round finalization transaction to be mined...")
-		
+
 		// Wait for transaction to be mined
 		receipt, err := ethClient.WaitForTransaction(txHash)
 		if err != nil {
@@ -231,17 +231,17 @@ func main() {
 	// Withdraw verifier stake (optional cleanup step)
 	fmt.Printf("\n=== Withdrawing Verifier Stake ===\n")
 	fmt.Printf("Checking current stake for farm ID %d...\n", farmID)
-	
+
 	// Check current stake
 	stake, err := ethClient.GetVerifierStake(farmID)
 	if err != nil {
 		fmt.Printf("Failed to get verifier stake: %v\n", err)
 	} else {
 		fmt.Printf("Current stake: %s DXP\n", stake.String())
-		
+
 		if stake.Cmp(big.NewInt(0)) > 0 {
 			fmt.Println("Attempting to withdraw stake...")
-			
+
 			// Withdraw all stake
 			withdrawTx, withdrawErr := ethClient.WithdrawVerifierStake(farmID, stake)
 			if withdrawErr != nil {
@@ -250,7 +250,7 @@ func main() {
 				txHash := withdrawTx.Hash().Hex()
 				fmt.Printf("Withdrawal transaction submitted: %s\n", txHash)
 				fmt.Println("Waiting for withdrawal transaction to be mined...")
-				
+
 				// Wait for transaction to be mined
 				receipt, err := ethClient.WaitForTransaction(txHash)
 				if err != nil {

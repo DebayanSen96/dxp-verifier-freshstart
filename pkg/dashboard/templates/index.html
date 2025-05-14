@@ -22,6 +22,7 @@
             <div class="wallet-info">
                 <span class="label">Wallet:</span>
                 <span id="wallet-address-display" class="address">{{ .WalletAddress }}</span>
+                <button id="connect-wallet-btn" class="btn primary" style="margin-left: 10px;">{{ if eq .WalletAddress "N/A" }}Connect Wallet{{ else }}Change Wallet{{ end }}</button>
             </div>
         </header>
 

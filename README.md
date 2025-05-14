@@ -88,7 +88,7 @@ Create a `.env` file with the following variables:
 
 ```
 # Ethereum RPC URL (Sepolia testnet)
-BASE_RPC_URL=https://sepolia.infura.io/v3/YOUR_INFURA_KEY
+NETWORK_RPC_URL=https://sepolia.infura.io/v3/YOUR_INFURA_KEY
 
 # Contract address
 DXP_CONTRACT_ADDRESS=0xYourContractAddress
