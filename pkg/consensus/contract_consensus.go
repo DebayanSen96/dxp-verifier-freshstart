@@ -12,24 +12,26 @@ import (
 )
 
 type ContractConsensus struct {
-	ethClient    *eth.Client
-	ctx          context.Context
-	cancel       context.CancelFunc
-	farmIDs      []int64
-	activeFarms  map[uint64]bool
-	activeRounds map[uint64]uint64
-	mutex        sync.RWMutex
+	ethClient       *eth.Client
+	ctx             context.Context
+	cancel          context.CancelFunc
+	farmIDs         []int64
+	activeFarms     map[uint64]bool
+	activeRounds    map[uint64]uint64
+	submittedRounds map[uint64]uint64
+	mutex           sync.RWMutex
 }
 
 func NewContractConsensus(ethClient *eth.Client) *ContractConsensus {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &ContractConsensus{
-		ethClient:    ethClient,
-		ctx:          ctx,
-		cancel:       cancel,
-		activeFarms:  make(map[uint64]bool),
-		activeRounds: make(map[uint64]uint64),
-		mutex:        sync.RWMutex{},
+		ethClient:       ethClient,
+		ctx:             ctx,
+		cancel:          cancel,
+		activeFarms:     make(map[uint64]bool),
+		activeRounds:    make(map[uint64]uint64),
+		submittedRounds: make(map[uint64]uint64),
+		mutex:           sync.RWMutex{},
 	}
 }
 
@@ -177,6 +179,15 @@ func (c *ContractConsensus) checkAllFarms(verbose bool) {
 }
 
 func (c *ContractConsensus) calculateAndSubmitScores(farmID, roundID uint64) {
+	// Check if we've already submitted for this round
+	c.mutex.RLock()
+	submittedRound, exists := c.submittedRounds[farmID]
+	c.mutex.RUnlock()
+	
+	if exists && submittedRound == roundID {
+		log.Printf("Already submitted scores for farm %d round %d, waiting for finalization\n", farmID, roundID)
+		return
+	}
 	
 	active, currentRoundID, err := c.ethClient.GetRoundStatus(farmID)
 	if err != nil {
@@ -184,27 +195,21 @@ func (c *ContractConsensus) calculateAndSubmitScores(farmID, roundID uint64) {
 		return
 	}
 
-	
 	if !active || currentRoundID != roundID {
 		log.Printf("Round %d for farm %d is no longer active\n", roundID, farmID)
 		c.mutex.Lock()
 		delete(c.activeFarms, farmID)
+		delete(c.submittedRounds, farmID)
 		c.mutex.Unlock()
 		return
 	}
 
-	
 	farmReturns := generateFarmReturns(20)
-	
-	
 	score := calculateFarmScore(farmReturns)
-	
-	
 	benchmark := calculateBenchmarkScore()
 	
 	log.Printf("Calculated score %.4f and benchmark %.2f%% for farm %d round %d\n", 
 		score, benchmark, farmID, roundID)
-	
 	
 	tx, err := c.ethClient.SubmitScoreAndBenchmark(farmID, score, benchmark)
 	if err != nil {
@@ -214,6 +219,11 @@ func (c *ContractConsensus) calculateAndSubmitScores(farmID, roundID uint64) {
 	
 	log.Printf("Submitted score and benchmark for farm %d round %d, tx: %s\n", 
 		farmID, roundID, tx.Hash().Hex())
+	
+	// Mark this round as submitted
+	c.mutex.Lock()
+	c.submittedRounds[farmID] = roundID
+	c.mutex.Unlock()
 }
 
 func generateFarmReturns(length int) []float64 {
@@ -309,5 +319,14 @@ func (c *ContractConsensus) handleRoundFinalized(event eth.RoundFinalizedEvent) 
 	if c.activeRounds[event.FarmID] == event.RoundID {
 		delete(c.activeRounds, event.FarmID)
 	}
+	// Clear the submitted round tracking when a round is finalized
+	if c.submittedRounds[event.FarmID] == event.RoundID {
+		delete(c.submittedRounds, event.FarmID)
+		log.Printf("Cleared submission tracking for farm %d after round %d was finalized\n", 
+			event.FarmID, event.RoundID)
+	}
 	c.mutex.Unlock()
+	
+	// Check if there's a new round started immediately after finalization
+	go c.checkAllFarms(false)
 }

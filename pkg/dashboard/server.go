@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"math/big"
 	"net/http"
+	"os"
 	"os/exec"
 	"runtime"
 	"strconv"
@@ -671,6 +672,17 @@ func (s *Server) handleStopNodeAPI(w http.ResponseWriter, r *http.Request) {
 		"status": "Node stopping...",
 	}
 	json.NewEncoder(w).Encode(response)
+	
+	// If this is a standalone dashboard (not part of a running verifier),
+	// exit the dashboard process after a short delay
+	if os.Getenv("DXP_DASHBOARD_STANDALONE") == "true" {
+		go func() {
+			// Give the response time to be sent
+			time.Sleep(1 * time.Second)
+			logger.Info("Dashboard exiting after node stop")
+			os.Exit(0)
+		}()
+	}
 }
 
 // handleNodeOutputAPI returns the current node output

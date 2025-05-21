@@ -10,6 +10,7 @@ import (
 	"syscall"
 
 	"github.com/dexponent/dxp-verifier/pkg/consensus"
+	"github.com/dexponent/dxp-verifier/pkg/dashboard"
 	"github.com/dexponent/dxp-verifier/pkg/eth"
 	"github.com/dexponent/dxp-verifier/pkg/logger"
 
@@ -25,7 +26,7 @@ func printUsage() {
 	fmt.Println("    --detached                  Run in detached mode")
 	fmt.Println("  register          Register as a verifier with the DXP contract")
 	fmt.Println("    --amount N        Amount of DXP tokens to stake (required)")
-	fmt.Println("    --farmid N        Farm ID to register for (1-8, required)")
+	fmt.Println("    --farmid N        Farm ID to register for (0-8, required)")
 	fmt.Println("  status            Check validator status and metrics")
 	fmt.Println("  stop              Stop a running validator")
 	fmt.Println("  claim-rewards     Claim accumulated rewards")
@@ -222,8 +223,8 @@ func main() {
 			os.Exit(1)
 		}
 
-		if *farmId < 1 || *farmId > 8 {
-			logger.Error("Error: --farmid flag is required and must be between 1 and 8")
+		if *farmId < 0 || *farmId > 8 {
+			logger.Error("Error: --farmid flag is required and must be between 0 and 8")
 			os.Exit(1)
 		}
 
@@ -324,18 +325,24 @@ func main() {
 			os.Exit(0)
 		}
 
-		// Get verifier stake
-		stake, err := ethClient.GetVerifierStake(1)
-		if err != nil {
-			logger.Error("Failed to get verifier stake: %v", err)
-			os.Exit(1)
-		}
-
-		// Get assigned farms
+		// Get assigned farms first
 		farms, err := ethClient.GetAssignedFarms()
 		if err != nil {
 			logger.Error("Failed to get assigned farms: %v", err)
 			os.Exit(1)
+		}
+		
+		// Get verifier stake for the assigned farm
+		var stake *big.Int
+		if len(farms) > 0 {
+			// Use the actual farm ID the user is registered for
+			stake, err = ethClient.GetVerifierStake(farms[0])
+			if err != nil {
+				logger.Error("Failed to get verifier stake: %v", err)
+				os.Exit(1)
+			}
+		} else {
+			stake = big.NewInt(0)
 		}
 
 		// Print verifier status
@@ -446,8 +453,20 @@ func main() {
 			os.Exit(0)
 		}
 
-		// Get verifier stake
-		stake, err := ethClient.GetVerifierStake(1)
+		// Get assigned farms first
+		farms, err := ethClient.GetAssignedFarms()
+		if err != nil {
+			logger.Error("Failed to get assigned farms: %v", err)
+			os.Exit(1)
+		}
+		
+		if len(farms) == 0 {
+			logger.Error("No farms assigned to this verifier")
+			os.Exit(1)
+		}
+		
+		// Get verifier stake for the assigned farm
+		stake, err := ethClient.GetVerifierStake(farms[0])
 		if err != nil {
 			logger.Error("Failed to get verifier stake: %v", err)
 			os.Exit(1)
@@ -539,9 +558,23 @@ func main() {
 		os.Exit(1)
 
 	case "dashboard":
-		// This command is no longer supported in the contract-based consensus model
-		logger.Error("Please use a web browser to access the dashboard at http://localhost:8080")
-		os.Exit(1)
+		// Set environment variable to indicate this is a standalone dashboard
+		os.Setenv("DXP_DASHBOARD_STANDALONE", "true")
+
+		// Initialize Ethereum client
+		ethClient, err := eth.NewClient(rpcURL, privateKeyHex, protocolAddress, consensusAddress, tokenAddress)
+		if err != nil {
+			logger.Error("Failed to initialize Ethereum client: %v", err)
+			os.Exit(1)
+		}
+
+		// Start the dashboard
+		logger.Info("Starting dashboard...")
+		err = dashboard.StartDashboard(ethClient)
+		if err != nil {
+			logger.Error("Failed to start dashboard: %v", err)
+			os.Exit(1)
+		}
 	}
 }
 

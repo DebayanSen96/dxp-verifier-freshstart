@@ -1,0 +1,579 @@
+# Python and Data Science Code Problems
+
+## Problem 1: String Manipulation
+What will be the output of the following Python code?
+```python
+text = "Python Programming"
+print(text[7:])
+```
+
+## Problem 2: Dictionary Comprehension
+What will be the output of the following Python code?
+```python
+keys = ['a', 'b', 'c']
+values = [1, 2, 3]
+result = {k: v for k, v in zip(keys, values)}
+print(result)
+```
+
+## Problem 3: Exception Handling
+What will be the output of the following Python code?
+```python
+try:
+    print(10/0)
+except ZeroDivisionError:
+    print("Cannot divide by zero")
+finally:
+    print("Execution completed")
+```
+
+## Problem 4: Class Inheritance
+What will be the output of the following Python code?
+```python
+class Parent:
+    def __init__(self):
+        self.value = 5
+        
+class Child(Parent):
+    def __init__(self):
+        super().__init__()
+        self.value += 1
+        
+obj = Child()
+print(obj.value)
+```
+
+## Problem 5: Context Manager
+What will be the output of the following Python code?
+```python
+class MyContext:
+    def __enter__(self):
+        print("Entering")
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        print("Exiting")
+        
+with MyContext() as ctx:
+    print("Inside")
+```
+
+## Problem 6: Decorators
+What will be the output of the following Python code?
+```python
+def decorator(func):
+    def wrapper():
+        print("Before")
+        func()
+        print("After")
+    return wrapper
+
+@decorator
+def say_hello():
+    print("Hello")
+    
+say_hello()
+```
+
+## Problem 7: List Slicing
+What will be the output of the following Python code?
+```python
+numbers = [1, 2, 3, 4, 5]
+print(numbers[::-2])
+```
+
+## Problem 8: Set Operations
+What will be the output of the following Python code?
+```python
+set1 = {1, 2, 3, 4}
+set2 = {3, 4, 5, 6}
+print(set1.symmetric_difference(set2))
+```
+
+## Problem 9: String Formatting
+What will be the output of the following Python code?
+```python
+name = "Alice"
+age = 30
+print(f"{name} is {age} years old and will be {age+10} in 10 years.")
+```
+
+## Problem 10: Generators
+What will be the output of the following Python code?
+```python
+def count_up_to(n):
+    i = 1
+    while i <= n:
+        yield i
+        i += 1
+
+counter = count_up_to(3)
+print(next(counter))
+print(next(counter))
+print(next(counter))
+print(next(counter, "End"))
+```
+
+## Problem 11: Pandas DataFrame Creation
+What will be the output of the following Pandas code?
+```python
+import pandas as pd
+data = {'Name': ['Alice', 'Bob'], 'Age': [25, 30]}
+df = pd.DataFrame(data)
+print(df.shape)
+```
+
+## Problem 12: Pandas Missing Values
+What will be the output of the following Pandas code?
+```python
+import pandas as pd
+import numpy as np
+df = pd.DataFrame({'A': [1, np.nan, 3], 'B': [4, 5, np.nan]})
+print(df.dropna(how='any').shape)
+```
+
+## Problem 13: Pandas Column Selection
+What will be the output of the following Pandas code?
+```python
+import pandas as pd
+df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6], 'C': [7, 8, 9]})
+print(df[['A', 'C']].head(2))
+```
+
+## Problem 14: Pandas Groupby
+What will be the output of the following Pandas code?
+```python
+import pandas as pd
+df = pd.DataFrame({
+    'Category': ['A', 'A', 'B', 'B'],
+    'Value': [10, 20, 30, 40]
+})
+print(df.groupby('Category').mean())
+```
+
+## Problem 15: Pandas DateTime
+What will be the output of the following Pandas code?
+```python
+import pandas as pd
+dates = pd.date_range(start='2023-01-01', periods=3, freq='D')
+print(dates[1])
+```
+
+## Problem 16: Pandas Pivot Table
+What will be the output of the following Pandas code?
+```python
+import pandas as pd
+df = pd.DataFrame({
+    'A': ['foo', 'foo', 'bar', 'bar'],
+    'B': ['one', 'two', 'one', 'two'],
+    'C': [1, 2, 3, 4]
+})
+print(pd.pivot_table(df, values='C', index=['A'], columns=['B']))
+```
+
+## Problem 17: Pandas Merge
+What will be the output of the following Pandas code?
+```python
+import pandas as pd
+df1 = pd.DataFrame({'key': ['A', 'B'], 'val1': [1, 2]})
+df2 = pd.DataFrame({'key': ['A', 'C'], 'val2': [3, 4]})
+print(pd.merge(df1, df2, on='key', how='inner'))
+```
+
+## Problem 18: Pandas Filtering
+What will be the output of the following Pandas code?
+```python
+import pandas as pd
+df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})
+mask = df['A'] > 1
+print(df[mask])
+```
+
+## Problem 19: Pandas Apply
+What will be the output of the following Pandas code?
+```python
+import pandas as pd
+df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})
+print(df.apply(sum, axis=0))
+```
+
+## Problem 20: NumPy Array Creation
+What will be the output of the following NumPy code?
+```python
+import numpy as np
+arr = np.zeros((2, 3))
+print(arr.shape)
+```
+
+## Problem 21: NumPy Array Operations
+What will be the output of the following NumPy code?
+```python
+import numpy as np
+a = np.array([1, 2, 3])
+b = np.array([4, 5, 6])
+print(a * b)
+```
+
+## Problem 22: NumPy Broadcasting
+What will be the output of the following NumPy code?
+```python
+import numpy as np
+a = np.array([[1, 2, 3], [4, 5, 6]])
+b = np.array([10, 20, 30])
+print(a + b)
+```
+
+## Problem 23: NumPy Random Sampling
+What will be the output of the following NumPy code?
+```python
+import numpy as np
+np.random.seed(42)
+print(np.random.randint(1, 10, size=3))
+```
+
+## Problem 24: Matplotlib Basic Plot
+What will this code produce?
+```python
+import matplotlib.pyplot as plt
+import numpy as np
+x = np.array([1, 2, 3, 4])
+y = x * 2
+plt.plot(x, y)
+plt.title('Simple Line Plot')
+plt.xlabel('X axis')
+plt.ylabel('Y axis')
+```
+
+## Problem 25: Seaborn Visualization
+What kind of plot will this code produce?
+```python
+import seaborn as sns
+import matplotlib.pyplot as plt
+tips = sns.load_dataset('tips')
+sns.boxplot(x='day', y='total_bill', data=tips)
+```
+
+## Problem 26: Regular Expressions
+What will be the output of the following Python code?
+```python
+import re
+text = "Contact us at info@example.com or support@company.org"
+pattern = r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
+print(re.findall(pattern, text))
+```
+
+## Problem 27: File Handling
+What will be the output of the following Python code? (Assume file.txt contains "Hello\nWorld")
+```python
+with open('file.txt', 'r') as f:
+    content = f.readlines()
+print(content)
+```
+
+## Problem 28: JSON Processing
+What will be the output of the following Python code?
+```python
+import json
+data = '{"name": "John", "age": 30}'
+parsed = json.loads(data)
+print(parsed["name"])
+```
+
+## Problem 29: Web Scraping with BeautifulSoup
+What will this code extract from the HTML?
+```python
+from bs4 import BeautifulSoup
+html = """
+<html>
+  <body>
+    <h1>Title</h1>
+    <p class="content">Paragraph 1</p>
+    <p class="content">Paragraph 2</p>
+  </body>
+</html>
+"""
+soup = BeautifulSoup(html, 'html.parser')
+print(soup.find_all('p', class_='content'))
+```
+
+## Problem 30: SQLite Database
+What will be the output of the following Python code?
+```python
+import sqlite3
+conn = sqlite3.connect(':memory:')
+c = conn.cursor()
+c.execute('CREATE TABLE people (name text, age integer)')
+c.execute('INSERT INTO people VALUES ("Alice", 25)')
+c.execute('SELECT * FROM people')
+print(c.fetchall())
+```
+
+## Problem 31: Threading
+What will be the output of the following Python code?
+```python
+import threading
+import time
+
+def print_numbers():
+    for i in range(3):
+        time.sleep(0.1)
+        print(i)
+
+thread = threading.Thread(target=print_numbers)
+thread.start()
+print("Thread started")
+```
+
+## Problem 32: Recursion
+What will be the output of the following Python code?
+```python
+def factorial(n):
+    if n == 0 or n == 1:
+        return 1
+    else:
+        return n * factorial(n-1)
+    
+print(factorial(4))
+```
+
+## Problem 33: Binary Search
+What will be the output of the following Python code?
+```python
+def binary_search(arr, target):
+    left, right = 0, len(arr) - 1
+    while left <= right:
+        mid = (left + right) // 2
+        if arr[mid] == target:
+            return mid
+        elif arr[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+    return -1
+
+print(binary_search([1, 3, 5, 7, 9], 5))
+```
+
+## Problem 34: Sorting Algorithm
+What will be the output of the following Python code?
+```python
+def bubble_sort(arr):
+    n = len(arr)
+    for i in range(n):
+        for j in range(0, n-i-1):
+            if arr[j] > arr[j+1]:
+                arr[j], arr[j+1] = arr[j+1], arr[j]
+    return arr
+
+print(bubble_sort([64, 34, 25, 12, 22, 11, 90]))
+```
+
+## Problem 35: Object-Oriented Programming
+What will be the output of the following Python code?
+```python
+class Shape:
+    def area(self):
+        return 0
+        
+class Rectangle(Shape):
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+        
+    def area(self):
+        return self.width * self.height
+        
+rect = Rectangle(5, 4)
+print(rect.area())
+```
+
+## Problem 36: Closures
+What will be the output of the following Python code?
+```python
+def outer_function(x):
+    def inner_function(y):
+        return x + y
+    return inner_function
+
+closure = outer_function(10)
+print(closure(5))
+```
+
+## Problem 37: Memoization
+What will be the output of the following Python code?
+```python
+def memoize(f):
+    cache = {}
+    def helper(x):
+        if x not in cache:
+            cache[x] = f(x)
+        return cache[x]
+    return helper
+
+@memoize
+def fib(n):
+    if n < 2:
+        return n
+    return fib(n-1) + fib(n-2)
+
+print(fib(5))
+```
+
+## Problem 38: API Request
+What will this code attempt to do?
+```python
+import requests
+response = requests.get('https://api.example.com/data')
+data = response.json()
+print(data['status'])
+```
+
+## Problem 39: Flask Web Application
+What will this Flask application do when accessed?
+```python
+from flask import Flask
+app = Flask(__name__)
+
+@app.route('/')
+def hello():
+    return 'Hello, World!'
+
+if __name__ == '__main__':
+    app.run(debug=True)
+```
+
+## Problem 40: Data Visualization with Plotly
+What kind of visualization will this code create?
+```python
+import plotly.express as px
+df = px.data.gapminder().query("year == 2007")
+fig = px.scatter(df, x="gdpPercap", y="lifeExp", size="pop", color="continent")
+```
+
+## Problem 41: Machine Learning with Scikit-learn
+What will this code do?
+```python
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.datasets import load_iris
+
+X, y = load_iris(return_X_y=True)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+model = LogisticRegression()
+model.fit(X_train, y_train)
+```
+
+## Problem 42: Deep Learning with TensorFlow
+What will this code do?
+```python
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+
+model = Sequential([
+    Dense(64, activation='relu', input_shape=(10,)),
+    Dense(32, activation='relu'),
+    Dense(1, activation='sigmoid')
+])
+model.compile(optimizer='adam', loss='binary_crossentropy')
+```
+
+## Problem 43: Natural Language Processing
+What will this code do?
+```python
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+
+text = "Natural language processing is a field of computer science."
+tokens = word_tokenize(text)
+stop_words = set(stopwords.words('english'))
+filtered_tokens = [word for word in tokens if word.lower() not in stop_words]
+```
+
+## Problem 44: Time Series Analysis
+What will this code do?
+```python
+import pandas as pd
+from statsmodels.tsa.arima.model import ARIMA
+
+# Assuming df is a time series DataFrame
+model = ARIMA(df['value'], order=(1, 1, 1))
+model_fit = model.fit()
+forecast = model_fit.forecast(steps=5)
+```
+
+## Problem 45: Image Processing with OpenCV
+What will this code do?
+```python
+import cv2
+import numpy as np
+
+image = cv2.imread('image.jpg')
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+edges = cv2.Canny(blurred, 50, 150)
+```
+
+## Problem 46: Async/Await
+What will be the output of the following Python code?
+```python
+import asyncio
+
+async def say_after(delay, what):
+    await asyncio.sleep(delay)
+    return what
+
+async def main():
+    result = await say_after(1, 'hello')
+    print(result)
+
+asyncio.run(main())
+```
+
+## Problem 47: Unit Testing
+What will this code do?
+```python
+import unittest
+
+def add(a, b):
+    return a + b
+
+class TestAddFunction(unittest.TestCase):
+    def test_add(self):
+        self.assertEqual(add(1, 2), 3)
+        self.assertEqual(add(-1, 1), 0)
+        
+if __name__ == '__main__':
+    unittest.main()
+```
+
+## Problem 48: Data Cleaning
+What will be the output of the following Pandas code?
+```python
+import pandas as pd
+df = pd.DataFrame({
+    'A': [1, 2, None, 4],
+    'B': [5, None, None, 8]
+})
+print(df.fillna(df.mean()))
+```
+
+## Problem 49: Docker Container
+What will this Dockerfile create?
+```
+FROM python:3.9
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+CMD ["python", "app.py"]
+```
+
+## Problem 50: Git Version Control
+What will this Git command do?
+```
+git checkout -b feature-branch
+git add .
+git commit -m "Add new feature"
+git push origin feature-branch
+```

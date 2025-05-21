@@ -215,11 +215,22 @@ func (c *Client) RegisterVerifierWithFarmID(stakeAmount *big.Int, farmID int64) 
 	return tx, nil
 }
 
-// IsRegisteredVerifier checks if the current wallet is an approved verifier for a farm (default farmId = 1)
+// IsRegisteredVerifier checks if the current wallet is an approved verifier for a farm (checks both farmId 0 and 1)
 func (c *Client) IsRegisteredVerifier() (bool, error) {
-	// Use farmId 1 as default; update if you want to check a different farm
-	farmId := big.NewInt(1)
 	address := c.address
+	
+	// Check farm ID 0 (root farm) first
+	isRegisteredForFarm0, err := c.isVerifierRegisteredForFarm(0)
+	if err != nil {
+		// Fall back to the old method if farm ID 0 check fails
+		// This is just a fallback to maintain compatibility
+	} else if isRegisteredForFarm0 {
+		// If registered for farm ID 0, return true immediately
+		return true, nil
+	}
+	
+	// If not registered for farm ID 0, check farm ID 1 (the original default)
+	farmId := big.NewInt(1)
 
 	// Create the method signature for isApprovedVerifier(uint256,address)
 	methodSig := []byte("isApprovedVerifier(uint256,address)")
@@ -263,6 +274,13 @@ func (c *Client) GetAssignedFarms() ([]int64, error) {
 
 	if !isRegistered {
 		return []int64{}, nil
+	}
+
+	// Check for farm ID 0 (root farm) first
+	isRegisteredForRoot, err := c.isVerifierRegisteredForFarm(0)
+	if err == nil && isRegisteredForRoot {
+		// Root farm is a special case, return it alone
+		return []int64{0}, nil
 	}
 
 	// For each farm ID (1-8), check if the verifier is registered for it
